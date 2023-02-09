@@ -111,16 +111,16 @@ GLOBAL.NextDay = function() TheWorld:PushEvent('ms_nextcycle') end
 
 GLOBAL.NextWinter = function()     
     if TheWorld.state.season == 'winter' then 
-        TheWorld:PushState('ms_setseason', 'summer') 
+        TheWorld:DoTaskInTime(0, function() TheWorld:PushEvent('ms_setseason', 'summer') end)
     end 
-    TheWorld:PushState('ms_setseason', 'winter') 
+    TheWorld:DoTaskInTime(1, function() TheWorld:PushEvent('ms_setseason', 'winter') end)
 end
 
 GLOBAL.NextNew = function()     
     if TheWorld.state.moonphase == 'new' then 
-        TheWorld:PushState('ms_setmoonphase', {moonphase='full', iswaxing=false}) 
+        TheWorld:DoTaskInTime(0, function() TheWorld:PushEvent('ms_setmoonphase', {moonphase='full', iswaxing=false}) end)
     end 
-    TheWorld:PushEvent('ms_setmoonphase', {moonphase='new', iswaxing=true}) 
+    TheWorld:DoTaskInTime(1, function() TheWorld:PushEvent('ms_setmoonphase', {moonphase='new', iswaxing=true}) end)
 end
 
 ----------------------------------------------------
@@ -261,7 +261,7 @@ local function OnMoonChange(world)
             StartEvent(current_year_of)
             
             _announce('Happy new %s!', current_year_of)
-            for i, v in GLOBAL.AllPlayers do v:PushEvent("startflareoverlay",{r=1,g=0.6,b=0.6}) end
+            for i, v in ipairs(GLOBAL.AllPlayers) do v:PushEvent("startflareoverlay",{r=1,g=0.6,b=0.6}) end
             _playSound("wickerbottom_rework/megaflare/explode", nil, 1)
         end
     end 
