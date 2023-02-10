@@ -13,6 +13,7 @@ local WORLD_EXTRA_EVENTS = GLOBAL.WORLD_EXTRA_EVENTS
 local SPECIAL_EVENTS = GLOBAL.SPECIAL_EVENTS
 local IsSpecialEventActive = GLOBAL.IsSpecialEventActive
 
+local BatOver = require "widgets/batover"
 ----------------------------------------------------
 
 local function _announce(template, event)
@@ -22,7 +23,8 @@ local function _announce(template, event)
 end
 
 local function _playSound(sound, name, volume)
-    for i,v in ipairs(GLOBAL.AllPlayers) do v.SoundEmitter:PlaySound(sound, name, volume) end
+    --TODO: test difference between TheWorld and ThePlayer in multiplayer
+for i,v in ipairs(GLOBAL.AllPlayers) do v.SoundEmitter:PlaySound(sound, name, volume) end
 end
 
 ----------------------------------------------------
@@ -104,6 +106,9 @@ function StopEvent (event)
     
 end
 
+----------------------------------------------------
+-- Debugging global functions
+
 GLOBAL.StartEvent = StartEvent
 GLOBAL.StopEvent = StopEvent
 
@@ -151,6 +156,10 @@ local function _hallowednightstorm()
     TheWorld:DoTaskInTime(5, function() GLOBAL.SpawnPrefab('thunder_far') end)
     TheWorld:DoTaskInTime(8, function() GLOBAL.SpawnPrefab('thunder_close') end)
     TheWorld:DoTaskInTime(13, function() GLOBAL.SpawnPrefab('thunder_far') end)
+
+    for i,v in ipairs(GLOBAL.AllPlayers) do
+        v:PushEvent('batspooked')
+    end
 end
 GLOBAL.storm = _hallowednightstorm
 
@@ -177,7 +186,6 @@ local function _fireworks()
     TheWorld:DoTaskInTime(7, _explode)
     TheWorld:DoTaskInTime(12, _explode)
     TheWorld:DoTaskInTime(19, _explode)
-    TheWorld:DoTaskInTime(31, _explode)
 end
 GLOBAL.fireworks = _fireworks
 
@@ -246,8 +254,6 @@ local function _checkSeasonalEvents(world)
                 StartEvent(event)
                 _announce('%s has begun!', event)
                 if v.sound then
-                    --TODO: test difference between TheWorld and ThePlayer in multiplayer
-                    --is this an all client mod?
                     _playSound(v.sound)
                 elseif v.sound_fn then
                     v.sound_fn()
@@ -275,7 +281,6 @@ local function OnMoonChange(world)
         world.state.current_new_moon = world.state.current_new_moon + 1
         
         if world.state.current_new_moon == 2 then
-            --world:StopWatchingWorldState('moonphase', OnMoonChange)
             StopEvent(current_year_of)
             
             if world.state.current_year_num == #year_of_list then
@@ -317,19 +322,25 @@ local function _worldInit (world)
     assert(world == GLOBAL.TheWorld, '[teste] invalid world')
     
     TheWorld = GLOBAL.TheWorld
-    --ThePlayer = GLOBAL.ThePlayer
     
-    _seasonInit(world)
-    _newYearInit(world)
-    _checkSeasonalEvents(world)
+    if GLOBAL.TheWorld.ismastersim then
+        _seasonInit(world)
+        _newYearInit(world)
+        _checkSeasonalEvents(world)
 
-    world:WatchWorldState("cycles", OnCyclesChange)
-    world:WatchWorldState("season", OnSeasonChange)
-    world:WatchWorldState('moonphase', OnMoonChange)
-    world:WatchWorldState("springlength", _seasonInit)
-    world:WatchWorldState("summerlength", _seasonInit)
-    world:WatchWorldState("autumnlength", _seasonInit)
-    world:WatchWorldState("winterlength", _seasonInit)
+        world:WatchWorldState("cycles", OnCyclesChange)
+        world:WatchWorldState("season", OnSeasonChange)
+        world:WatchWorldState('moonphase', OnMoonChange)
+        world:WatchWorldState("springlength", _seasonInit)
+        world:WatchWorldState("summerlength", _seasonInit)
+        world:WatchWorldState("autumnlength", _seasonInit)
+        world:WatchWorldState("winterlength", _seasonInit)
+    end
+
+    local hud = GLOBAL.TheFrontEnd.screenstack[1]
+    if not hud.batover then
+        hud.batover = hud.overlayroot:AddChild(BatOver(GLOBAL.ThePlayer))
+    end
 end
 
 
