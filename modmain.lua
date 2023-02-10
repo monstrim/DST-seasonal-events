@@ -113,18 +113,18 @@ GLOBAL.NextWinter = function()
     if TheWorld.state.season == 'winter' then 
         TheWorld:DoTaskInTime(0, function() TheWorld:PushEvent('ms_setseason', 'summer') end)
     end 
-    TheWorld:DoTaskInTime(1, function() TheWorld:PushEvent('ms_setseason', 'winter') end)
+    TheWorld:DoTaskInTime(0.5, function() TheWorld:PushEvent('ms_setseason', 'winter') end)
 end
 
 GLOBAL.NextNew = function()     
     if TheWorld.state.moonphase == 'new' then 
         TheWorld:DoTaskInTime(0, function() TheWorld:PushEvent('ms_setmoonphase', {moonphase='full', iswaxing=false}) end)
     end 
-    TheWorld:DoTaskInTime(1, function() TheWorld:PushEvent('ms_setmoonphase', {moonphase='new', iswaxing=true}) end)
+    TheWorld:DoTaskInTime(0.5, function() TheWorld:PushEvent('ms_setmoonphase', {moonphase='new', iswaxing=true}) end)
 end
 
 ----------------------------------------------------
---Seasonal event start sounds
+-- Seasonal event start sounds
 
 local function _winterfeastjingle()
     local bell = 'dontstarve/creatures/together/deer/bell'
@@ -137,9 +137,12 @@ local function _winterfeastjingle()
     TheWorld:DoTaskInTime(1.6, function() _playSound(bell, nil, 0.5) end)
     TheWorld:DoTaskInTime(2.0, function() _playSound(bell, nil, 0.5) end)
     TheWorld:DoTaskInTime(2.4, function() _playSound(bell, nil, 1.0) end)
+
+    TheWorld:PushEvent('ms_forceprecipitation', true)
 end
 GLOBAL.jingle = _winterfeastjingle
 
+-------------------
 
 local function _hallowednightstorm()
     TheWorld:DoTaskInTime(1, function() GLOBAL.SpawnPrefab('thunder_close') end)
@@ -149,10 +152,34 @@ local function _hallowednightstorm()
     TheWorld:DoTaskInTime(8, function() GLOBAL.SpawnPrefab('thunder_close') end)
     TheWorld:DoTaskInTime(13, function() GLOBAL.SpawnPrefab('thunder_far') end)
 end
-
 GLOBAL.storm = _hallowednightstorm
 
+-------------------
 
+local function _fireworks()
+    local boom = "wickerbottom_rework/megaflare/explode"
+    local colors = {
+        {r=1.0,g=1.0,b=1.0},
+        {r=0.8,g=1.0,b=1.0},
+        {r=1.0,g=1.0,b=0.8},
+        {r=1.0,g=0.9,b=0.8},
+        {r=0.9,g=1.0,b=0.8},
+    }
+
+    local function _explode()
+        local color = colors[math.random(#colors)]
+        for i, v in ipairs(GLOBAL.AllPlayers) do v:PushEvent("startflareoverlay", color) end
+        _playSound(boom, nil, 1)    
+    end
+    
+    TheWorld:DoTaskInTime(2, _explode)
+    TheWorld:DoTaskInTime(5, _explode)
+    TheWorld:DoTaskInTime(7, _explode)
+    TheWorld:DoTaskInTime(12, _explode)
+    TheWorld:DoTaskInTime(19, _explode)
+    TheWorld:DoTaskInTime(31, _explode)
+end
+GLOBAL.fireworks = _fireworks
 
 
 ----------------------------------------------------
@@ -261,8 +288,7 @@ local function OnMoonChange(world)
             StartEvent(current_year_of)
             
             _announce('Happy new %s!', current_year_of)
-            for i, v in ipairs(GLOBAL.AllPlayers) do v:PushEvent("startflareoverlay",{r=1,g=0.6,b=0.6}) end
-            _playSound("wickerbottom_rework/megaflare/explode", nil, 1)
+            _fireworks()
         end
     end 
 end
