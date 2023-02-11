@@ -8,6 +8,7 @@ local seasonal_events = {}
 local season
 
 local TheWorld
+local SPECIAL_EVENT_KEYS
 
 local WORLD_EXTRA_EVENTS = GLOBAL.WORLD_EXTRA_EVENTS
 local SPECIAL_EVENTS = GLOBAL.SPECIAL_EVENTS
@@ -16,15 +17,18 @@ local IsSpecialEventActive = GLOBAL.IsSpecialEventActive
 local BatOver = require "widgets/batover"
 ----------------------------------------------------
 
+local function _eventName(event)
+    return GLOBAL.STRINGS.UI.SANDBOXMENU.SPECIAL_EVENTS[SPECIAL_EVENT_KEYS[event]]
+end
+
 local function _announce(template, event)
-    local prettyname = event:gsub("_", " "):gsub("^%l", string.upper)
-    --ThePlayer.components.talker:Say(string.format(template, prettyname), true)
+    local prettyname = _eventName(event)
     for i,v in ipairs(GLOBAL.AllPlayers) do v.components.talker:Say(string.format(template, prettyname)) end
 end
 
 local function _playSound(sound, name, volume)
     --TODO: test difference between TheWorld and ThePlayer in multiplayer
-for i,v in ipairs(GLOBAL.AllPlayers) do v.SoundEmitter:PlaySound(sound, name, volume) end
+    for i,v in ipairs(GLOBAL.AllPlayers) do v.SoundEmitter:PlaySound(sound, name, volume) end
 end
 
 ----------------------------------------------------
@@ -322,6 +326,7 @@ local function _worldInit (world)
     assert(world == GLOBAL.TheWorld, '[teste] invalid world')
     
     TheWorld = GLOBAL.TheWorld
+    SPECIAL_EVENT_KEYS = table.invert(GLOBAL.SPECIAL_EVENTS)
     
     if GLOBAL.TheWorld.ismastersim then
         _seasonInit(world)
