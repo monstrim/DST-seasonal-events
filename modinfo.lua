@@ -16,10 +16,10 @@ dont_starve_compatible = false
 reign_of_giants_compatible = false
 dst_compatible = true
 
-all_clients_require_mod = false --or true??
+all_clients_require_mod = true --we now push HUD events
 client_only = false
 
 server_filter_tags = {'event', 'season', 'calendar', 'yearly'}
 
-icon_atlas = "modicon.xml"
-icon = "modicon.tex"
+icon_atlas = "calendar.xml"
+icon = "calendar.tex"
