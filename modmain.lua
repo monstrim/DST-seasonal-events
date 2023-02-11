@@ -2,17 +2,25 @@ assert = GLOBAL.assert
 require = GLOBAL.require
 ----------------------------------------------------
 
-local year_of_list = {}
-local current_year_of
-local seasonal_events = {}
-local season
-
-local TheWorld
-local SPECIAL_EVENT_KEYS
-
 local WORLD_EXTRA_EVENTS = GLOBAL.WORLD_EXTRA_EVENTS
 local SPECIAL_EVENTS = GLOBAL.SPECIAL_EVENTS
+local SPECIAL_EVENT_KEYS = table.invert(SPECIAL_EVENTS)
 local IsSpecialEventActive = GLOBAL.IsSpecialEventActive
+
+local year_of_list = {
+    SPECIAL_EVENTS.YOTG, 
+    SPECIAL_EVENTS.YOTV, 
+    SPECIAL_EVENTS.YOTP, 
+    SPECIAL_EVENTS.YOTC, 
+    SPECIAL_EVENTS.YOTB, 
+    SPECIAL_EVENTS.YOT_CATCOON,
+    SPECIAL_EVENTS.YOTR, 
+}
+local current_year_of
+local seasonal_events = {} --wait until season lengths initialized
+local season
+
+local TheWorld -- not initialized yet
 
 local BatOver = require "widgets/batover"
 ----------------------------------------------------
@@ -53,7 +61,11 @@ end
 ----------------------------------------------------
 
 function StartEvent (event)
-    if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE or IsSpecialEventActive(event) then 
+    if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
+        print(string.format('Event %s', event or 'nil'))
+        return
+    elseif IsSpecialEventActive(event) then 
+        print(string.format('Event %s already active', event))
         return
     end
     
@@ -317,16 +329,19 @@ end
 ----------------------------------------------------
 
 local function _stateInit (worldstate)
-    worldstate.data.current_year_num = 1
+    if GLOBAL.WORLD_SPECIAL_EVENT and GLOBAL.IS_YEAR_OF_THE_SPECIAL_EVENTS[GLOBAL.WORLD_SPECIAL_EVENT] then
+        worldstate.data.current_year_num = table.invert(year_of_list)[GLOBAL.WORLD_SPECIAL_EVENT]
+        GLOBAL.WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
+    else
+        worldstate.data.current_year_num = #year_of_list
+    end
     worldstate.data.current_new_moon = 2
 end
 
 
 local function _worldInit (world)
     assert(world == GLOBAL.TheWorld, '[teste] invalid world')
-    
     TheWorld = GLOBAL.TheWorld
-    SPECIAL_EVENT_KEYS = table.invert(GLOBAL.SPECIAL_EVENTS)
     
     if GLOBAL.TheWorld.ismastersim then
         _seasonInit(world)
