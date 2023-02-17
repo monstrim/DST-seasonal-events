@@ -1,13 +1,13 @@
 --[[		Created by: Monstah		]]
 
-name = "Seasonal Events"
+name = "Yearly Seasonal Events"
 description = [[
 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 There's always one Year Of event active, which cycles on the second new moon after beginning of winter.
 ]]
 
 author = "Monstah"
-version = "0.1.0"
+version = "1.0"
 
 
 api_version = 10
