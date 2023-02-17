@@ -123,28 +123,6 @@ function StopEvent (event)
 end
 
 ----------------------------------------------------
--- Debugging global functions
-
-GLOBAL.StartEvent = StartEvent
-GLOBAL.StopEvent = StopEvent
-
-GLOBAL.NextDay = function() TheWorld:PushEvent('ms_nextcycle') end
-
-GLOBAL.NextWinter = function()     
-    if TheWorld.state.season == 'winter' then 
-        TheWorld:DoTaskInTime(0, function() TheWorld:PushEvent('ms_setseason', 'summer') end)
-    end 
-    TheWorld:DoTaskInTime(0.5, function() TheWorld:PushEvent('ms_setseason', 'winter') end)
-end
-
-GLOBAL.NextNew = function()     
-    if TheWorld.state.moonphase == 'new' then 
-        TheWorld:DoTaskInTime(0, function() TheWorld:PushEvent('ms_setmoonphase', {moonphase='full', iswaxing=false}) end)
-    end 
-    TheWorld:DoTaskInTime(0.5, function() TheWorld:PushEvent('ms_setmoonphase', {moonphase='new', iswaxing=true}) end)
-end
-
-----------------------------------------------------
 -- Seasonal event start sounds
 
 local function _winterfeastjingle()
