@@ -34,11 +34,11 @@ local carnival_host
 ----------------------------------------------------
 
 local function _eventName(event)
-    return GLOBAL.STRINGS.UI.SANDBOXMENU.SPECIAL_EVENTS[SPECIAL_EVENT_KEYS[event]]
+    return GLOBAL.STRINGS.UI.CUSTOMIZATIONSCREEN[string.upper(event)]
 end
 
 local function _announce(template, event)
-    local prettyname = _eventName(event)
+    local prettyname = _eventName(event) or 'nil'
     for i,v in ipairs(GLOBAL.AllPlayers) do v.components.talker:Say(string.format(template, prettyname)) end
 end
 
