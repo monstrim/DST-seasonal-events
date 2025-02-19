@@ -328,10 +328,13 @@ end
 
 
 local function _worldInit (world)
-    assert(world == GLOBAL.TheWorld, '[teste] invalid world')
-    TheWorld = GLOBAL.TheWorld
-    
-    if GLOBAL.TheWorld.ismastersim then
+    assert(world == GLOBAL.TheWorld, '[Yearly Seasonal Events] Invalid world')
+    TheWorld = world
+
+    local mode = world.ismastersim and (not world:HasTag('cave') and 'main server' or 'cave server') or 'client'
+
+    if mode == 'main server' then
+
         _seasonInit(world)
         _newYearInit(world)
         _checkSeasonalEvents(world)
@@ -345,9 +348,11 @@ local function _worldInit (world)
         world:WatchWorldState("winterlength", _seasonInit)
     end
 
+    if GLOBAL.TheFrontEnd.screenstack then
     local hud = GLOBAL.TheFrontEnd.screenstack[1]
-    if not hud.batover then
+        if hud and not hud.batover and hud.overlayroot then
         hud.batover = hud.overlayroot:AddChild(BatOver(GLOBAL.ThePlayer))
+        end
     end
 end
 
