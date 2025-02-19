@@ -348,9 +348,11 @@ local function _worldInit (world)
         world:WatchWorldState("winterlength", _seasonInit)
     end
 
+    if GLOBAL.TheFrontEnd.screenstack then
     local hud = GLOBAL.TheFrontEnd.screenstack[1]
-    if not hud.batover then
+        if hud and not hud.batover and hud.overlayroot then
         hud.batover = hud.overlayroot:AddChild(BatOver(GLOBAL.ThePlayer))
+        end
     end
 end
 
