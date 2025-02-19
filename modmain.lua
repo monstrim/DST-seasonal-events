@@ -328,10 +328,13 @@ end
 
 
 local function _worldInit (world)
-    assert(world == GLOBAL.TheWorld, '[teste] invalid world')
-    TheWorld = GLOBAL.TheWorld
-    
-    if GLOBAL.TheWorld.ismastersim then
+    assert(world == GLOBAL.TheWorld, '[Yearly Seasonal Events] Invalid world')
+    TheWorld = world
+
+    local mode = world.ismastersim and (not world:HasTag('cave') and 'main server' or 'cave server') or 'client'
+
+    if mode == 'main server' then
+
         _seasonInit(world)
         _newYearInit(world)
         _checkSeasonalEvents(world)
