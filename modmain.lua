@@ -23,6 +23,8 @@ local season
 local TheWorld -- not initialized yet
 
 local BatOver = require "widgets/batover"
+local carnival_host
+
 ----------------------------------------------------
 
 local function _eventName(event)
@@ -46,16 +48,22 @@ end
 ----------------------------------------------------
 
 local function _startCrow()
+    if not carnival_host then
     TheWorld.components.carnivalevent:OnPostInit()
-    local crow = GLOBAL.c_find("carnival_host")
-    crow.sg:GoToState("glide")
+        carnival_host = GLOBAL.c_find("carnival_host")
+    end
+
+    if carnival_host then
+        carnival_host.sg:GoToState("glide")
+    end
 end
 
 
 local function _stopCrow()
-    local crow = GLOBAL.c_find("carnival_host")
-    crow.sg:GoToState("flyaway")
-    crow:DoTaskInTime(3, crow.Remove)
+    if carnival_host then
+        carnival_host.sg:GoToState("flyaway")
+        carnival_host:DoTaskInTime(3, carnival_host.Remove)
+    end
 end
 
 ----------------------------------------------------
@@ -71,6 +79,8 @@ function StartEvent (event)
     
     -- game code to set WORLD_EXTRA_EVENTS and TECH
     -- usually only run on startup
+    -- BUG: does not apply tech when game with caves 
+    -- (and presumably on multiplayer clients too) 
     GLOBAL.ApplyExtraEvent(event)
     
     -- startup event mid-game
