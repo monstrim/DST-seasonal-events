@@ -242,12 +242,6 @@ end
 
 
 local function _newYearInit (world)
-    for k,v in pairs(SPECIAL_EVENTS) do
-        if GLOBAL.IS_YEAR_OF_THE_SPECIAL_EVENTS[v] then
-            table.insert(year_of_list, v)
-        end
-    end
-    
     current_year_of = year_of_list[world.state.current_year_num]
     StartEvent(current_year_of)
 end
@@ -323,6 +317,23 @@ end
 ----------------------------------------------------
 
 local function _stateInit (worldstate)
+    -- Events launched after last update
+    for k,v in pairs(SPECIAL_EVENTS) do
+        if GLOBAL.IS_YEAR_OF_THE_SPECIAL_EVENTS[v] then
+            local temp = false
+            for _,vv in pairs(year_of_list) do
+                if v == vv then
+                    temp = true 
+                    break
+                end
+            end
+            if not temp then
+                print('[Yearly Seasonal Events] adding ' .. v)
+                table.insert(year_of_list, v)
+            end
+        end
+    end
+
     if GLOBAL.WORLD_SPECIAL_EVENT and GLOBAL.IS_YEAR_OF_THE_SPECIAL_EVENTS[GLOBAL.WORLD_SPECIAL_EVENT] then
         worldstate.data.current_year_num = table.invert(year_of_list)[GLOBAL.WORLD_SPECIAL_EVENT]
         GLOBAL.WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
