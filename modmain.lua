@@ -8,13 +8,15 @@ local SPECIAL_EVENT_KEYS = table.invert(SPECIAL_EVENTS)
 local IsSpecialEventActive = GLOBAL.IsSpecialEventActive
 
 local year_of_list = {
-    SPECIAL_EVENTS.YOTG, 
-    SPECIAL_EVENTS.YOTV, 
-    SPECIAL_EVENTS.YOTP, 
-    SPECIAL_EVENTS.YOTC, 
-    SPECIAL_EVENTS.YOTB, 
-    SPECIAL_EVENTS.YOT_CATCOON,
-    SPECIAL_EVENTS.YOTR, 
+    SPECIAL_EVENTS.YOTG, -- gobbler
+    SPECIAL_EVENTS.YOTV, -- varg
+    SPECIAL_EVENTS.YOTP, -- pig
+    SPECIAL_EVENTS.YOTC, -- carrat
+    SPECIAL_EVENTS.YOTB, -- beefalo
+    SPECIAL_EVENTS.YOT_CATCOON, -- catcoon
+    SPECIAL_EVENTS.YOTR, -- bunnyman
+    SPECIAL_EVENTS.YOTD, -- dragonfly
+    SPECIAL_EVENTS.YOTS, -- snake
 }
 local current_year_of
 local seasonal_events = {} --wait until season lengths initialized
@@ -32,11 +34,11 @@ local carnival_host
 ----------------------------------------------------
 
 local function _eventName(event)
-    return GLOBAL.STRINGS.UI.SANDBOXMENU.SPECIAL_EVENTS[SPECIAL_EVENT_KEYS[event]]
+    return GLOBAL.STRINGS.UI.CUSTOMIZATIONSCREEN[string.upper(event)]
 end
 
 local function _announce(template, event)
-    local prettyname = _eventName(event)
+    local prettyname = _eventName(event) or 'nil'
     for i,v in ipairs(GLOBAL.AllPlayers) do v.components.talker:Say(string.format(template, prettyname)) end
 end
 
