@@ -25,6 +25,10 @@ local TheWorld -- not initialized yet
 local BatOver = require "widgets/batover"
 local carnival_host
 
+-- Decomment to use
+-- modimport("debug_funcs")
+
+
 ----------------------------------------------------
 
 local function _eventName(event)
