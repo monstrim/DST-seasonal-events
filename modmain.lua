@@ -8,13 +8,15 @@ local SPECIAL_EVENT_KEYS = table.invert(SPECIAL_EVENTS)
 local IsSpecialEventActive = GLOBAL.IsSpecialEventActive
 
 local year_of_list = {
-    SPECIAL_EVENTS.YOTG, 
-    SPECIAL_EVENTS.YOTV, 
-    SPECIAL_EVENTS.YOTP, 
-    SPECIAL_EVENTS.YOTC, 
-    SPECIAL_EVENTS.YOTB, 
-    SPECIAL_EVENTS.YOT_CATCOON,
-    SPECIAL_EVENTS.YOTR, 
+    SPECIAL_EVENTS.YOTG, -- gobbler
+    SPECIAL_EVENTS.YOTV, -- varg
+    SPECIAL_EVENTS.YOTP, -- pig
+    SPECIAL_EVENTS.YOTC, -- carrat
+    SPECIAL_EVENTS.YOTB, -- beefalo
+    SPECIAL_EVENTS.YOT_CATCOON, -- catcoon
+    SPECIAL_EVENTS.YOTR, -- bunnyman
+    SPECIAL_EVENTS.YOTD, -- dragonfly
+    SPECIAL_EVENTS.YOTS, -- snake
 }
 local current_year_of
 local seasonal_events = {} --wait until season lengths initialized
@@ -23,14 +25,20 @@ local season
 local TheWorld -- not initialized yet
 
 local BatOver = require "widgets/batover"
+local carnival_host
+
+-- Decomment to use
+-- modimport("debug_funcs")
+
+
 ----------------------------------------------------
 
 local function _eventName(event)
-    return GLOBAL.STRINGS.UI.SANDBOXMENU.SPECIAL_EVENTS[SPECIAL_EVENT_KEYS[event]]
+    return GLOBAL.STRINGS.UI.CUSTOMIZATIONSCREEN[string.upper(event)]
 end
 
 local function _announce(template, event)
-    local prettyname = _eventName(event)
+    local prettyname = _eventName(event) or 'nil'
     for i,v in ipairs(GLOBAL.AllPlayers) do v.components.talker:Say(string.format(template, prettyname)) end
 end
 
@@ -46,16 +54,22 @@ end
 ----------------------------------------------------
 
 local function _startCrow()
+    if not carnival_host then
     TheWorld.components.carnivalevent:OnPostInit()
-    local crow = GLOBAL.c_find("carnival_host")
-    crow.sg:GoToState("glide")
+        carnival_host = GLOBAL.c_find("carnival_host")
+    end
+
+    if carnival_host then
+        carnival_host.sg:GoToState("glide")
+    end
 end
 
 
 local function _stopCrow()
-    local crow = GLOBAL.c_find("carnival_host")
-    crow.sg:GoToState("flyaway")
-    crow:DoTaskInTime(3, crow.Remove)
+    if carnival_host then
+        carnival_host.sg:GoToState("flyaway")
+        carnival_host:DoTaskInTime(3, carnival_host.Remove)
+    end
 end
 
 ----------------------------------------------------
@@ -71,6 +85,8 @@ function StartEvent (event)
     
     -- game code to set WORLD_EXTRA_EVENTS and TECH
     -- usually only run on startup
+    -- BUG: does not apply tech when game with caves 
+    -- (and presumably on multiplayer clients too) 
     GLOBAL.ApplyExtraEvent(event)
     
     -- startup event mid-game
@@ -226,12 +242,6 @@ end
 
 
 local function _newYearInit (world)
-    for k,v in pairs(SPECIAL_EVENTS) do
-        if GLOBAL.IS_YEAR_OF_THE_SPECIAL_EVENTS[v] then
-            table.insert(year_of_list, v)
-        end
-    end
-    
     current_year_of = year_of_list[world.state.current_year_num]
     StartEvent(current_year_of)
 end
@@ -307,6 +317,23 @@ end
 ----------------------------------------------------
 
 local function _stateInit (worldstate)
+    -- Events launched after last update
+    for k,v in pairs(SPECIAL_EVENTS) do
+        if GLOBAL.IS_YEAR_OF_THE_SPECIAL_EVENTS[v] then
+            local temp = false
+            for _,vv in pairs(year_of_list) do
+                if v == vv then
+                    temp = true 
+                    break
+                end
+            end
+            if not temp then
+                print('[Yearly Seasonal Events] adding ' .. v)
+                table.insert(year_of_list, v)
+            end
+        end
+    end
+
     if GLOBAL.WORLD_SPECIAL_EVENT and GLOBAL.IS_YEAR_OF_THE_SPECIAL_EVENTS[GLOBAL.WORLD_SPECIAL_EVENT] then
         worldstate.data.current_year_num = table.invert(year_of_list)[GLOBAL.WORLD_SPECIAL_EVENT]
         GLOBAL.WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
@@ -318,10 +345,13 @@ end
 
 
 local function _worldInit (world)
-    assert(world == GLOBAL.TheWorld, '[teste] invalid world')
-    TheWorld = GLOBAL.TheWorld
-    
-    if GLOBAL.TheWorld.ismastersim then
+    assert(world == GLOBAL.TheWorld, '[Yearly Seasonal Events] Invalid world')
+    TheWorld = world
+
+    local mode = world.ismastersim and (not world:HasTag('cave') and 'main server' or 'cave server') or 'client'
+
+    if mode == 'main server' then
+
         _seasonInit(world)
         _newYearInit(world)
         _checkSeasonalEvents(world)
@@ -335,9 +365,11 @@ local function _worldInit (world)
         world:WatchWorldState("winterlength", _seasonInit)
     end
 
+    if GLOBAL.TheFrontEnd.screenstack then
     local hud = GLOBAL.TheFrontEnd.screenstack[1]
-    if not hud.batover then
+        if hud and not hud.batover and hud.overlayroot then
         hud.batover = hud.overlayroot:AddChild(BatOver(GLOBAL.ThePlayer))
+        end
     end
 end
 
