@@ -171,12 +171,14 @@ local function _checkSeasonalEvents()
             StartEvent(current_seasonal_event)
             if event_data.fanfarre then event_data.fanfarre() end
             _announce('Happy %s!', current_seasonal_event)
+            self:Sync()
         end
     else
         if current_seasonal_event then
             StopEvent(current_seasonal_event)
             current_seasonal_event = nil
             _announce('%s is over.', current_seasonal_event)
+            self:Sync()
         end
     end
 end
@@ -185,6 +187,11 @@ end
 --[[ Public member functions ]]
 --------------------------------------------------------------------------
 
+function self:Sync()
+    local replica = self.inst.replica.eventcalendar
+    replica:SetYearEvent(year_of_list[current_year])
+    replica:SetSeasonalEvent(current_seasonal_event)
+end
 
 --------------------------------------------------------------------------
 --[[ Private event handlers ]]
@@ -204,6 +211,7 @@ local function OnMoonChange(inst)
             StartEvent(year_of_list[current_year])
             _fireworks()
             _announce('Happy %s!', year_of_list[current_year])
+            self:Sync()
         end
     end 
 end
@@ -256,6 +264,7 @@ inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
 current_new_moon = 2 --will zero on next winter
 _seasonInit()
 _checkSeasonalEvents()
+self:Sync()
 
 --------------------------------------------------------------------------
 --[[ Save/Load ]]
@@ -281,6 +290,7 @@ function self:OnLoad(data)
 	        current_seasonal_event = data.current_seasonal_event		
 		end
     end
+    self:Sync()
 end
 
 --------------------------------------------------------------------------
