@@ -143,6 +143,9 @@ end
 --------------------------------------------------------------------------
 
 local function _seasonInit ()
+    --TODO: check if winter available
+    new_year_season = 'winter' or 'TODO'
+    
     local lengths = {
         spring = TheWorld.state.springlength,
         summer = TheWorld.state.summerlength,
@@ -239,9 +242,6 @@ for v,_ in pairs(IS_YEAR_OF_THE_SPECIAL_EVENTS) do
         year_of_set[v] = true
     end
 end
-
---TODO: check if winter available
-new_year_season = 'winter' or 'TODO'
 
 -- If a Year Of is currently active, set it to current year, otherwise begin at the last
 if WORLD_SPECIAL_EVENT and IS_YEAR_OF_THE_SPECIAL_EVENTS[WORLD_SPECIAL_EVENT] then
