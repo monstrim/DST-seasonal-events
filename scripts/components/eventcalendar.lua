@@ -275,20 +275,17 @@ function self:OnSave()
     local data = {}
     data.current_year = current_year
     data.current_new_moon = current_new_moon
-    data.current_seasonal_event = current_seasonal_event
     return data
 end
 
 function self:OnLoad(data)
+    _checkSeasonalEvents()
     if data ~= nil then
 		if data.current_year ~= nil then
 	        current_year = data.current_year		
 		end
 		if data.current_new_moon ~= nil then
 	        current_new_moon = data.current_new_moon		
-		end
-		if data.current_seasonal_event ~= nil then
-	        current_seasonal_event = data.current_seasonal_event		
 		end
     end
     self:Sync()
