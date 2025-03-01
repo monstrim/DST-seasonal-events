@@ -73,7 +73,7 @@ local carnival_host
 local function _startCrow()
     if not carnival_host then
         TheWorld.components.carnivalevent:OnPostInit()
-        carnival_host = GLOBAL.c_find("carnival_host")
+        carnival_host = c_find("carnival_host")
     end
 
     if carnival_host then
