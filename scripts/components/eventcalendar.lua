@@ -144,10 +144,10 @@ end
 
 local function _seasonInit ()
     local lengths = {
-        spring = TheWorld.state.autumnlength,
-        summer = TheWorld.state.winterlength,
-        autumn = TheWorld.state.springlength,
-        winter = TheWorld.state.summerlength,
+        spring = TheWorld.state.springlength,
+        summer = TheWorld.state.summerlength,
+        autumn = TheWorld.state.autumnlength,
+        winter = TheWorld.state.winterlength,
     }
     local quarters = {
         early = function (season_length) return math.ceil(season_length/4) end,
