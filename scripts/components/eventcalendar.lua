@@ -111,6 +111,8 @@ local function StartEvent(event)
         return
     end
 
+    WORLD_EXTRA_EVENTS[event] = true
+
     -- startup event mid-game
     if event == SPECIAL_EVENTS.CARNIVAL then
         _startCrow()
@@ -128,6 +130,8 @@ local function StopEvent(event)
         return
     end
     
+    WORLD_EXTRA_EVENTS[event] = false
+
     -- cleanup event
     if event == SPECIAL_EVENTS.CARNIVAL then
         _stopCrow()
