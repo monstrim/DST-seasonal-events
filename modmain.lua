@@ -1,7 +1,6 @@
 require = GLOBAL.require
 
--- Decomment to use
-modimport("debug_funcs")
+-- modimport("debug_funcs")
 require("netvars")
 
 AddReplicableComponent("eventcalendar")
