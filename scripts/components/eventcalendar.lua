@@ -255,6 +255,11 @@ end
 --------------------------------------------------------------------------
 print('[Yearly Seasonal Events] INITIALIZING MAIN COMPONENT')
 
+-- Initialize events and seasons
+_worldEventsInit()
+_seasonInit()
+_checkSeasonalEvents()
+current_new_moon = 2 --will zero on next winter
 
 -- Listen for events
 inst:WatchWorldState("cycles", OnCyclesChange)
@@ -265,11 +270,7 @@ inst:WatchWorldState("summerlength", function(inst) _seasonInit() end)
 inst:WatchWorldState("autumnlength", function(inst) _seasonInit() end)
 inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
 
--- Finally, initialize events and sync
-current_new_moon = 2 --will zero on next winter
-_worldEventsInit()
-_seasonInit()
-_checkSeasonalEvents()
+-- Finally, sync
 self:Sync()
 
 --------------------------------------------------------------------------
