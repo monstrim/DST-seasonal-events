@@ -64,6 +64,7 @@ self.inst = inst
 local current_year
 local current_new_moon
 local current_seasonal_event
+local carnival_host
 
 --------------------------------------------------------------------------
 --[[ Private member functions ]]
