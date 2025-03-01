@@ -64,6 +64,7 @@ self.inst = inst
 local current_year
 local current_new_moon
 local current_seasonal_event
+local carnival_host
 
 --------------------------------------------------------------------------
 --[[ Private member functions ]]
@@ -141,12 +142,36 @@ end
 
 --------------------------------------------------------------------------
 
+local function _worldEventsInit()
+    -- Events launched after last update
+    for v,_ in pairs(IS_YEAR_OF_THE_SPECIAL_EVENTS) do
+        if not year_of_set[v] then
+            print('[Yearly Seasonal Events] adding ' .. v)
+            table.insert(year_of_list, v)
+            year_of_set[v] = true
+        end
+    end
+
+    -- If a Year Of is currently active, set it to current year, otherwise begin at the last
+    if WORLD_SPECIAL_EVENT and IS_YEAR_OF_THE_SPECIAL_EVENTS[WORLD_SPECIAL_EVENT] then
+        current_year = table.invert(year_of_list)[WORLD_SPECIAL_EVENT]
+    else
+        current_year = #year_of_list
+    end
+    WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
+    StartEvent(year_of_list[current_year])
+end
+
+
 local function _seasonInit ()
+    --TODO: check if winter available
+    new_year_season = 'winter' or 'TODO'
+    
     local lengths = {
-        spring = TheWorld.state.autumnlength,
-        summer = TheWorld.state.winterlength,
-        autumn = TheWorld.state.springlength,
-        winter = TheWorld.state.summerlength,
+        spring = TheWorld.state.springlength,
+        summer = TheWorld.state.summerlength,
+        autumn = TheWorld.state.autumnlength,
+        winter = TheWorld.state.winterlength,
     }
     local quarters = {
         early = function (season_length) return math.ceil(season_length/4) end,
@@ -176,8 +201,8 @@ local function _checkSeasonalEvents()
     else
         if current_seasonal_event then
             StopEvent(current_seasonal_event)
-            current_seasonal_event = nil
             _announce('%s is over.', current_seasonal_event)
+            current_seasonal_event = nil
             self:Sync()
         end
     end
@@ -230,26 +255,11 @@ end
 --------------------------------------------------------------------------
 print('[Yearly Seasonal Events] INITIALIZING MAIN COMPONENT')
 
--- Events launched after last update
-for v,_ in pairs(IS_YEAR_OF_THE_SPECIAL_EVENTS) do
-    if not year_of_set[v] then
-        print('[Yearly Seasonal Events] adding ' .. v)
-        table.insert(year_of_list, v)
-        year_of_set[v] = true
-    end
-end
-
---TODO: check if winter available
-new_year_season = 'winter' or 'TODO'
-
--- If a Year Of is currently active, set it to current year, otherwise begin at the last
-if WORLD_SPECIAL_EVENT and IS_YEAR_OF_THE_SPECIAL_EVENTS[WORLD_SPECIAL_EVENT] then
-    current_year = table.invert(year_of_list)[WORLD_SPECIAL_EVENT]
-else
-    current_year = #year_of_list
-end
-WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
-StartEvent(year_of_list[current_year])
+-- Initialize events and seasons
+_worldEventsInit()
+_seasonInit()
+_checkSeasonalEvents()
+current_new_moon = 2 --will zero on next winter
 
 -- Listen for events
 inst:WatchWorldState("cycles", OnCyclesChange)
@@ -260,10 +270,7 @@ inst:WatchWorldState("summerlength", function(inst) _seasonInit() end)
 inst:WatchWorldState("autumnlength", function(inst) _seasonInit() end)
 inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
 
--- Finally, initialize events and sync
-current_new_moon = 2 --will zero on next winter
-_seasonInit()
-_checkSeasonalEvents()
+-- Finally, sync
 self:Sync()
 
 --------------------------------------------------------------------------
@@ -274,11 +281,14 @@ function self:OnSave()
     local data = {}
     data.current_year = current_year
     data.current_new_moon = current_new_moon
-    data.current_seasonal_event = current_seasonal_event
     return data
 end
 
 function self:OnLoad(data)
+    _worldEventsInit()
+    _seasonInit()
+    _checkSeasonalEvents()
+
     if data ~= nil then
 		if data.current_year ~= nil then
 	        current_year = data.current_year		
@@ -286,10 +296,8 @@ function self:OnLoad(data)
 		if data.current_new_moon ~= nil then
 	        current_new_moon = data.current_new_moon		
 		end
-		if data.current_seasonal_event ~= nil then
-	        current_seasonal_event = data.current_seasonal_event		
-		end
     end
+
     self:Sync()
 end
 
