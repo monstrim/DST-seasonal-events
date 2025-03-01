@@ -286,7 +286,9 @@ end
 
 function self:OnLoad(data)
     _worldEventsInit()
+    _seasonInit()
     _checkSeasonalEvents()
+
     if data ~= nil then
 		if data.current_year ~= nil then
 	        current_year = data.current_year		
@@ -295,6 +297,7 @@ function self:OnLoad(data)
 	        current_new_moon = data.current_new_moon		
 		end
     end
+
     self:Sync()
 end
 
