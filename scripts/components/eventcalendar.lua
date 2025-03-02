@@ -307,6 +307,20 @@ function self:OnLoad(data)
 end
 
 --------------------------------------------------------------------------
+--[[ Debug ]]
+--------------------------------------------------------------------------
+
+-- local _advance = nil
+-- -- Keep fast-forwarding time
+-- _advance = function(inst)
+--     inst:DoTaskInTime(1.5, function(inst)
+--         TheWorld:PushEvent('ms_nextcycle')
+--         _advance(inst)
+--     end)
+-- end
+-- _advance(inst)
+
+--------------------------------------------------------------------------
 --[[ END ]]
 --------------------------------------------------------------------------
 end)
