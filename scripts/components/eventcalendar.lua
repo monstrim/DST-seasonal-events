@@ -258,7 +258,6 @@ end
 --------------------------------------------------------------------------
 --[[ Initialization ]]
 --------------------------------------------------------------------------
-print('[Yearly Seasonal Events] INITIALIZING MAIN COMPONENT')
 
 -- Initialize events and seasons
 _worldEventsInit()

@@ -110,7 +110,6 @@ end
 --------------------------------------------------------------------------
 --[[ Initialization ]]
 --------------------------------------------------------------------------
-print('[Yearly Seasonal Events] INITIALIZING REPLICA')
 
 -- Disable all extra events so mod will use them
 for k,v in pairs(WORLD_EXTRA_EVENTS) do WORLD_EXTRA_EVENTS[k] = nil end
