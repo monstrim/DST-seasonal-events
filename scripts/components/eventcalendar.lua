@@ -71,9 +71,9 @@ local carnival_host
 --------------------------------------------------------------------------
 
 local function _startCrow()
-    if not carnival_host then
+    if not carnival_host and TheWorld.components.carnivalevent then
         TheWorld.components.carnivalevent:OnPostInit()
-        carnival_host = GLOBAL.c_find("carnival_host")
+        carnival_host = c_find("carnival_host")
     end
 
     if carnival_host then
@@ -86,6 +86,7 @@ local function _stopCrow()
     if carnival_host then
         carnival_host.sg:GoToState("flyaway")
         carnival_host:DoTaskInTime(3, carnival_host.Remove)
+        carnival_host = nil
     end
 end
 
@@ -111,6 +112,8 @@ local function StartEvent(event)
         return
     end
 
+    WORLD_EXTRA_EVENTS[event] = true
+
     -- startup event mid-game
     if event == SPECIAL_EVENTS.CARNIVAL then
         _startCrow()
@@ -128,6 +131,8 @@ local function StopEvent(event)
         return
     end
     
+    WORLD_EXTRA_EVENTS[event] = false
+
     -- cleanup event
     if event == SPECIAL_EVENTS.CARNIVAL then
         _stopCrow()
@@ -174,13 +179,13 @@ local function _seasonInit ()
         winter = TheWorld.state.winterlength,
     }
     local quarters = {
-        early = function (season_length) return math.ceil(season_length/4) end,
-        mid = function (season_length) return math.ceil(season_length/2) end,
-        late = function (season_length) return math.ceil(season_length*3/4) end,
+        early = function (season_length) return (season_length/4) end,
+        mid = function (season_length) return (season_length/2) end,
+        late = function (season_length) return (season_length*3/4) end,
     }
     for season, data in pairs(seasonal_events) do
-        data.start_day = quarters[data.start](lengths[season])
-        data.stop_day = quarters[data.stop](lengths[season])
+        data.start_day = quarters[data.start](math.floor(lengths[season]))
+        data.stop_day = quarters[data.stop](math.ceil(lengths[season]))
     end
 end
 
@@ -230,7 +235,7 @@ local function OnMoonChange(inst)
     if TheWorld.state.moonphase == 'new' then
         current_new_moon = current_new_moon + 1
         
-        if current_new_moon >= 2 then
+        if current_new_moon == 2 then
             StopEvent(year_of_list[current_year])
             current_year = (current_year == #year_of_list) and 1 or current_year + 1
             StartEvent(year_of_list[current_year])
@@ -300,6 +305,20 @@ function self:OnLoad(data)
 
     self:Sync()
 end
+
+--------------------------------------------------------------------------
+--[[ Debug ]]
+--------------------------------------------------------------------------
+
+-- local _advance = nil
+-- -- Keep fast-forwarding time
+-- _advance = function(inst)
+--     inst:DoTaskInTime(1.5, function(inst)
+--         TheWorld:PushEvent('ms_nextcycle')
+--         _advance(inst)
+--     end)
+-- end
+-- _advance(inst)
 
 --------------------------------------------------------------------------
 --[[ END ]]

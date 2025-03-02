@@ -120,18 +120,6 @@ if not (TheWorld.ismastersim and IS_YEAR_OF_THE_SPECIAL_EVENTS[WORLD_SPECIAL_EVE
     WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
 end
 
-
-
--- setup HUD for hallows eve
-if TheFrontEnd.screenstack then
-    local hud = TheFrontEnd.screenstack[1]
-    if hud and not hud.batover and hud.overlayroot then
-        hud.batover = hud.overlayroot:AddChild(BatOver(ThePlayer))
-        print('[Yearly Seasonal Events]')
-        print(ThePlayer)
-    end
-end
-
 -- Listen for events
 inst:ListenForEvent('currentyearevent_dirty', OnYearDirty)
 inst:ListenForEvent('currentseasonalevent_dirty', OnSeasonDirty)
