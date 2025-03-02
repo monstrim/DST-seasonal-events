@@ -179,13 +179,13 @@ local function _seasonInit ()
         winter = TheWorld.state.winterlength,
     }
     local quarters = {
-        early = function (season_length) return math.ceil(season_length/4) end,
-        mid = function (season_length) return math.ceil(season_length/2) end,
-        late = function (season_length) return math.ceil(season_length*3/4) end,
+        early = function (season_length) return (season_length/4) end,
+        mid = function (season_length) return (season_length/2) end,
+        late = function (season_length) return (season_length*3/4) end,
     }
     for season, data in pairs(seasonal_events) do
-        data.start_day = quarters[data.start](lengths[season])
-        data.stop_day = quarters[data.stop](lengths[season])
+        data.start_day = quarters[data.start](math.floor(lengths[season]))
+        data.stop_day = quarters[data.stop](math.ceil(lengths[season]))
     end
 end
 
