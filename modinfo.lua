@@ -2,7 +2,7 @@
 
 name = "Yearly Seasonal Events"
 description = [[
-Version 1.1
+Version 1.1.1
 
 󰀭 There's always one Year Of event active, which cycles on the second new moon after beginning of winter.
 
@@ -12,11 +12,11 @@ Version 1.1
 ----------------------------------------
 󰀏 Fixed for caves and multiplayer! Also, won't explode again before I patch it the next time a Year Of event is launched.
 
-󰀓 There *might* still be a bug where sometimes the lunacy overlay is triggered at world init. I think it was a conflict of event hashes and sorted it out, but let me know.
+󰀓 There *might* still be a bug where sometimes the lunacy overlay is triggered at world init. I think I sorted it out, but let me know. If it happens, just disconnect and reconnect; it's just UI.
 ]]
 
 author = "Monstah"
-version = "1.1"
+version = "1.1.1"
 
 
 api_version = 10
