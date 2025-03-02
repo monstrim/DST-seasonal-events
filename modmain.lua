@@ -34,7 +34,7 @@ AddPlayerPostInit(function (player)
             end
 
             -- fireworks event
-            player:ListenForEvent('seasonalevents._flaretrigger', function(player) 
+            player:ListenForEvent('seasonalevents._flare_trigger', function(player) 
                 data = {
                     r = _flare_r:value(),
                     g = _flare_g:value(),
@@ -44,7 +44,7 @@ AddPlayerPostInit(function (player)
             end)
 
             -- batspooked event
-            player:ListenForEvent('seasonalevents._spooktrigger', function(player) 
+            player:ListenForEvent('seasonalevents._spook_trigger', function(player) 
                 player:PushEvent('batspooked')
             end)
         else
