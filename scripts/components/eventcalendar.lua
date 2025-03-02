@@ -235,7 +235,7 @@ local function OnMoonChange(inst)
     if TheWorld.state.moonphase == 'new' then
         current_new_moon = current_new_moon + 1
         
-        if current_new_moon >= 2 then
+        if current_new_moon == 2 then
             StopEvent(year_of_list[current_year])
             current_year = (current_year == #year_of_list) and 1 or current_year + 1
             StartEvent(year_of_list[current_year])
