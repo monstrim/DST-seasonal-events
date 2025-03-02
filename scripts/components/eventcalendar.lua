@@ -206,7 +206,7 @@ local function _checkSeasonalEvents()
     else
         if current_seasonal_event then
             StopEvent(current_seasonal_event)
-            _announce('%s is over.', current_seasonal_event)
+            -- _announce('%s is over.', current_seasonal_event)
             current_seasonal_event = nil
             self:Sync()
         end
