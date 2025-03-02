@@ -71,7 +71,7 @@ local carnival_host
 --------------------------------------------------------------------------
 
 local function _startCrow()
-    if not carnival_host then
+    if not carnival_host and TheWorld.components.carnivalevent then
         TheWorld.components.carnivalevent:OnPostInit()
         carnival_host = c_find("carnival_host")
     end
@@ -86,6 +86,7 @@ local function _stopCrow()
     if carnival_host then
         carnival_host.sg:GoToState("flyaway")
         carnival_host:DoTaskInTime(3, carnival_host.Remove)
+        carnival_host = nil
     end
 end
 
