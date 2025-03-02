@@ -44,9 +44,7 @@ function _hallowednightstorm()
     TheWorld:DoTaskInTime(8, function() SpawnPrefab('thunder_close') end)
     TheWorld:DoTaskInTime(13, function() SpawnPrefab('thunder_far') end)
 
-    for i,v in ipairs(AllPlayers) do
-        v:PushEvent('batspooked')
-    end
+    for i,v in ipairs(AllPlayers) do v:PushEvent('batspooked') end
 end
 
 -------------------
