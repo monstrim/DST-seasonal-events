@@ -168,28 +168,6 @@ local function _worldEventsInit()
 end
 
 
-local function _seasonInit ()
-    --TODO: check if winter available
-    new_year_season = 'winter' or 'TODO'
-    
-    local lengths = {
-        spring = TheWorld.state.springlength,
-        summer = TheWorld.state.summerlength,
-        autumn = TheWorld.state.autumnlength,
-        winter = TheWorld.state.winterlength,
-    }
-    local quarters = {
-        early = function (season_length) return (season_length/4) end,
-        mid = function (season_length) return (season_length/2) end,
-        late = function (season_length) return (season_length*3/4) end,
-    }
-    for season, data in pairs(seasonal_events) do
-        data.start_day = quarters[data.start](math.floor(lengths[season]))
-        data.stop_day = quarters[data.stop](math.ceil(lengths[season]))
-    end
-end
-
-
 local function _checkSeasonalEvents()
     local currentday = TheWorld.state.elapseddaysinseason + 1
     local event_data = seasonal_events[TheWorld.state.season]
@@ -211,6 +189,36 @@ local function _checkSeasonalEvents()
             self:Sync()
         end
     end
+end
+
+
+local function _seasonInit ()
+    --TODO: check if winter available
+    new_year_season = 'winter' or 'TODO'
+    
+    local lengths = {
+        spring = TheWorld.state.springlength,
+        summer = TheWorld.state.summerlength,
+        autumn = TheWorld.state.autumnlength,
+        winter = TheWorld.state.winterlength,
+    }
+    local quarters = {
+        early = function (season_length) return (season_length/4) end,
+        mid = function (season_length) return (season_length/2) end,
+        late = function (season_length) return (season_length*3/4) end,
+    }
+    for season, data in pairs(seasonal_events) do
+        data.start_day = math.floor(quarters[data.start](lengths[season]))
+        data.stop_day = math.ceil(quarters[data.stop](lengths[season]))
+
+        -- fix for sad, sad rain on Winter's Feast
+        if season == 'winter' and data.start_day < 3 then
+            local offset = 3 - data.start_day
+            data.start_day = 3
+            data.stop_day = data.stop_day + offset
+        end
+    end
+    _checkSeasonalEvents()
 end
 
 --------------------------------------------------------------------------
