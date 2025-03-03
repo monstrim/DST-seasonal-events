@@ -184,8 +184,8 @@ local function _seasonInit ()
         late = function (season_length) return (season_length*3/4) end,
     }
     for season, data in pairs(seasonal_events) do
-        data.start_day = quarters[data.start](math.floor(lengths[season]))
-        data.stop_day = quarters[data.stop](math.ceil(lengths[season]))
+        data.start_day = math.floor(quarters[data.start](lengths[season]))
+        data.stop_day = math.ceil(quarters[data.stop](lengths[season]))
     end
 end
 
