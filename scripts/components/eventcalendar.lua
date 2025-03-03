@@ -210,6 +210,13 @@ local function _seasonInit ()
     for season, data in pairs(seasonal_events) do
         data.start_day = math.floor(quarters[data.start](lengths[season]))
         data.stop_day = math.ceil(quarters[data.stop](lengths[season]))
+
+        -- fix for sad, sad rain on Winter's Feast
+        if season == 'winter' and data.start_day < 3 then
+            local offset = 3 - data.start_day
+            data.start_day = 3
+            data.stop_day = data.stop_day + offset
+        end
     end
     _checkSeasonalEvents()
 end
