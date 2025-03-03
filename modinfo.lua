@@ -8,15 +8,14 @@ Version 1.1.1
 
 󰀧 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 
-
 ----------------------------------------
 󰀏 Fixed for caves and multiplayer! Also, won't explode again before I patch it the next time a Year Of event is launched.
-
-󰀓 There *might* still be a bug where sometimes the lunacy overlay is triggered at world init. I think I sorted it out, but let me know. If it happens, just disconnect and reconnect; it's just UI.
+󰀓 Is the Lunacy UI bug gone? Is it still around? We may never know! (hoping I fixed it)
+󰀛 Minor fixes for seasonal events lenghts, specially for short seasons (no rainy christmas ever)
 ]]
 
 author = "Monstah"
-version = "1.1.1"
+version = "1.1.2"
 
 
 api_version = 10
