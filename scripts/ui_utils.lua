@@ -1,13 +1,16 @@
+require "locstrings"
+
 function _eventName(event)
     event = event or 'nil'
     return STRINGS.UI.CUSTOMIZATIONSCREEN[string.upper(event)] or 'nil'
 end
 
-function _announce(template, event)
-    local prettyname = _eventName(event)
+function _announce(event)
     for i,v in ipairs(AllPlayers) do 
+        local event_string = (GetLocstring(event)
+            or GetLocstring('hurray') .. ' ' .. _eventName(event) .. '!')
         v:DoTaskInTime(math.random() * 2, function(v)
-            v.components.talker:Say(string.format(template, prettyname)) 
+            v.components.talker:Say(event_string) 
         end)
     end
 end
