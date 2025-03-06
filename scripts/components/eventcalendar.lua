@@ -98,7 +98,7 @@ end
 
 
 local function _stopDragonflyPrize()
-    TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=o})
+    TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=0})
 end
 
 
