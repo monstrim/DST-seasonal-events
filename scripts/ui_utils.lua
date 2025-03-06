@@ -1,9 +1,10 @@
 function _eventName(event)
+    event = event or 'nil'
     return STRINGS.UI.CUSTOMIZATIONSCREEN[string.upper(event)] or 'nil'
 end
 
 function _announce(template, event)
-    local prettyname = _eventName(event or 'nil')
+    local prettyname = _eventName(event)
     for i,v in ipairs(AllPlayers) do 
         v:DoTaskInTime(math.random() * 2, function(v)
             v.components.talker:Say(string.format(template, prettyname)) 
