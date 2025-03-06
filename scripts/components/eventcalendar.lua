@@ -173,7 +173,7 @@ local function _checkSeasonalEvents()
     local currentday = TheWorld.state.elapseddaysinseason + 1
     local event_data = seasonal_events[TheWorld.state.season]
 
-    if event_data and (event_data.start_day <= currentday) and (currentday <= event_data.stop_day) then
+    if event_data and (event_data.start_day < currentday) and (currentday <= event_data.stop_day) then
         if not IsSpecialEventActive(event_data.event) then
             StopEvent(current_seasonal_event)
             current_seasonal_event = event_data.event
@@ -212,9 +212,9 @@ local function _seasonInit ()
         data.stop_day = math.ceil(quarters[data.stop](lengths[season]))
 
         -- fix for sad, sad rain on Winter's Feast
-        if season == 'winter' and data.start_day < 3 then
-            local offset = 3 - data.start_day
-            data.start_day = 3
+        if season == 'winter' and data.start_day < 2 then
+            local offset = 2 - data.start_day
+            data.start_day = 2
             data.stop_day = data.stop_day + offset
         end
     end
