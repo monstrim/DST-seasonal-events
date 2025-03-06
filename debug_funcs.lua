@@ -59,3 +59,16 @@ GLOBAL.NextYear = function()
     TheWorld:DoTaskInTime(1, function(inst) GLOBAL.NextMoon() end)
     TheWorld:DoTaskInTime(2, function(inst) GLOBAL.NextMoon() end)
 end
+
+-- F10 for next day
+AddGamePostInit(function()
+    GLOBAL.TheInput:AddKeyHandler(function (key, down)
+        if down then
+            if key == GLOBAL.KEY_F10 then
+                GLOBAL.NextDay()
+            elseif key == GLOBAL.KEY_F11 then
+                GLOBAL.NextYear()
+            end
+        end
+    end)
+end)
