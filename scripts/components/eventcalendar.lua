@@ -178,13 +178,12 @@ local function _checkSeasonalEvents()
             current_seasonal_event = event_data.event
             StartEvent(current_seasonal_event)
             if event_data.fanfarre then event_data.fanfarre() end
-            _announce('Happy %s!', current_seasonal_event)
+            _announce(current_seasonal_event)
             self:Sync()
         end
     else
         if current_seasonal_event then
             StopEvent(current_seasonal_event)
-            -- _announce('%s is over.', current_seasonal_event)
             current_seasonal_event = nil
             self:Sync()
         end
@@ -248,7 +247,7 @@ local function OnMoonChange(inst)
             current_year = (current_year == #year_of_list) and 1 or current_year + 1
             StartEvent(year_of_list[current_year])
             _fireworks()
-            _announce('Happy %s!', year_of_list[current_year])
+            _announce(year_of_list[current_year])
             self:Sync()
         end
     end 
