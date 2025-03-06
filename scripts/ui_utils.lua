@@ -1,18 +1,21 @@
+require "locstrings"
+
 function _eventName(event)
+    event = event or 'nil'
     return STRINGS.UI.CUSTOMIZATIONSCREEN[string.upper(event)] or 'nil'
 end
 
-function _announce(template, event)
-    local prettyname = _eventName(event or 'nil')
+function _announce(event)
     for i,v in ipairs(AllPlayers) do 
+        local event_string = (GetLocstring(event)
+            or GetLocstring('hurray') .. ' ' .. _eventName(event) .. '!')
         v:DoTaskInTime(math.random() * 2, function(v)
-            v.components.talker:Say(string.format(template, prettyname)) 
+            v.components.talker:Say(event_string) 
         end)
     end
 end
 
 function _playSound(sound, name, volume)
-    --TODO: test difference between TheWorld and ThePlayer in multiplayer
     for i,v in ipairs(AllPlayers) do v.SoundEmitter:PlaySound(sound, name, volume) end
 end
 
@@ -45,6 +48,27 @@ function _hallowednightstorm()
     TheWorld:DoTaskInTime(13, function() SpawnPrefab('thunder_far') end)
 
     for i,v in ipairs(AllPlayers) do v:PushEvent('batspooked') end
+end
+
+-------------------
+
+function _carnivalconfetti()
+    for _, player in ipairs(AllPlayers) do
+        for i=1,10 do
+            player:DoTaskInTime(math.random() * 4, function(player) 
+                local angle = math.random() * 2 * math.pi
+                local r = math.random() * 10
+                local x,y,z = player.Transform:GetWorldPosition()
+                local dx = math.sin(angle) * r
+                local dz = math.cos(angle) * r
+                SpawnPrefab('carnival_confetti_fx').Transform:SetPosition(x+dx, y, z+dz) 
+            end)
+        end
+    end
+
+    _playSound('summerevent2022/carnivalgame_wheelspin/turn_on')
+    
+    TheWorld:PushEvent('ms_forceprecipitation', false)
 end
 
 -------------------

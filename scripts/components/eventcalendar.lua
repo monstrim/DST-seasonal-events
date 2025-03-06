@@ -48,6 +48,7 @@ local seasonal_events = {
         event = SPECIAL_EVENTS.CARNIVAL, 
         start = 'early', 
         stop = 'late',
+        fanfarre = _carnivalconfetti
     }
 }
 
@@ -172,19 +173,18 @@ local function _checkSeasonalEvents()
     local currentday = TheWorld.state.elapseddaysinseason + 1
     local event_data = seasonal_events[TheWorld.state.season]
 
-    if event_data and (event_data.start_day <= currentday) and (currentday <= event_data.stop_day) then
+    if event_data and (event_data.start_day < currentday) and (currentday <= event_data.stop_day) then
         if not IsSpecialEventActive(event_data.event) then
             StopEvent(current_seasonal_event)
             current_seasonal_event = event_data.event
             StartEvent(current_seasonal_event)
             if event_data.fanfarre then event_data.fanfarre() end
-            _announce('Happy %s!', current_seasonal_event)
+            _announce(current_seasonal_event)
             self:Sync()
         end
     else
         if current_seasonal_event then
             StopEvent(current_seasonal_event)
-            -- _announce('%s is over.', current_seasonal_event)
             current_seasonal_event = nil
             self:Sync()
         end
@@ -212,9 +212,9 @@ local function _seasonInit ()
         data.stop_day = math.ceil(quarters[data.stop](lengths[season]))
 
         -- fix for sad, sad rain on Winter's Feast
-        if season == 'winter' and data.start_day < 3 then
-            local offset = 3 - data.start_day
-            data.start_day = 3
+        if season == 'winter' and data.start_day < 2 then
+            local offset = 2 - data.start_day
+            data.start_day = 2
             data.stop_day = data.stop_day + offset
         end
     end
@@ -248,7 +248,7 @@ local function OnMoonChange(inst)
             current_year = (current_year == #year_of_list) and 1 or current_year + 1
             StartEvent(year_of_list[current_year])
             _fireworks()
-            _announce('Happy %s!', year_of_list[current_year])
+            _announce(year_of_list[current_year])
             self:Sync()
         end
     end 
