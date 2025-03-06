@@ -48,6 +48,7 @@ local seasonal_events = {
         event = SPECIAL_EVENTS.CARNIVAL, 
         start = 'early', 
         stop = 'late',
+        fanfarre = _carnivalconfetti
     }
 }
 
