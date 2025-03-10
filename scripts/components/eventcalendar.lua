@@ -83,6 +83,28 @@ end
 
 --------------------------------------------------------------------------
 
+local function _startGingerbread()
+    if not TheWorld.components.gingerbreadhunter then
+        TheWorld:AddComponent("gingerbreadhunter")
+        print('[Yearly Seasonal Effects] Adding gingerbreadhunter component.')
+    end
+end
+
+
+local function _stopGingerbread()
+    local cmp = TheWorld.components.gingerbreadhunter
+    if cmp then
+        print('[Yearly Seasonal Effects] Removing gingerbreadhunter callbacks.')
+        TheWorld:RemoveEventCallback("ms_playerjoined", function(src, player) cmp:OnPlayerJoined(player) end, TheWorld) -- will the anon function be found tho?
+        TheWorld:RemoveEventCallback("ms_playerleft",   function(src, player) cmp:OnPlayerLeft(player)   end, TheWorld) -- will the anon function be found tho?
+        TheWorld:StopWatchingWorldState("cycles", function() cmp:OnIsDay() end) -- will the anon function be found tho?
+        print('[Yearly Seasonal Effects] Removing gingerbreadhunter component.')
+        TheWorld:RemoveComponent(cmp)
+    end
+end
+
+--------------------------------------------------------------------------
+
 local function _startCrow()
     if not carnival_host and TheWorld.components.carnivalevent then
         TheWorld.components.carnivalevent:OnPostInit()
@@ -103,6 +125,7 @@ local function _stopCrow()
     end
 end
 
+--------------------------------------------------------------------------
 
 local function _startDragonflyPrize()
     TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=1})
@@ -130,6 +153,8 @@ local function StartEvent(event)
     -- startup event mid-game
     if event == SPECIAL_EVENTS.CARNIVAL then
         _startCrow()
+    elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
+        _startGingerbread()
     elseif event == SPECIAL_EVENTS.YOTD then
         _startDragonflyPrize()
     elseif TheWorld.components.specialeventsetup ~= nil then
@@ -151,6 +176,7 @@ local function StopEvent(event)
         _stopCrow()
     elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
         _stopSnowballs()
+        _stopGingerbread()
     elseif event == SPECIAL_EVENTS.YOTD then
         _stopDragonflyPrize()
     elseif TheWorld.components.specialeventsetup ~= nil then
