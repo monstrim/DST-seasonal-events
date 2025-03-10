@@ -84,22 +84,37 @@ end
 --------------------------------------------------------------------------
 
 local function _startGingerbread()
-    if not TheWorld.components.gingerbreadhunter then
-        TheWorld:AddComponent("gingerbreadhunter")
+    if TheWorld:HasTag('cave') then return end
+    local cmp = TheWorld.components.gingerbreadhunter
+
+    if not cmp then
         print('[Yearly Seasonal Effects] Adding gingerbreadhunter component.')
+        
+        TheWorld:AddComponent("gingerbreadhunter")
+        TheWorld.components.gingerbreadhunter:OnIsDay()
+    elseif cmp.disabled then
+        print('[Yearly Seasonal Effects] Reenabling gingerbreadhunter component.')
+        
+        cmp.OnIsDay = cmp.__OnIsDay
+        cmp.__OnIsDay = nil
+        cmp.disabled = nil
+        TheWorld.components.gingerbreadhunter:OnIsDay()
     end
 end
 
 
 local function _stopGingerbread()
+    if TheWorld:HasTag('cave') then return end
     local cmp = TheWorld.components.gingerbreadhunter
+
     if cmp then
-        print('[Yearly Seasonal Effects] Removing gingerbreadhunter callbacks.')
-        TheWorld:RemoveEventCallback("ms_playerjoined", function(src, player) cmp:OnPlayerJoined(player) end, TheWorld) -- will the anon function be found tho?
-        TheWorld:RemoveEventCallback("ms_playerleft",   function(src, player) cmp:OnPlayerLeft(player)   end, TheWorld) -- will the anon function be found tho?
-        TheWorld:StopWatchingWorldState("cycles", function() cmp:OnIsDay() end) -- will the anon function be found tho?
-        print('[Yearly Seasonal Effects] Removing gingerbreadhunter component.')
-        TheWorld:RemoveComponent(cmp)
+        print('[Yearly Seasonal Effects] Disabling gingerbreadhunter component.')
+
+        cmp.__OnIsDay = cmp.OnIsDay
+        cmp.OnIsDay = function() print('**** disabled OnIsDay ****') end
+        cmp.newhunttask:Cancel()
+        cmp.newhunttask = nil
+        cmp.disabled = true
     end
 end
 
