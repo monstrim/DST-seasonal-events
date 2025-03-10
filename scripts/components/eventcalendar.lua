@@ -111,7 +111,7 @@ local function _stopGingerbread()
         print('[Yearly Seasonal Effects] Disabling gingerbreadhunter component.')
 
         cmp.__OnIsDay = cmp.OnIsDay
-        cmp.OnIsDay = function() print('**** disabled OnIsDay ****') end
+        cmp.OnIsDay = function() end
         cmp.newhunttask:Cancel()
         cmp.newhunttask = nil
         cmp.disabled = true
