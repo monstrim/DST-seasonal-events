@@ -71,6 +71,18 @@ local carnival_host
 --[[ Private member functions ]]
 --------------------------------------------------------------------------
 
+local function _stopSnowballs()
+    local cmp 
+    
+    cmp = TheWorld.components.snowballmanager
+    if cmp and cmp.enabled == true then
+        print('[Yearly Seasonal Effects] Removing snowball spawnining.')
+        cmp:SetEnabled(false)
+    end
+end
+
+--------------------------------------------------------------------------
+
 local function _startCrow()
     if not carnival_host and TheWorld.components.carnivalevent then
         TheWorld.components.carnivalevent:OnPostInit()
@@ -137,6 +149,8 @@ local function StopEvent(event)
     -- cleanup event
     if event == SPECIAL_EVENTS.CARNIVAL then
         _stopCrow()
+    elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
+        _stopSnowballs()
     elseif event == SPECIAL_EVENTS.YOTD then
         _stopDragonflyPrize()
     elseif TheWorld.components.specialeventsetup ~= nil then
