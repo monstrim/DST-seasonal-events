@@ -2,7 +2,7 @@
 
 name = "Yearly Seasonal Events"
 description = [[
-Version 1.2.2
+Version 1.2.3
 
 󰀧 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 
@@ -12,12 +12,12 @@ Version 1.2.2
 󰀏 Added confetti fx fanfarre to Carnival start.
 󰀓 Localized strings for event announcements!
 󰀛 Fixed crash on Year of the Dragonfly end.
-󰀐 Gingerbread pig hunting!
+󰀐 Gingerbread pig hunting! Hotfixed for crash if event ended without hunt spawned.
 󰀨 Fixed snowballs keep appearing after Winter's Feast
 ]]
 
 author = "Monstah"
-version = "1.2.2"
+version = "1.2.3"
 
 
 api_version = 10
