@@ -112,8 +112,10 @@ local function _stopGingerbread()
 
         cmp.__OnIsDay = cmp.OnIsDay
         cmp.OnIsDay = function() end
-        cmp.newhunttask:Cancel()
-        cmp.newhunttask = nil
+        if cmp.newhunttask then
+            cmp.newhunttask:Cancel()
+            cmp.newhunttask = nil
+        end
         cmp.disabled = true
     end
 end
