@@ -2,7 +2,7 @@
 
 name = "Yearly Seasonal Events"
 description = [[
-Version 1.2.3
+Version 1.2.4
 
 󰀧 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 
@@ -14,10 +14,11 @@ Version 1.2.3
 󰀛 Fixed crash on Year of the Dragonfly end.
 󰀐 Gingerbread pig hunting! Hotfixed for crash if event ended without hunt spawned.
 󰀨 Fixed snowballs keep appearing after Winter's Feast
+󰀕 Fixed bug loading saved games without properly setting Year of events
 ]]
 
 author = "Monstah"
-version = "1.2.3"
+version = "1.2.4"
 
 
 api_version = 10
