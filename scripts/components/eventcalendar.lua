@@ -237,15 +237,14 @@ local function _checkSeasonalEvents()
             StartEvent(current_seasonal_event)
             if event_data.fanfarre then event_data.fanfarre() end
             _announce(current_seasonal_event)
-            self:Sync()
         end
     else
         if current_seasonal_event then
             StopEvent(current_seasonal_event)
             current_seasonal_event = nil
-            self:Sync()
         end
     end
+    self:Sync()
 end
 
 
@@ -354,13 +353,17 @@ function self:OnSave()
 end
 
 function self:OnLoad(data)
-    _worldEventsInit()
-    _seasonInit()
-    _checkSeasonalEvents()
+    -- _worldEventsInit()
+    -- _seasonInit()
+    -- _checkSeasonalEvents()
 
     if data ~= nil then
 		if data.current_year ~= nil then
-	        current_year = data.current_year		
+            if current_year and current_year ~= data.current_year then
+                StopEvent(year_of_list[current_year])
+            end
+	        current_year = data.current_year
+            StartEvent(year_of_list[current_year])
 		end
 		if data.current_new_moon ~= nil then
 	        current_new_moon = data.current_new_moon		
