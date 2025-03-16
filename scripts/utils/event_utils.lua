@@ -13,22 +13,32 @@ local carnival_host
 --------------------------------------------------------------------------
 
 function _startCarnival()
-    if not carnival_host and TheWorld.components.carnivalevent then
-        TheWorld.components.carnivalevent:OnPostInit()
-        carnival_host = c_find("carnival_host")
-    end
+    if TheWorld.ismastersim then
+        if not TheWorld:HasTag('cave') then
+            -- carnival host
+            if not carnival_host and TheWorld.components.carnivalevent then
+                TheWorld.components.carnivalevent:OnPostInit()
+                carnival_host = c_find("carnival_host")
+            end
 
-    if carnival_host then
-        carnival_host.sg:GoToState("glide")
+            if carnival_host then
+                carnival_host.sg:GoToState("glide")
+            end
+        end
     end
 end
 
 
 function _stopCarnival()
-    if carnival_host then
-        carnival_host.sg:GoToState("flyaway")
-        carnival_host:DoTaskInTime(3, carnival_host.Remove)
-        carnival_host = nil
+    if TheWorld.ismastersim then
+        if not TheWorld:HasTag('cave') then
+            -- carnival host
+            if carnival_host then
+                carnival_host.sg:GoToState("flyaway")
+                carnival_host:DoTaskInTime(3, carnival_host.Remove)
+                carnival_host = nil
+            end
+        end
     end
 end
 
