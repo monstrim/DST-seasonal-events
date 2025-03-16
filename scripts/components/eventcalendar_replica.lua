@@ -78,10 +78,6 @@ local function OnYearDirty(inst)
     if val and val ~= _previous_year_event then
         DisableEvent(_previous_year_event)
         EnableEvent(val)
-        -- if ThePlayer and _previous_year_event ~= nil then
-        --     ThePlayer.components.talker:Say('Happy ' .. val)
-        --     ThePlayer.SoundEmitter:PlaySound('talk')
-        -- end
     end
     _previous_year_event = val
 end
@@ -91,18 +87,10 @@ local function OnSeasonDirty(inst)
 
     if _previous_seasonal_event and _previous_seasonal_event ~= val then
         DisableEvent(_previous_seasonal_event)
-        -- if ThePlayer then
-        --     ThePlayer.components.talker:Say(val .. ' is over.')
-        --     ThePlayer.SoundEmitter:PlaySound('talk')
-        -- end
     end
 
     if val and val ~= _previous_seasonal_event then
         EnableEvent(val)
-        -- if ThePlayer then
-        --     ThePlayer.components.talker:Say('Happy ' .. val)
-        --     ThePlayer.SoundEmitter:PlaySound('talk')
-        -- end
     end
     _previous_seasonal_event = val
 end
