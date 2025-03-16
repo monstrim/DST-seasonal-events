@@ -5,12 +5,14 @@
 -- It's a lot of crap, and there's still a lot to do. Light one up, and let's fucking go.
 
 --------------------------------------------------------------------------
+--[[ Summer Cawnival ]]
+--------------------------------------------------------------------------
 
 local carnival_host
 
 --------------------------------------------------------------------------
 
-local function _startCrow()
+function _startCarnival()
     if not carnival_host and TheWorld.components.carnivalevent then
         TheWorld.components.carnivalevent:OnPostInit()
         carnival_host = c_find("carnival_host")
@@ -22,7 +24,7 @@ local function _startCrow()
 end
 
 
-local function _stopCrow()
+function _stopCarnival()
     if carnival_host then
         carnival_host.sg:GoToState("flyaway")
         carnival_host:DoTaskInTime(3, carnival_host.Remove)
@@ -31,12 +33,14 @@ local function _stopCrow()
 end
 
 --------------------------------------------------------------------------
+--[[ Winters Feast ]]
+--------------------------------------------------------------------------
 
-local function _startGingerbread()
+function _startWintersFeast()
     if TheWorld:HasTag('cave') then return end
-    local cmp = TheWorld.components.gingerbreadhunter
+    local gingerbreadhunter = TheWorld.components.gingerbreadhunter
 
-    if not cmp then
+    if not gingerbreadhunter then
         print('[Yearly Seasonal Effects] Adding gingerbreadhunter component.')
         
         TheWorld:AddComponent("gingerbreadhunter")
@@ -44,49 +48,46 @@ local function _startGingerbread()
     elseif cmp.disabled then
         print('[Yearly Seasonal Effects] Reenabling gingerbreadhunter component.')
         
-        cmp.OnIsDay = cmp.__OnIsDay
-        cmp.__OnIsDay = nil
-        cmp.disabled = nil
+        gingerbreadhunter.OnIsDay = gingerbreadhunter.__OnIsDay
+        gingerbreadhunter.__OnIsDay = nil
+        gingerbreadhunter.disabled = nil
         TheWorld.components.gingerbreadhunter:OnIsDay()
     end
 end
 
 
-local function _stopGingerbread()
+function _stopWintersFeast()
     if TheWorld:HasTag('cave') then return end
-    local cmp = TheWorld.components.gingerbreadhunter
+    local gingerbreadhunter = TheWorld.components.gingerbreadhunter
+    local snowballmanager = TheWorld.components.snowballmanager
 
-    if cmp then
+    if gingerbreadhunter then
         print('[Yearly Seasonal Effects] Disabling gingerbreadhunter component.')
 
-        cmp.__OnIsDay = cmp.OnIsDay
-        cmp.OnIsDay = function() end
-        if cmp.newhunttask then
-            cmp.newhunttask:Cancel()
-            cmp.newhunttask = nil
+        gingerbreadhunter.__OnIsDay = gingerbreadhunter.OnIsDay
+        gingerbreadhunter.OnIsDay = function() end
+        if gingerbreadhunter.newhunttask then
+            gingerbreadhunter.newhunttask:Cancel()
+            gingerbreadhunter.newhunttask = nil
         end
-        cmp.disabled = true
+        gingerbreadhunter.disabled = true
     end
-end
-
-local function _stopSnowballs()
-    local cmp 
     
-    cmp = TheWorld.components.snowballmanager
-    if cmp and cmp.enabled == true then
+    if snowballmanager and snowballmanager.enabled == true then
         print('[Yearly Seasonal Effects] Removing snowball spawnining.')
-        cmp:SetEnabled(false)
+        snowballmanager:SetEnabled(false)
     end
 end
 
 --------------------------------------------------------------------------
+--[[ Year of the Dragonfly ]]
+--------------------------------------------------------------------------
 
-local function _startDragonflyPrize()
+function _startYOTD()
     TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=1})
 end
 
-
-local function _stopDragonflyPrize()
+function _stopYOTD()
     TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=0})
 end
 
