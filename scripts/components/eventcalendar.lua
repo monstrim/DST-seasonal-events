@@ -86,6 +86,8 @@ local function StartEvent(event)
     -- startup event mid-game
     if event == SPECIAL_EVENTS.CARNIVAL then
         _startCarnival()
+    elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
+        _startHalloween()
     elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
         _startWintersFeast()
     elseif event == SPECIAL_EVENTS.YOTD then
@@ -114,6 +116,8 @@ local function StopEvent(event)
     -- cleanup event
     if event == SPECIAL_EVENTS.CARNIVAL then
         _stopCarnival()
+    elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
+        _stopHalloween()
     elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
         _stopWintersFeast()
     elseif event == SPECIAL_EVENTS.YOTD then

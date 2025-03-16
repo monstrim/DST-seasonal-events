@@ -1,12 +1,17 @@
 require = GLOBAL.require
 
 require('netvars')
+require('utils/event_utils')
 local BatOver = require('widgets/batover')
 
 AddReplicableComponent('eventcalendar')
 
 AddPrefabPostInit('forest_network', function (inst) if GLOBAL.TheWorld.ismastersim then inst:AddComponent('eventcalendar') end end)
 AddPrefabPostInit('cave_network', function (inst) if GLOBAL.TheWorld.ismastersim then inst:AddComponent('eventcalendar') end end)
+
+for i = GLOBAL.HALLOWEDNIGHTS_TINKET_START, GLOBAL.HALLOWEDNIGHTS_TINKET_END do
+    AddPrefabPostInit('trinket_'..tostring(i), GLOBAL._trackTrinkets)
+end
 
 -- route flareoverlay and batspooked events from server to client
 AddPlayerPostInit(function (player) 

@@ -5,6 +5,35 @@
 -- It's a lot of crap, and there's still a lot to do. Light one up, and let's fucking go.
 
 --------------------------------------------------------------------------
+
+local function createTracker()
+    local _tracklist = {}
+
+    local function _removeFn(inst)
+        print('[Yearly Seasonal Events] untracking '..tostring(inst))
+        _tracklist[inst.GUID] = nil
+    end
+
+    local function _trackFn(inst)
+        print('[Yearly Seasonal Events] tracking '..tostring(inst))
+        _tracklist[inst.GUID] = inst
+        inst:ListenForEvent('onremove', _removeFn)
+    end
+
+    local function _iterateFn(fn)
+        for GUID, inst in pairs(_tracklist) do
+            if inst then
+                print('[Yearly Seasonal Events] callback on '..tostring(inst))
+                fn(inst)
+            else
+                print('[Yearly Seasonal Events] not found '..GUID)
+            end
+        end
+    end
+    return _trackFn, _iterateFn
+end
+
+--------------------------------------------------------------------------
 --[[ Summer Cawnival ]]
 --------------------------------------------------------------------------
 
@@ -39,6 +68,27 @@ function _stopCarnival()
                 carnival_host = nil
             end
         end
+    end
+end
+
+--------------------------------------------------------------------------
+--[[ Hallowed Nights ]]
+--------------------------------------------------------------------------
+
+_trackTrinkets, _iterTrinkets = createTracker()
+
+--------------------------------------------------------------------------
+
+function _startHalloween()
+    if TheWorld.ismastersim then
+        _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = 5 end)
+    end
+end
+
+
+function _stopHalloween()
+    if TheWorld.ismastersim then
+        _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = nil end)
     end
 end
 
