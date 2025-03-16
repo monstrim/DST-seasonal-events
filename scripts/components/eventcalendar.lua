@@ -90,7 +90,9 @@ local function StartEvent(event)
         _startWintersFeast()
     elseif event == SPECIAL_EVENTS.YOTD then
         _startYOTD()
-    elseif TheWorld.components.specialeventsetup ~= nil then
+    end
+    
+    if TheWorld.components.specialeventsetup ~= nil then
         TheWorld.components.specialeventsetup:SetupNewSpecialEvent(event)
     else
         print('[Yearly Seasonal Events] TheWorld.components.specialeventsetup not found')
@@ -107,7 +109,7 @@ local function StopEvent(event)
     end
     print(string.format('[Yearly Seasonal Events] Stopping event %s', event))
     
-    WORLD_EXTRA_EVENTS[event] = false
+    WORLD_EXTRA_EVENTS[event] = nil
 
     -- cleanup event
     if event == SPECIAL_EVENTS.CARNIVAL then
@@ -116,7 +118,9 @@ local function StopEvent(event)
         _stopWintersFeast()
     elseif event == SPECIAL_EVENTS.YOTD then
         _stopYOTD()
-    elseif TheWorld.components.specialeventsetup ~= nil then
+    end
+    
+    if TheWorld.components.specialeventsetup ~= nil then
         TheWorld.components.specialeventsetup:ShutdownPrevSpecialEvent(event)
     else
         print('[Yearly Seasonal Events] TheWorld.components.specialeventsetup not found')
