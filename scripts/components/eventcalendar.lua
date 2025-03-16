@@ -73,12 +73,13 @@ local current_seasonal_event
 
 local function StartEvent(event)
     if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
-        print(string.format('Event %s', event or 'nil'))
+        print(string.format('[Yearly Seasonal Events] Event %s', event or 'nil'))
         return
     elseif IsSpecialEventActive(event) then 
-        print(string.format('Event %s already active', event))
+        print(string.format('[Yearly Seasonal Events] Event %s already active', event))
         return
     end
+    print(string.format('[Yearly Seasonal Events] Starting event %s', event))
 
     WORLD_EXTRA_EVENTS[event] = true
 
@@ -92,14 +93,19 @@ local function StartEvent(event)
     elseif TheWorld.components.specialeventsetup ~= nil then
         TheWorld.components.specialeventsetup:SetupNewSpecialEvent(event)
     else
-        print('TheWorld.components.specialeventsetup not found')
+        print('[Yearly Seasonal Events] TheWorld.components.specialeventsetup not found')
     end
 end
 
 local function StopEvent(event)
-    if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE or not IsSpecialEventActive(event) then 
+    if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
+        print(string.format('[Yearly Seasonal Events] Event %s', event or 'nil'))
+        return
+    elseif not IsSpecialEventActive(event) then 
+        print(string.format('[Yearly Seasonal Events] Event %s already inactive', event))
         return
     end
+    print(string.format('[Yearly Seasonal Events] Stopping event %s', event))
     
     WORLD_EXTRA_EVENTS[event] = false
 
@@ -113,7 +119,7 @@ local function StopEvent(event)
     elseif TheWorld.components.specialeventsetup ~= nil then
         TheWorld.components.specialeventsetup:ShutdownPrevSpecialEvent(event)
     else
-        print('TheWorld.components.specialeventsetup not found')
+        print('[Yearly Seasonal Events] TheWorld.components.specialeventsetup not found')
     end
 end
 
