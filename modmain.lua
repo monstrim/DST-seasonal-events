@@ -1,9 +1,9 @@
 require = GLOBAL.require
 
-require("netvars")
-local BatOver = require "widgets/batover"
+require('netvars')
+local BatOver = require('widgets/batover')
 
-AddReplicableComponent("eventcalendar")
+AddReplicableComponent('eventcalendar')
 
 AddPrefabPostInit('forest_network', function (inst) if GLOBAL.TheWorld.ismastersim then inst:AddComponent('eventcalendar') end end)
 AddPrefabPostInit('cave_network', function (inst) if GLOBAL.TheWorld.ismastersim then inst:AddComponent('eventcalendar') end end)
