@@ -1,0 +1,104 @@
+-- Replicates, activates and deactivates all functionalities that would normally be done once at game start,
+-- depending on wether the events are active or not, and then left alone throughout the gaming session.
+
+-- The main mod logic is very simple, but here the bulk of the work is done.
+-- It's a lot of crap, and there's still a lot to do. Light one up, and let's fucking go.
+
+--------------------------------------------------------------------------
+--[[ Summer Cawnival ]]
+--------------------------------------------------------------------------
+
+local carnival_host
+
+--------------------------------------------------------------------------
+
+function _startCarnival()
+    if TheWorld.ismastersim then
+        if not TheWorld:HasTag('cave') then
+            -- carnival host
+            if not carnival_host and TheWorld.components.carnivalevent then
+                TheWorld.components.carnivalevent:OnPostInit()
+                carnival_host = c_find("carnival_host")
+            end
+
+            if carnival_host then
+                carnival_host.sg:GoToState("glide")
+            end
+        end
+    end
+end
+
+
+function _stopCarnival()
+    if TheWorld.ismastersim then
+        if not TheWorld:HasTag('cave') then
+            -- carnival host
+            if carnival_host then
+                carnival_host.sg:GoToState("flyaway")
+                carnival_host:DoTaskInTime(3, carnival_host.Remove)
+                carnival_host = nil
+            end
+        end
+    end
+end
+
+--------------------------------------------------------------------------
+--[[ Winters Feast ]]
+--------------------------------------------------------------------------
+
+function _startWintersFeast()
+    if TheWorld:HasTag('cave') then return end
+    local gingerbreadhunter = TheWorld.components.gingerbreadhunter
+
+    if not gingerbreadhunter then
+        print('[Yearly Seasonal Effects] Adding gingerbreadhunter component.')
+        
+        TheWorld:AddComponent("gingerbreadhunter")
+        TheWorld.components.gingerbreadhunter:OnIsDay()
+    elseif cmp.disabled then
+        print('[Yearly Seasonal Effects] Reenabling gingerbreadhunter component.')
+        
+        gingerbreadhunter.OnIsDay = gingerbreadhunter.__OnIsDay
+        gingerbreadhunter.__OnIsDay = nil
+        gingerbreadhunter.disabled = nil
+        TheWorld.components.gingerbreadhunter:OnIsDay()
+    end
+end
+
+
+function _stopWintersFeast()
+    if TheWorld:HasTag('cave') then return end
+    local gingerbreadhunter = TheWorld.components.gingerbreadhunter
+    local snowballmanager = TheWorld.components.snowballmanager
+
+    if gingerbreadhunter then
+        print('[Yearly Seasonal Effects] Disabling gingerbreadhunter component.')
+
+        gingerbreadhunter.__OnIsDay = gingerbreadhunter.OnIsDay
+        gingerbreadhunter.OnIsDay = function() end
+        if gingerbreadhunter.newhunttask then
+            gingerbreadhunter.newhunttask:Cancel()
+            gingerbreadhunter.newhunttask = nil
+        end
+        gingerbreadhunter.disabled = true
+    end
+    
+    if snowballmanager and snowballmanager.enabled == true then
+        print('[Yearly Seasonal Effects] Removing snowball spawnining.')
+        snowballmanager:SetEnabled(false)
+    end
+end
+
+--------------------------------------------------------------------------
+--[[ Year of the Dragonfly ]]
+--------------------------------------------------------------------------
+
+function _startYOTD()
+    TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=1})
+end
+
+function _stopYOTD()
+    TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=0})
+end
+
+

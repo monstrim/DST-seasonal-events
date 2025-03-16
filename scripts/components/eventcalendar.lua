@@ -8,7 +8,8 @@ return Class(function(self, inst)
 --[[ Dependencies ]]
 --------------------------------------------------------------------------
 
-require "ui_utils"
+require "utils/ui_utils"
+require "utils/event_utils"
 -- require "event_utils" -- event setup/cleanup, crow, ?fanfarres?
 
 --------------------------------------------------------------------------
@@ -65,95 +66,9 @@ self.inst = inst
 local current_year
 local current_new_moon
 local current_seasonal_event
-local carnival_host
 
 --------------------------------------------------------------------------
 --[[ Private member functions ]]
---------------------------------------------------------------------------
-
-local function _stopSnowballs()
-    local cmp 
-    
-    cmp = TheWorld.components.snowballmanager
-    if cmp and cmp.enabled == true then
-        print('[Yearly Seasonal Effects] Removing snowball spawnining.')
-        cmp:SetEnabled(false)
-    end
-end
-
---------------------------------------------------------------------------
-
-local function _startGingerbread()
-    if TheWorld:HasTag('cave') then return end
-    local cmp = TheWorld.components.gingerbreadhunter
-
-    if not cmp then
-        print('[Yearly Seasonal Effects] Adding gingerbreadhunter component.')
-        
-        TheWorld:AddComponent("gingerbreadhunter")
-        TheWorld.components.gingerbreadhunter:OnIsDay()
-    elseif cmp.disabled then
-        print('[Yearly Seasonal Effects] Reenabling gingerbreadhunter component.')
-        
-        cmp.OnIsDay = cmp.__OnIsDay
-        cmp.__OnIsDay = nil
-        cmp.disabled = nil
-        TheWorld.components.gingerbreadhunter:OnIsDay()
-    end
-end
-
-
-local function _stopGingerbread()
-    if TheWorld:HasTag('cave') then return end
-    local cmp = TheWorld.components.gingerbreadhunter
-
-    if cmp then
-        print('[Yearly Seasonal Effects] Disabling gingerbreadhunter component.')
-
-        cmp.__OnIsDay = cmp.OnIsDay
-        cmp.OnIsDay = function() end
-        if cmp.newhunttask then
-            cmp.newhunttask:Cancel()
-            cmp.newhunttask = nil
-        end
-        cmp.disabled = true
-    end
-end
-
---------------------------------------------------------------------------
-
-local function _startCrow()
-    if not carnival_host and TheWorld.components.carnivalevent then
-        TheWorld.components.carnivalevent:OnPostInit()
-        carnival_host = c_find("carnival_host")
-    end
-
-    if carnival_host then
-        carnival_host.sg:GoToState("glide")
-    end
-end
-
-
-local function _stopCrow()
-    if carnival_host then
-        carnival_host.sg:GoToState("flyaway")
-        carnival_host:DoTaskInTime(3, carnival_host.Remove)
-        carnival_host = nil
-    end
-end
-
---------------------------------------------------------------------------
-
-local function _startDragonflyPrize()
-    TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=1})
-end
-
-
-local function _stopDragonflyPrize()
-    TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=0})
-end
-
-
 --------------------------------------------------------------------------
 
 local function StartEvent(event)
@@ -169,11 +84,11 @@ local function StartEvent(event)
 
     -- startup event mid-game
     if event == SPECIAL_EVENTS.CARNIVAL then
-        _startCrow()
+        _startCarnival()
     elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
-        _startGingerbread()
+        _startWintersFeast()
     elseif event == SPECIAL_EVENTS.YOTD then
-        _startDragonflyPrize()
+        _startYOTD()
     elseif TheWorld.components.specialeventsetup ~= nil then
         TheWorld.components.specialeventsetup:SetupNewSpecialEvent(event)
     else
@@ -190,12 +105,11 @@ local function StopEvent(event)
 
     -- cleanup event
     if event == SPECIAL_EVENTS.CARNIVAL then
-        _stopCrow()
+        _stopCarnival()
     elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
-        _stopSnowballs()
-        _stopGingerbread()
+        _stopWintersFeast()
     elseif event == SPECIAL_EVENTS.YOTD then
-        _stopDragonflyPrize()
+        _stopYOTD()
     elseif TheWorld.components.specialeventsetup ~= nil then
         TheWorld.components.specialeventsetup:ShutdownPrevSpecialEvent(event)
     else
