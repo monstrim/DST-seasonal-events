@@ -1,6 +1,5 @@
 require = GLOBAL.require
 
--- modimport("debug_funcs")
 require("netvars")
 local BatOver = require "widgets/batover"
 
