@@ -8,7 +8,7 @@ return Class(function(self, inst)
 --[[ Dependencies ]]
 --------------------------------------------------------------------------
 
-require "ui_utils"
+require "utils/ui_utils"
 -- require "event_utils" -- event setup/cleanup, crow, ?fanfarres?
 
 --------------------------------------------------------------------------
