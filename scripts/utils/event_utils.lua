@@ -121,7 +121,7 @@ function _stopWintersFeast()
     local gingerbreadhunter = TheWorld.components.gingerbreadhunter
     local snowballmanager = TheWorld.components.snowballmanager
 
-    if gingerbreadhunter and gingerbread.disabled == true then
+    if gingerbreadhunter and gingerbreadhunter.disabled == true then
         print('[Yearly Seasonal Events] Gingerbreadhunter already disabled.')
     elseif gingerbreadhunter then
         print('[Yearly Seasonal Events] Disabling gingerbreadhunter component.')
