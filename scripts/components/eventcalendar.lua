@@ -73,7 +73,7 @@ local current_seasonal_event
 
 local function StartEvent(event)
     if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
-        print(string.format('[Yearly Seasonal Events] Event %s', event or 'nil'))
+        print(string.format('[Yearly Seasonal Events] Attempting start %s', event or 'nil'))
         return
     elseif IsSpecialEventActive(event) then 
         print(string.format('[Yearly Seasonal Events] Event %s already active', event))
@@ -103,7 +103,7 @@ end
 
 local function StopEvent(event)
     if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
-        print(string.format('[Yearly Seasonal Events] Event %s', event or 'nil'))
+        print(string.format('[Yearly Seasonal Events] Attempting stop %s', event or 'nil'))
         return
     elseif not IsSpecialEventActive(event) then 
         print(string.format('[Yearly Seasonal Events] Event %s already inactive', event))
@@ -134,7 +134,7 @@ end
 --------------------------------------------------------------------------
 
 local function _worldEventsInit()
-    -- Events launched after last update
+    -- Add events launched after last update (unpredictable order, but after the existing listed ones)
     for v,_ in pairs(IS_YEAR_OF_THE_SPECIAL_EVENTS) do
         if not year_of_set[v] then
             print('[Yearly Seasonal Events] adding ' .. v)
@@ -143,13 +143,26 @@ local function _worldEventsInit()
         end
     end
 
+    -- Clear extra events
+    for event, _ in pairs(WORLD_EXTRA_EVENTS) do
+        StopEvent(event)
+        WORLD_EXTRA_EVENTS[event] = nil 
+    end
+
     -- If a Year Of is currently active, set it to current year, otherwise begin at the last
     if WORLD_SPECIAL_EVENT and IS_YEAR_OF_THE_SPECIAL_EVENTS[WORLD_SPECIAL_EVENT] then
         current_year = table.invert(year_of_list)[WORLD_SPECIAL_EVENT]
+        WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
     else
         current_year = #year_of_list
     end
-    WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
+
+    -- If any other event is currently active, stop it
+    if WORLD_SPECIAL_EVENT then
+        StopEvent(WORLD_SPECIAL_EVENT)
+        WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
+    end
+
     StartEvent(year_of_list[current_year])
 end
 
