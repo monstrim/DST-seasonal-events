@@ -49,7 +49,7 @@ local function DisableEvent(event)
     if event == nil or event == SPECIAL_EVENTS.NONE then
         return
     end
-    WORLD_EXTRA_EVENTS[event] = false
+    WORLD_EXTRA_EVENTS[event] = nil
     local key = SPECIAL_EVENT_KEYS[event]
     if key and TECH[key] then
         TECH[key].SCIENCE = 10
@@ -99,13 +99,14 @@ end
 --[[ Initialization ]]
 --------------------------------------------------------------------------
 
--- Disable all extra events so mod will use them
-for k,v in pairs(WORLD_EXTRA_EVENTS) do WORLD_EXTRA_EVENTS[k] = nil end
+-- Let's try to have the main component do that instead (so it correctly stops)
+-- -- Disable all extra events so mod will use them
+-- for k,v in pairs(WORLD_EXTRA_EVENTS) do WORLD_EXTRA_EVENTS[k] = nil end
 
--- Disable, unless the main component is going to need it
-if not (TheWorld.ismastersim and IS_YEAR_OF_THE_SPECIAL_EVENTS[WORLD_SPECIAL_EVENT]) then
-    WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
-end
+-- -- Disable, unless the main component is going to need it
+-- if not (TheWorld.ismastersim and IS_YEAR_OF_THE_SPECIAL_EVENTS[WORLD_SPECIAL_EVENT]) then
+--     WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
+-- end
 
 -- Listen for events
 inst:ListenForEvent('currentyearevent_dirty', OnYearDirty)
