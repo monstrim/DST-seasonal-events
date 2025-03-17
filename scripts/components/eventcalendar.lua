@@ -8,7 +8,8 @@ return Class(function(self, inst)
 --[[ Dependencies ]]
 --------------------------------------------------------------------------
 
-require "ui_utils"
+require "utils/ui_utils"
+require "utils/event_utils"
 -- require "event_utils" -- event setup/cleanup, crow, ?fanfarres?
 
 --------------------------------------------------------------------------
@@ -65,148 +66,75 @@ self.inst = inst
 local current_year
 local current_new_moon
 local current_seasonal_event
-local carnival_host
 
 --------------------------------------------------------------------------
 --[[ Private member functions ]]
 --------------------------------------------------------------------------
 
-local function _stopSnowballs()
-    local cmp 
-    
-    cmp = TheWorld.components.snowballmanager
-    if cmp and cmp.enabled == true then
-        print('[Yearly Seasonal Effects] Removing snowball spawnining.')
-        cmp:SetEnabled(false)
-    end
-end
-
---------------------------------------------------------------------------
-
-local function _startGingerbread()
-    if TheWorld:HasTag('cave') then return end
-    local cmp = TheWorld.components.gingerbreadhunter
-
-    if not cmp then
-        print('[Yearly Seasonal Effects] Adding gingerbreadhunter component.')
-        
-        TheWorld:AddComponent("gingerbreadhunter")
-        TheWorld.components.gingerbreadhunter:OnIsDay()
-    elseif cmp.disabled then
-        print('[Yearly Seasonal Effects] Reenabling gingerbreadhunter component.')
-        
-        cmp.OnIsDay = cmp.__OnIsDay
-        cmp.__OnIsDay = nil
-        cmp.disabled = nil
-        TheWorld.components.gingerbreadhunter:OnIsDay()
-    end
-end
-
-
-local function _stopGingerbread()
-    if TheWorld:HasTag('cave') then return end
-    local cmp = TheWorld.components.gingerbreadhunter
-
-    if cmp then
-        print('[Yearly Seasonal Effects] Disabling gingerbreadhunter component.')
-
-        cmp.__OnIsDay = cmp.OnIsDay
-        cmp.OnIsDay = function() end
-        if cmp.newhunttask then
-            cmp.newhunttask:Cancel()
-            cmp.newhunttask = nil
-        end
-        cmp.disabled = true
-    end
-end
-
---------------------------------------------------------------------------
-
-local function _startCrow()
-    if not carnival_host and TheWorld.components.carnivalevent then
-        TheWorld.components.carnivalevent:OnPostInit()
-        carnival_host = c_find("carnival_host")
-    end
-
-    if carnival_host then
-        carnival_host.sg:GoToState("glide")
-    end
-end
-
-
-local function _stopCrow()
-    if carnival_host then
-        carnival_host.sg:GoToState("flyaway")
-        carnival_host:DoTaskInTime(3, carnival_host.Remove)
-        carnival_host = nil
-    end
-end
-
---------------------------------------------------------------------------
-
-local function _startDragonflyPrize()
-    TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=1})
-end
-
-
-local function _stopDragonflyPrize()
-    TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=0})
-end
-
-
---------------------------------------------------------------------------
-
 local function StartEvent(event)
     if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
-        print(string.format('Event %s', event or 'nil'))
+        print(string.format('[Yearly Seasonal Events] Attempting start %s', event or 'nil'))
         return
     elseif IsSpecialEventActive(event) then 
-        print(string.format('Event %s already active', event))
+        print(string.format('[Yearly Seasonal Events] Event %s already active', event))
         return
     end
+    print(string.format('[Yearly Seasonal Events] Starting event %s', event))
 
     WORLD_EXTRA_EVENTS[event] = true
 
     -- startup event mid-game
     if event == SPECIAL_EVENTS.CARNIVAL then
-        _startCrow()
+        _startCarnival()
+    elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
+        _startHalloween()
     elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
-        _startGingerbread()
+        _startWintersFeast()
     elseif event == SPECIAL_EVENTS.YOTD then
-        _startDragonflyPrize()
-    elseif TheWorld.components.specialeventsetup ~= nil then
+        _startYOTD()
+    end
+    
+    if TheWorld.components.specialeventsetup ~= nil then
         TheWorld.components.specialeventsetup:SetupNewSpecialEvent(event)
     else
-        print('TheWorld.components.specialeventsetup not found')
+        print('[Yearly Seasonal Events] TheWorld.components.specialeventsetup not found')
     end
 end
 
 local function StopEvent(event)
-    if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE or not IsSpecialEventActive(event) then 
+    if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
+        print(string.format('[Yearly Seasonal Events] Attempting stop %s', event or 'nil'))
+        return
+    elseif not IsSpecialEventActive(event) then 
+        print(string.format('[Yearly Seasonal Events] Event %s already inactive', event))
         return
     end
+    print(string.format('[Yearly Seasonal Events] Stopping event %s', event))
     
-    WORLD_EXTRA_EVENTS[event] = false
+    WORLD_EXTRA_EVENTS[event] = nil
 
     -- cleanup event
     if event == SPECIAL_EVENTS.CARNIVAL then
-        _stopCrow()
+        _stopCarnival()
+    elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
+        _stopHalloween()
     elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
-        _stopSnowballs()
-        _stopGingerbread()
+        _stopWintersFeast()
     elseif event == SPECIAL_EVENTS.YOTD then
-        _stopDragonflyPrize()
-    elseif TheWorld.components.specialeventsetup ~= nil then
+        _stopYOTD()
+    end
+    
+    if TheWorld.components.specialeventsetup ~= nil then
         TheWorld.components.specialeventsetup:ShutdownPrevSpecialEvent(event)
     else
-        print('TheWorld.components.specialeventsetup not found')
+        print('[Yearly Seasonal Events] TheWorld.components.specialeventsetup not found')
     end
 end
 
 --------------------------------------------------------------------------
 
 local function _worldEventsInit()
-    -- Events launched after last update
+    -- Add events launched after last update (unpredictable order, but after the existing listed ones)
     for v,_ in pairs(IS_YEAR_OF_THE_SPECIAL_EVENTS) do
         if not year_of_set[v] then
             print('[Yearly Seasonal Events] adding ' .. v)
@@ -215,13 +143,26 @@ local function _worldEventsInit()
         end
     end
 
+    -- Clear extra events
+    for event, _ in pairs(WORLD_EXTRA_EVENTS) do
+        StopEvent(event)
+        WORLD_EXTRA_EVENTS[event] = nil 
+    end
+
     -- If a Year Of is currently active, set it to current year, otherwise begin at the last
     if WORLD_SPECIAL_EVENT and IS_YEAR_OF_THE_SPECIAL_EVENTS[WORLD_SPECIAL_EVENT] then
         current_year = table.invert(year_of_list)[WORLD_SPECIAL_EVENT]
+        WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
     else
         current_year = #year_of_list
     end
-    WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
+
+    -- If any other event is currently active, stop it
+    if WORLD_SPECIAL_EVENT then
+        StopEvent(WORLD_SPECIAL_EVENT)
+        WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
+    end
+
     StartEvent(year_of_list[current_year])
 end
 

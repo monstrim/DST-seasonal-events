@@ -2,7 +2,7 @@
 
 name = "Yearly Seasonal Events"
 description = [[
-Version 1.2.4
+Version 1.2.5
 
 󰀧 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 
@@ -15,10 +15,12 @@ Version 1.2.4
 󰀐 Gingerbread pig hunting! Hotfixed for crash if event ended without hunt spawned.
 󰀨 Fixed snowballs keep appearing after Winter's Feast
 󰀕 Fixed bug loading saved games without properly setting Year of events
+󰀏 Halloween trinkets worth candy on Halloween.
+󰀛 Many small fixes. Many future improvements mapped.
 ]]
 
 author = "Monstah"
-version = "1.2.4"
+version = "1.2.5"
 
 
 api_version = 10
