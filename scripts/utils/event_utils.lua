@@ -101,12 +101,12 @@ function _startWintersFeast()
     local gingerbreadhunter = TheWorld.components.gingerbreadhunter
 
     if not gingerbreadhunter then
-        print('[Yearly Seasonal Effects] Adding gingerbreadhunter component.')
+        print('[Yearly Seasonal Events] Adding gingerbreadhunter component.')
         
         TheWorld:AddComponent("gingerbreadhunter")
         TheWorld.components.gingerbreadhunter:OnIsDay()
     elseif cmp.disabled then
-        print('[Yearly Seasonal Effects] Reenabling gingerbreadhunter component.')
+        print('[Yearly Seasonal Events] Reenabling gingerbreadhunter component.')
         
         gingerbreadhunter.OnIsDay = gingerbreadhunter.__OnIsDay
         gingerbreadhunter.__OnIsDay = nil
@@ -121,8 +121,10 @@ function _stopWintersFeast()
     local gingerbreadhunter = TheWorld.components.gingerbreadhunter
     local snowballmanager = TheWorld.components.snowballmanager
 
-    if gingerbreadhunter then
-        print('[Yearly Seasonal Effects] Disabling gingerbreadhunter component.')
+    if gingerbreadhunter and gingerbread.disabled == true then
+        print('[Yearly Seasonal Events] Gingerbreadhunter already disabled.')
+    elseif gingerbreadhunter then
+        print('[Yearly Seasonal Events] Disabling gingerbreadhunter component.')
 
         gingerbreadhunter.__OnIsDay = gingerbreadhunter.OnIsDay
         gingerbreadhunter.OnIsDay = function() end
@@ -134,7 +136,7 @@ function _stopWintersFeast()
     end
     
     if snowballmanager and snowballmanager.enabled == true then
-        print('[Yearly Seasonal Effects] Removing snowball spawnining.')
+        print('[Yearly Seasonal Events] Removing snowball spawnining.')
         snowballmanager:SetEnabled(false)
     end
 end

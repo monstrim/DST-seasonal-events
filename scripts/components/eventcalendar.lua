@@ -73,7 +73,7 @@ local current_seasonal_event
 
 local function StartEvent(event)
     if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
-        print(string.format('[Yearly Seasonal Events] Event %s', event or 'nil'))
+        print(string.format('[Yearly Seasonal Events] Attempting start %s', event or 'nil'))
         return
     elseif IsSpecialEventActive(event) then 
         print(string.format('[Yearly Seasonal Events] Event %s already active', event))
@@ -103,7 +103,7 @@ end
 
 local function StopEvent(event)
     if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
-        print(string.format('[Yearly Seasonal Events] Event %s', event or 'nil'))
+        print(string.format('[Yearly Seasonal Events] Attempting stop %s', event or 'nil'))
         return
     elseif not IsSpecialEventActive(event) then 
         print(string.format('[Yearly Seasonal Events] Event %s already inactive', event))
