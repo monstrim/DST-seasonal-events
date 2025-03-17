@@ -105,7 +105,7 @@ function _startWintersFeast()
         
         TheWorld:AddComponent("gingerbreadhunter")
         TheWorld.components.gingerbreadhunter:OnIsDay()
-    elseif cmp.disabled then
+    elseif gingerbreadhunter.disabled then
         print('[Yearly Seasonal Events] Reenabling gingerbreadhunter component.')
         
         gingerbreadhunter.OnIsDay = gingerbreadhunter.__OnIsDay
