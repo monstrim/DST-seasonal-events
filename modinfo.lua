@@ -2,25 +2,21 @@
 
 name = "Yearly Seasonal Events"
 description = [[
-Version 1.2.5
+Version 1.3
 
 󰀧 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 
 󰀭 There's always one Year Of event active, which cycles on the second new moon after beginning of winter.
 
 ----------------------------------------
-󰀏 Added confetti fx fanfarre to Carnival start.
-󰀓 Localized strings for event announcements!
-󰀛 Fixed crash on Year of the Dragonfly end.
-󰀐 Gingerbread pig hunting! Hotfixed for crash if event ended without hunt spawned.
-󰀨 Fixed snowballs keep appearing after Winter's Feast
-󰀕 Fixed bug loading saved games without properly setting Year of events
-󰀏 Halloween trinkets worth candy on Halloween.
-󰀛 Many small fixes. Many future improvements mapped.
+
+󰀩 Major code refactor. 
+󰀝 Added framework for future improvements regarding every Special Event game feature that must be enabled/disabled. (there's a lot! 󰀕)
+󰀓 Many minor fixes.
 ]]
 
 author = "Monstah"
-version = "1.2.5"
+version = "1.3"
 
 
 api_version = 10

@@ -8,10 +8,6 @@ return Class(function(self, inst)
 --[[ Dependencies ]]
 --------------------------------------------------------------------------
 
-require "utils/ui_utils"
-require "utils/event_utils"
--- require "event_utils" -- event setup/cleanup, crow, ?fanfarres?
-
 --------------------------------------------------------------------------
 --[[ Constants ]]
 --------------------------------------------------------------------------
@@ -35,21 +31,18 @@ local seasonal_events = {
         event = SPECIAL_EVENTS.HALLOWED_NIGHTS, 
         start = 'mid', 
         stop = 'late',
-        fanfarre = _hallowednightstorm
     },
     
     winter = {
         event = SPECIAL_EVENTS.WINTERS_FEAST, 
         start = 'early', 
         stop = 'mid', 
-        fanfarre = _winterfeastjingle
     },
     
     summer = {
         event = SPECIAL_EVENTS.CARNIVAL, 
         start = 'early', 
         stop = 'late',
-        fanfarre = _carnivalconfetti
     }
 }
 
@@ -66,74 +59,13 @@ self.inst = inst
 local current_year
 local current_new_moon
 local current_seasonal_event
+local replica = self.inst.replica.eventcalendar
 
 --------------------------------------------------------------------------
 --[[ Private member functions ]]
 --------------------------------------------------------------------------
 
-local function StartEvent(event)
-    if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
-        print(string.format('[Yearly Seasonal Events] Attempting start %s', event or 'nil'))
-        return
-    elseif IsSpecialEventActive(event) then 
-        print(string.format('[Yearly Seasonal Events] Event %s already active', event))
-        return
-    end
-    print(string.format('[Yearly Seasonal Events] Starting event %s', event))
-
-    WORLD_EXTRA_EVENTS[event] = true
-
-    -- startup event mid-game
-    if event == SPECIAL_EVENTS.CARNIVAL then
-        _startCarnival()
-    elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
-        _startHalloween()
-    elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
-        _startWintersFeast()
-    elseif event == SPECIAL_EVENTS.YOTD then
-        _startYOTD()
-    end
-    
-    if TheWorld.components.specialeventsetup ~= nil then
-        TheWorld.components.specialeventsetup:SetupNewSpecialEvent(event)
-    else
-        print('[Yearly Seasonal Events] TheWorld.components.specialeventsetup not found')
-    end
-end
-
-local function StopEvent(event)
-    if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
-        print(string.format('[Yearly Seasonal Events] Attempting stop %s', event or 'nil'))
-        return
-    elseif not IsSpecialEventActive(event) then 
-        print(string.format('[Yearly Seasonal Events] Event %s already inactive', event))
-        return
-    end
-    print(string.format('[Yearly Seasonal Events] Stopping event %s', event))
-    
-    WORLD_EXTRA_EVENTS[event] = nil
-
-    -- cleanup event
-    if event == SPECIAL_EVENTS.CARNIVAL then
-        _stopCarnival()
-    elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
-        _stopHalloween()
-    elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
-        _stopWintersFeast()
-    elseif event == SPECIAL_EVENTS.YOTD then
-        _stopYOTD()
-    end
-    
-    if TheWorld.components.specialeventsetup ~= nil then
-        TheWorld.components.specialeventsetup:ShutdownPrevSpecialEvent(event)
-    else
-        print('[Yearly Seasonal Events] TheWorld.components.specialeventsetup not found')
-    end
-end
-
---------------------------------------------------------------------------
-
-local function _worldEventsInit()
+local function _yearOfInit()
     -- Add events launched after last update (unpredictable order, but after the existing listed ones)
     for v,_ in pairs(IS_YEAR_OF_THE_SPECIAL_EVENTS) do
         if not year_of_set[v] then
@@ -143,27 +75,12 @@ local function _worldEventsInit()
         end
     end
 
-    -- Clear extra events
-    for event, _ in pairs(WORLD_EXTRA_EVENTS) do
-        StopEvent(event)
-        WORLD_EXTRA_EVENTS[event] = nil 
-    end
-
     -- If a Year Of is currently active, set it to current year, otherwise begin at the last
     if WORLD_SPECIAL_EVENT and IS_YEAR_OF_THE_SPECIAL_EVENTS[WORLD_SPECIAL_EVENT] then
         current_year = table.invert(year_of_list)[WORLD_SPECIAL_EVENT]
-        WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
     else
         current_year = #year_of_list
     end
-
-    -- If any other event is currently active, stop it
-    if WORLD_SPECIAL_EVENT then
-        StopEvent(WORLD_SPECIAL_EVENT)
-        WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
-    end
-
-    StartEvent(year_of_list[current_year])
 end
 
 
@@ -172,20 +89,10 @@ local function _checkSeasonalEvents()
     local event_data = seasonal_events[TheWorld.state.season]
 
     if event_data and (event_data.start_day < currentday) and (currentday <= event_data.stop_day) then
-        if not IsSpecialEventActive(event_data.event) then
-            StopEvent(current_seasonal_event)
-            current_seasonal_event = event_data.event
-            StartEvent(current_seasonal_event)
-            if event_data.fanfarre then event_data.fanfarre() end
-            _announce(current_seasonal_event)
-        end
+        current_seasonal_event = event_data.event
     else
-        if current_seasonal_event then
-            StopEvent(current_seasonal_event)
-            current_seasonal_event = nil
-        end
+        current_seasonal_event = nil
     end
-    self:Sync()
 end
 
 
@@ -215,7 +122,6 @@ local function _seasonInit ()
             data.stop_day = data.stop_day + offset
         end
     end
-    _checkSeasonalEvents()
 end
 
 --------------------------------------------------------------------------
@@ -223,7 +129,6 @@ end
 --------------------------------------------------------------------------
 
 function self:Sync()
-    local replica = self.inst.replica.eventcalendar
     replica:SetYearEvent(year_of_list[current_year])
     replica:SetSeasonalEvent(current_seasonal_event)
 end
@@ -234,6 +139,7 @@ end
 
 local function OnCyclesChange(inst)
     _checkSeasonalEvents()
+    self:Sync()
 end
 
 local function OnMoonChange(inst)
@@ -241,11 +147,7 @@ local function OnMoonChange(inst)
         current_new_moon = current_new_moon + 1
         
         if current_new_moon == 2 then
-            StopEvent(year_of_list[current_year])
             current_year = (current_year == #year_of_list) and 1 or current_year + 1
-            StartEvent(year_of_list[current_year])
-            _fireworks()
-            _announce(year_of_list[current_year])
             self:Sync()
         end
     end 
@@ -265,7 +167,7 @@ end
 --------------------------------------------------------------------------
 
 -- Initialize events and seasons
-_worldEventsInit()
+_yearOfInit()
 _seasonInit()
 _checkSeasonalEvents()
 current_new_moon = 2 --will zero on next winter
@@ -281,6 +183,7 @@ inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
 
 -- Finally, sync
 self:Sync()
+replica:WorldEventsInit()
 
 --------------------------------------------------------------------------
 --[[ Save/Load ]]
@@ -294,17 +197,9 @@ function self:OnSave()
 end
 
 function self:OnLoad(data)
-    -- _worldEventsInit()
-    -- _seasonInit()
-    -- _checkSeasonalEvents()
-
     if data ~= nil then
 		if data.current_year ~= nil then
-            if current_year and current_year ~= data.current_year then
-                StopEvent(year_of_list[current_year])
-            end
 	        current_year = data.current_year
-            StartEvent(year_of_list[current_year])
 		end
 		if data.current_new_moon ~= nil then
 	        current_new_moon = data.current_new_moon		
@@ -312,6 +207,7 @@ function self:OnLoad(data)
     end
 
     self:Sync()
+    replica:WorldEventsInit()
 end
 
 --------------------------------------------------------------------------
