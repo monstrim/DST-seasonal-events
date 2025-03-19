@@ -138,7 +138,7 @@ function _initWintersFeast()
         -- gingerbread hunting
         if not TheWorld:HasTag('cave') and not gingerbreadhunter then
             print('[Yearly Seasonal Events] Adding and disabling gingerbreadhunter component.')
-            TheWorld:AddComponent("gingerbreadhunter")
+            gingerbreadhunter = TheWorld:AddComponent("gingerbreadhunter")
             gingerbreadhunter.__OnIsDay = gingerbreadhunter.OnIsDay
             gingerbreadhunter.OnIsDay = function() end
             gingerbreadhunter.disabled = true
