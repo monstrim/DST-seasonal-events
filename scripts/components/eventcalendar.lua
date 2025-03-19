@@ -93,7 +93,6 @@ local function _checkSeasonalEvents()
     else
         current_seasonal_event = nil
     end
-    self:Sync()
 end
 
 
@@ -123,7 +122,6 @@ local function _seasonInit ()
             data.stop_day = data.stop_day + offset
         end
     end
-    _checkSeasonalEvents()
 end
 
 --------------------------------------------------------------------------
@@ -141,6 +139,7 @@ end
 
 local function OnCyclesChange(inst)
     _checkSeasonalEvents()
+    self:Sync()
 end
 
 local function OnMoonChange(inst)
@@ -198,10 +197,6 @@ function self:OnSave()
 end
 
 function self:OnLoad(data)
-    -- _worldEventsInit()
-    -- _seasonInit()
-    -- _checkSeasonalEvents()
-
     if data ~= nil then
 		if data.current_year ~= nil then
 	        current_year = data.current_year

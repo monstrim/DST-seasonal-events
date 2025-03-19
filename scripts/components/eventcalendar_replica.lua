@@ -38,9 +38,14 @@ local _initialized = false
 --------------------------------------------------------------------------
 
 local function StartEvent(event)
-    if event == nil or event == SPECIAL_EVENTS.NONE then
+    if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
+        print(string.format('[Yearly Seasonal Events] Attempting start %s', event or 'nil'))
+        return
+    elseif IsSpecialEventActive(event) then 
+        print(string.format('[Yearly Seasonal Events] Event %s already active', event))
         return
     end
+    print(string.format('[Yearly Seasonal Events] Starting event %s', event))
 
     WORLD_EXTRA_EVENTS[event] = true
 
@@ -81,9 +86,15 @@ local function StartEvent(event)
 end
 
 local function StopEvent(event)
-    if event == nil or event == SPECIAL_EVENTS.NONE then
+    if event == nil or event == "default" or event == SPECIAL_EVENTS.NONE then
+        print(string.format('[Yearly Seasonal Events] Attempting stop %s', event or 'nil'))
+        return
+    elseif not IsSpecialEventActive(event) then 
+        print(string.format('[Yearly Seasonal Events] Event %s already inactive', event))
         return
     end
+    print(string.format('[Yearly Seasonal Events] Stopping event %s', event))
+
     WORLD_EXTRA_EVENTS[event] = nil
 
     local key = SPECIAL_EVENT_KEYS[event]
@@ -177,14 +188,7 @@ end
 --[[ Initialization ]]
 --------------------------------------------------------------------------
 
--- Let's try to have the main component do that instead (so it correctly stops)
--- -- Disable all extra events so mod will use them
--- for k,v in pairs(WORLD_EXTRA_EVENTS) do WORLD_EXTRA_EVENTS[k] = nil end
-
--- -- Disable, unless the main component is going to need it
--- if not (TheWorld.ismastersim and IS_YEAR_OF_THE_SPECIAL_EVENTS[WORLD_SPECIAL_EVENT]) then
---     WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
--- end
+_initWintersFeast()
 
 -- Listen for events
 inst:ListenForEvent('currentyearevent_dirty', OnYearDirty)
