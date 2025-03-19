@@ -177,14 +177,7 @@ end
 --[[ Initialization ]]
 --------------------------------------------------------------------------
 
--- Let's try to have the main component do that instead (so it correctly stops)
--- -- Disable all extra events so mod will use them
--- for k,v in pairs(WORLD_EXTRA_EVENTS) do WORLD_EXTRA_EVENTS[k] = nil end
-
--- -- Disable, unless the main component is going to need it
--- if not (TheWorld.ismastersim and IS_YEAR_OF_THE_SPECIAL_EVENTS[WORLD_SPECIAL_EVENT]) then
---     WORLD_SPECIAL_EVENT = SPECIAL_EVENTS.NONE
--- end
+_initWintersFeast()
 
 -- Listen for events
 inst:ListenForEvent('currentyearevent_dirty', OnYearDirty)
