@@ -4,65 +4,28 @@ require('netvars')
 require('utils/event_utils')
 local BatOver = require('widgets/batover')
 
+-- Main mod logic
 AddReplicableComponent('eventcalendar')
-
 AddPrefabPostInit('forest_network', function (inst) if GLOBAL.TheWorld.ismastersim then inst:AddComponent('eventcalendar') end end)
 AddPrefabPostInit('cave_network', function (inst) if GLOBAL.TheWorld.ismastersim then inst:AddComponent('eventcalendar') end end)
 
+-- Trackers for enabling/disabling events
 for i = GLOBAL.HALLOWEDNIGHTS_TINKET_START, GLOBAL.HALLOWEDNIGHTS_TINKET_END do
     AddPrefabPostInit('trinket_'..tostring(i), GLOBAL._trackTrinkets)
 end
 
--- route flareoverlay and batspooked events from server to client
+-- Init HUD overlay
+-- TODO: move to replica somehow?
 AddPlayerPostInit(function (player) 
-    _spook_trigger = GLOBAL.net_event(player.GUID, 'seasonalevents._spook_trigger')
-    _flare_trigger = GLOBAL.net_event(player.GUID, 'seasonalevents._flare_trigger')
-    _flare_r = GLOBAL.net_float(player.GUID, 'seasonalevents._flare_r')
-    _flare_g = GLOBAL.net_float(player.GUID, 'seasonalevents._flare_g')
-    _flare_b = GLOBAL.net_float(player.GUID, 'seasonalevents._flare_b')
-
     player:DoTaskInTime(0, function(player)
         if player == GLOBAL.ThePlayer then
-            -- setup listening on client
-
+            print('[Yearly Seasonal Events] Starting HUD')
             -- HUD for hallows eve
             local hud = player.HUD
-            if hud then 
-                local count = 0
-                for k,v in pairs(hud.overlayroot.children) do count=count+1 end
-                print('[Yearly Seasonal Events] starting HUD, ' .. count .. ' children on overlayroot.')
-            end
             if hud and hud.overlayroot and not hud.batover then
-                print('[Yearly Seasonal Events] batover added.')
+                print('[Yearly Seasonal Events] batover added')
                 hud.batover = hud.overlayroot:AddChild(BatOver(player))
             end
-
-            -- fireworks event
-            player:ListenForEvent('seasonalevents._flare_trigger', function(player) 
-                data = {
-                    r = _flare_r:value(),
-                    g = _flare_g:value(),
-                    b = _flare_b:value(),
-                }
-                player:PushEvent('startflareoverlay', data)
-            end)
-
-            -- batspooked event
-            player:ListenForEvent('seasonalevents._spook_trigger', function(player) 
-                player:PushEvent('batspooked')
-            end)
-        else
-            -- setup triggering on server
-            player:ListenForEvent('startflareoverlay', function(player, data) 
-                _flare_r:set(data.r)
-                _flare_g:set(data.g)
-                _flare_b:set(data.b)
-                _flare_trigger:push()
-            end)
-
-            player:ListenForEvent('batspooked', function(player) 
-                _spook_trigger:push()
-            end)
         end
     end) 
 end)
