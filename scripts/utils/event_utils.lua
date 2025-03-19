@@ -37,8 +37,8 @@ end
 --------------------------------------------------------------------------
 --[[ Summer Cawnival ]]
 --------------------------------------------------------------------------
--- prefabs/carnival_plaza fn - add component, replicate onactivate, register plaza, add remove callback, add and control spawner
--- prefabs/carnival_crowkit - state flyaway, remove(?)
+-- TODO: prefabs/carnival_plaza fn - add component, replicate onactivate, register plaza, add remove callback, add and control spawner
+-- TODO: prefabs/carnival_crowkit - state flyaway, remove(?)
 
 local carnival_host
 
@@ -78,15 +78,15 @@ end
 --------------------------------------------------------------------------
 --[[ Hallowed Nights ]]
 --------------------------------------------------------------------------
--- prefabs/livingtree fn (server) - change for livingtree_haloween prefab
--- prefabs/livingtree_halloween fn (common) - add net_bool, replicate callback, add/remove listeners, show/hide animstate
--- prefabs/livingtree_halloween fn (server) - toggle bool, add component, toggle aura med/zero, set netvar
--- prefabs/livingtree_root_planted fn (common) - animstate show/hide
--- prefabs/livingtree_root fn (common) - animstate show/hide
--- prefabs/livingtree root fn (server) - change imagename
--- prefabs/playercommon fn - add component, add/remove listen
--- prefabs/pumpkin_lantern - SetPerishTime
--- prefabs/veggies(pumpkin) - SetPerishTime
+-- TODO: prefabs/livingtree fn (server) - change for livingtree_haloween prefab (can be done regardless of halloween status)
+-- TODO: prefabs/livingtree_halloween fn (common) - add net_bool, replicate callback, add/remove listeners, show/hide animstate
+-- TODO: prefabs/livingtree_halloween fn (server) - toggle bool, add component, toggle aura med/zero, set netvar
+-- TODO: prefabs/livingtree_root_planted fn (common) - animstate show/hide
+-- TODO: prefabs/livingtree_root fn (common) - animstate show/hide
+-- TODO: prefabs/livingtree_root fn (server) - change imagename
+-- TODO: prefabs/playercommon fn - add spook component, add/remove listen
+-- TODO: prefabs/pumpkin_lantern - SetPerishTime
+-- TODO: prefabs/veggies(pumpkin) - SetPerishTime
 
 _trackTrinkets, _iterTrinkets = createTracker()
 
@@ -108,25 +108,25 @@ end
 --------------------------------------------------------------------------
 --[[ Winters Feast ]]
 --------------------------------------------------------------------------
--- components/klaussackspawner postinit - remove timers, remove watchers, call post init
--- prefabs/deerclops normalfn (common) - replicate yulecommonfn, set build and build var
--- prefabs/deerclops normalfn (server) - set yule and laserbeam var, component timer, listener 
--- prefabs/deer fn (server) - replicate setupsounds
--- prefabs/deer common fn - add/clear override
--- prefabs/deer unshackle fn (server) - add/clear override
--- prefabs/deer unshacke (common) - single task...
--- prefabs/bearger normalfn - set build
--- prefabs/dragonfly prefab fn - SetBuild
--- prefabs/dragonfly TransformNormal - call externally as self.TransformNormal 
--- prefabs/dragonfly TransformFire - call externally as self.TransformFire
--- prefabs/hermitcrab loadpostpass - learn/forget
--- prefabs/hermitcrab initfriendstuff - learn/forget?
--- prefabs/klaus fn (common) - add/clear override
--- prefabs/klaus fn (server) - add/remove(?) chanceloot... OK? there will be other klauses
--- prefabs/moose (common) - setbuild
--- prefabs/mossling (common) - set build
--- prefabs/playercommon fn - add component, add/remove listen
--- prefabs/snow - ... whatever, man
+-- TODO: components/klaussackspawner postinit - remove timers, remove watchers, call post init
+-- TODO: prefabs/deerclops normalfn (common) - replicate yulecommonfn, set build and build var
+-- TODO: prefabs/deerclops normalfn (server) - set yule and laserbeam var, component timer, listener 
+-- TODO: prefabs/deer fn (server) - replicate setupsounds
+-- TODO: prefabs/deer common fn - add/clear override
+-- TODO: prefabs/deer unshackle fn (server) - add/clear override (possibly not needed)
+-- TODO: prefabs/deer unshackle (common) - single task... (possibly not needed)
+-- TODO: prefabs/bearger normalfn - set build
+-- TODO: prefabs/dragonfly prefab fn - SetBuild
+-- TODO: prefabs/dragonfly TransformNormal - call externally as self.TransformNormal 
+-- TODO: prefabs/dragonfly TransformFire - call externally as self.TransformFire
+-- TODO: prefabs/hermitcrab loadpostpass - learn/forget
+-- TODO: prefabs/hermitcrab initfriendstuff - learn/forget?
+-- TODO: prefabs/klaus fn (common) - add/clear override
+-- TODO: prefabs/klaus fn (server) - add/remove(?) chanceloot... OK? there will be other klauses
+-- TODO: prefabs/moose (common) - setbuild
+-- TODO: prefabs/mossling (common) - set build
+-- TODO: prefabs/playercommon fn - add component, add/remove listen
+-- TODO: prefabs/snow - ...whatever, man...
 
 local gingerbreadhunter
 local snowballmanager
@@ -192,10 +192,10 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Gobbler ]]
 --------------------------------------------------------------------------
--- prefabs/perd (common) - add/remove tag
--- prefabs/perd (server) - component, replicate functions, vars and listeners
--- prefabs/berrybush (server) - add/kill , change callbacks... but maybe dont (trigger invalid??)
--- prefabs/perdshrine (server) - replicate functions, callback, watcher
+-- TODO: prefabs/perd (common) - add/remove tag
+-- TODO: prefabs/perd (server) - component, replicate functions, vars and listeners
+-- TODO: prefabs/berrybush (server) - add/kill , change callbacks... but maybe dont (trigger invalid??)
+-- TODO: prefabs/perdshrine (server) - replicate functions, callback, watcher... but maybe dont (trigger invalid??)
 
 --------------------------------------------------------------------------
 --[[ Year of the Varg ]]
@@ -204,30 +204,30 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Pig King ]]
 --------------------------------------------------------------------------
--- prefabs/pigking (common) - toggle add/clear override
--- prefabs/goldnugget - toggle minigame tag
+-- TODO: prefabs/pigking (common) - toggle add/clear override
+-- TODO: prefabs/goldnugget - toggle minigame tag
 
 
 --------------------------------------------------------------------------
 --[[ Year of the Carrat ]]
 --------------------------------------------------------------------------
--- prefabs/carrat ghostracer - add/remove overridebuild
--- prefabs/carrat fn (common) - add/remove tag, add/remove override build, replicate get_dropaction_string
--- prefabs/carrat fn (server) - replicate train funcs, replicate callbacks, remove tag, add components, add/kill listeners
--- prefabs/beefaloherd fn - replicate carrat spawner and add/remove listen
--- prefabs/rat_gym (server) - add component, replicate callbacks
+-- TODO: prefabs/carrat ghostracer - add/remove overridebuild
+-- TODO: prefabs/carrat fn (common) - add/remove tag, add/remove override build, replicate get_dropaction_string
+-- TODO: prefabs/carrat fn (server) - replicate train funcs, replicate callbacks, remove tag, add components, add/kill listeners
+-- TODO: prefabs/beefaloherd fn - replicate carrat spawner and add/remove listen
+-- TODO: prefabs/rat_gym (server) - add component, replicate callbacks
 
 --------------------------------------------------------------------------
 --[[ Year of the Beefalo ]]
 --------------------------------------------------------------------------
--- prefabs/merm (common) - toggle add/remove override
--- prefabs/pigman (common) - toggle add/clear override
--- playercommon fn (common) - add/remove netint, replicate and do task... or not (skins?)
+-- TODO: prefabs/merm (common) - toggle add/remove override
+-- TODO: prefabs/pigman (common) - toggle add/clear override
+-- TODO: playercommon fn (common) - add/remove netint, replicate and do task... or not (skins?)
 
 --------------------------------------------------------------------------
 --[[ Year of the Catcoon ]]
 --------------------------------------------------------------------------
--- prefabs/kitcoon - replicate and add/remove callback
+-- TODO: prefabs/kitcoon - replicate and add/remove callback
 
 --------------------------------------------------------------------------
 --[[ Year of the Bunnyman ]]
@@ -252,5 +252,5 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Depth Worm ]]
 --------------------------------------------------------------------------
--- prefabs/shadowthrall (server) - replicate and set lootsetupfn
--- prefabs/worm (server) - replicate and set loot fn
+-- TODO: prefabs/shadowthrall (server) - replicate and set lootsetupfn
+-- TODO: prefabs/worm (server) - replicate and set loot fn
