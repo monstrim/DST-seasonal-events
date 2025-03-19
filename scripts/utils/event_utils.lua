@@ -156,7 +156,8 @@ function _startWintersFeast()
         gingerbreadhunter.OnIsDay = gingerbreadhunter.__OnIsDay
         gingerbreadhunter.__OnIsDay = nil
         gingerbreadhunter.disabled = nil
-        -- skip two days to start hunt on day 1
+        -- skip three days to start hunt on day 1
+        TheWorld.components.gingerbreadhunter:OnIsDay()
         TheWorld.components.gingerbreadhunter:OnIsDay()
         TheWorld.components.gingerbreadhunter:OnIsDay()
     elseif gingerbreadhunter then
