@@ -6,69 +6,84 @@ function _eventName(event)
 end
 
 function _announce(event)
-    for i,v in ipairs(AllPlayers) do 
-        local event_string = (GetLocstring(event)
-            or GetLocstring('hurray') .. ' ' .. _eventName(event) .. '!')
-        v:DoTaskInTime(math.random() * 2, function(v)
-            v.components.talker:Say(event_string) 
+    local event_string = (GetLocstring(event)
+        or GetLocstring('hurray') .. ' ' .. _eventName(event) .. '!')
+
+    if ThePlayer then
+        ThePlayer:DoTaskInTime(math.random() * 2, function(inst)
+            inst.components.talker:Say(event_string) 
         end)
     end
 end
 
 function _playSound(sound, name, volume)
-    for i,v in ipairs(AllPlayers) do v.SoundEmitter:PlaySound(sound, name, volume) end
+    if ThePlayer then
+        ThePlayer.SoundEmitter:PlaySound(sound, name, volume)
+    end
 end
 
 ----------------------------------------------------
 -- Seasonal event start sounds
 
 function _winterfeastjingle()
-    local bell = 'dontstarve/creatures/together/deer/bell'
-    local chain = 'dontstarve/creatures/together/deer/chain'
-    
-    TheWorld:DoTaskInTime(0.0, function() _playSound(bell) end)
-    TheWorld:DoTaskInTime(0.3, function() _playSound(bell) end)
-    TheWorld:DoTaskInTime(0.6, function() _playSound(bell) end)
-    
-    TheWorld:DoTaskInTime(1.2, function() _playSound(bell) end)
-    TheWorld:DoTaskInTime(1.5, function() _playSound(bell) end)
-    TheWorld:DoTaskInTime(1.8, function() _playSound(bell) end)
+    if TheWorld.ismastersim then
+        TheWorld:PushEvent('ms_forceprecipitation', true)
+    end
 
-    TheWorld:PushEvent('ms_forceprecipitation', true)
+    if ThePlayer then
+        local bell = 'dontstarve/creatures/together/deer/bell'
+        local chain = 'dontstarve/creatures/together/deer/chain'
+        
+        TheWorld:DoTaskInTime(0.0, function() _playSound(bell) end)
+        TheWorld:DoTaskInTime(0.3, function() _playSound(bell) end)
+        TheWorld:DoTaskInTime(0.6, function() _playSound(bell) end)
+        
+        TheWorld:DoTaskInTime(1.2, function() _playSound(bell) end)
+        TheWorld:DoTaskInTime(1.5, function() _playSound(bell) end)
+        TheWorld:DoTaskInTime(1.8, function() _playSound(bell) end)
+    end
 end
 
 -------------------
 
 function _hallowednightstorm()
-    TheWorld:DoTaskInTime(1, function() SpawnPrefab('thunder_close') end)
-    TheWorld:DoTaskInTime(2, function() SpawnPrefab('thunder_far') end)
-    TheWorld:DoTaskInTime(3, function() SpawnPrefab('thunder_close') end)
-    TheWorld:DoTaskInTime(5, function() SpawnPrefab('thunder_far') end)
-    TheWorld:DoTaskInTime(8, function() SpawnPrefab('thunder_close') end)
-    TheWorld:DoTaskInTime(13, function() SpawnPrefab('thunder_far') end)
+    if TheWorld.ismastersim then
+        TheWorld:DoTaskInTime(1, function() SpawnPrefab('thunder_close') end)
+        TheWorld:DoTaskInTime(2, function() SpawnPrefab('thunder_far') end)
+        TheWorld:DoTaskInTime(3, function() SpawnPrefab('thunder_close') end)
+        TheWorld:DoTaskInTime(5, function() SpawnPrefab('thunder_far') end)
+        TheWorld:DoTaskInTime(8, function() SpawnPrefab('thunder_close') end)
+        TheWorld:DoTaskInTime(13, function() SpawnPrefab('thunder_far') end)
+    end
 
-    for i,v in ipairs(AllPlayers) do v:PushEvent('batspooked') end
+    if ThePlayer then
+        ThePlayer:PushEvent('batspooked')
+    end
 end
 
 -------------------
 
 function _carnivalconfetti()
-    for _, player in ipairs(AllPlayers) do
-        for i=1,10 do
-            player:DoTaskInTime(math.random() * 4, function(player) 
-                local angle = math.random() * 2 * math.pi
-                local r = math.random() * 10
-                local x,y,z = player.Transform:GetWorldPosition()
-                local dx = math.sin(angle) * r
-                local dz = math.cos(angle) * r
-                SpawnPrefab('carnival_confetti_fx').Transform:SetPosition(x+dx, y, z+dz) 
-            end)
+    if TheWorld.ismastersim then
+        for _, player in ipairs(AllPlayers) do
+            for i=1,10 do
+                TheWorld:DoTaskInTime(math.random() * 4, function() 
+                    local angle = math.random() * 2 * math.pi
+                    local r = math.random() * 10
+                    local x,y,z = player.Transform:GetWorldPosition()
+                    local dx = math.sin(angle) * r
+                    local dz = math.cos(angle) * r
+                    SpawnPrefab('carnival_confetti_fx').Transform:SetPosition(x+dx, y, z+dz) 
+                end)
+            end
         end
+
+        TheWorld:PushEvent('ms_forceprecipitation', false)
     end
 
-    _playSound('summerevent2022/carnivalgame_wheelspin/turn_on')
-    
-    TheWorld:PushEvent('ms_forceprecipitation', false)
+    if ThePlayer then
+        _playSound('summerevent2022/carnivalgame_wheelspin/turn_on')
+    end            
 end
 
 -------------------
@@ -85,13 +100,15 @@ function _fireworks()
 
     local function _explode()
         local color = colors[math.random(#colors)]
-        for i, v in ipairs(AllPlayers) do v:PushEvent("startflareoverlay", color) end
-        _playSound(boom, nil, 1)    
+        ThePlayer:PushEvent("startflareoverlay", color)
+        _playSound(boom, nil, 1)
     end
     
-    TheWorld:DoTaskInTime(2, _explode)
-    TheWorld:DoTaskInTime(5, _explode)
-    TheWorld:DoTaskInTime(7, _explode)
-    TheWorld:DoTaskInTime(12, _explode)
-    TheWorld:DoTaskInTime(19, _explode)
+    if ThePlayer then
+        TheWorld:DoTaskInTime(2, _explode)
+        TheWorld:DoTaskInTime(5, _explode)
+        TheWorld:DoTaskInTime(7, _explode)
+        TheWorld:DoTaskInTime(12, _explode)
+        TheWorld:DoTaskInTime(19, _explode)
+    end
 end
