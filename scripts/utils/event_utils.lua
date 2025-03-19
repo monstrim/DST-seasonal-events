@@ -6,16 +6,16 @@
 
 --------------------------------------------------------------------------
 
-local function createTracker()
+local function createTracker(report)
     local _tracklist = {}
 
     local function _removeFn(inst)
-        print('[Yearly Seasonal Events] untracking '..tostring(inst))
+        if report then print('[Yearly Seasonal Events] untracking '..tostring(inst)) end 
         _tracklist[inst.GUID] = nil
     end
 
     local function _trackFn(inst)
-        print('[Yearly Seasonal Events] tracking '..tostring(inst))
+        if report then print('[Yearly Seasonal Events] tracking '..tostring(inst)) end 
         _tracklist[inst.GUID] = inst
         inst:ListenForEvent('onremove', _removeFn)
     end
@@ -23,13 +23,14 @@ local function createTracker()
     local function _iterateFn(fn)
         for GUID, inst in pairs(_tracklist) do
             if inst then
-                print('[Yearly Seasonal Events] callback on '..tostring(inst))
+                if report then print('[Yearly Seasonal Events] callback on '..tostring(inst)) end 
                 fn(inst)
             else
-                print('[Yearly Seasonal Events] not found '..GUID)
+                if report then print('[Yearly Seasonal Events] not found '..GUID) end 
             end
         end
     end
+
     return _trackFn, _iterateFn
 end
 
@@ -149,49 +150,41 @@ end
 --------------------------------------------------------------------------
 
 function _startWintersFeast()
-    if TheWorld.ismastersim then
-        if not TheWorld:HasTag('cave') then
-            -- gingerbread hunting
-            if gingerbreadhunter.disabled then
-                print('[Yearly Seasonal Events] Reenabling gingerbreadhunter component.')
-                gingerbreadhunter.OnIsDay = gingerbreadhunter.__OnIsDay
-                gingerbreadhunter.__OnIsDay = nil
-                gingerbreadhunter.disabled = nil
-                -- skip two days to start hunt on day 1
-                TheWorld.components.gingerbreadhunter:OnIsDay()
-                TheWorld.components.gingerbreadhunter:OnIsDay()
-            else
-                print('[Yearly Seasonal Events] gingerbreadhunter already enabled.')
-            end
-        end
+    -- gingerbread hunting
+    if gingerbreadhunter and gingerbreadhunter.disabled then
+        print('[Yearly Seasonal Events] Reenabling gingerbreadhunter component.')
+        gingerbreadhunter.OnIsDay = gingerbreadhunter.__OnIsDay
+        gingerbreadhunter.__OnIsDay = nil
+        gingerbreadhunter.disabled = nil
+        -- skip two days to start hunt on day 1
+        TheWorld.components.gingerbreadhunter:OnIsDay()
+        TheWorld.components.gingerbreadhunter:OnIsDay()
+    elseif gingerbreadhunter then
+        print('[Yearly Seasonal Events] gingerbreadhunter already enabled.')
     end
 end
 
 --------------------------------------------------------------------------
 
 function _stopWintersFeast()
-    if TheWorld.ismastersim then
-        if not TheWorld:HasTag('cave') then
-            -- gingerbread hunting
-            if gingerbreadhunter and gingerbreadhunter.disabled == true then
-                print('[Yearly Seasonal Events] Gingerbreadhunter already disabled.')
-            elseif gingerbreadhunter then
-                print('[Yearly Seasonal Events] Disabling gingerbreadhunter component.')
-                gingerbreadhunter.__OnIsDay = gingerbreadhunter.OnIsDay
-                gingerbreadhunter.OnIsDay = function() end
-                if gingerbreadhunter.newhunttask then
-                    gingerbreadhunter.newhunttask:Cancel()
-                    gingerbreadhunter.newhunttask = nil
-                end
-                gingerbreadhunter.disabled = true
-            end
-            
-            -- snowballs
-            if snowballmanager and snowballmanager.enabled == true then
-                print('[Yearly Seasonal Events] Removing snowball spawning.')
-                snowballmanager:SetEnabled(false)
-            end
+    -- gingerbread hunting
+    if gingerbreadhunter and gingerbreadhunter.disabled then
+        print('[Yearly Seasonal Events] Gingerbreadhunter already disabled.')
+    elseif gingerbreadhunter then
+        print('[Yearly Seasonal Events] Disabling gingerbreadhunter component.')
+        gingerbreadhunter.__OnIsDay = gingerbreadhunter.OnIsDay
+        gingerbreadhunter.OnIsDay = function() end
+        if gingerbreadhunter.newhunttask then
+            gingerbreadhunter.newhunttask:Cancel()
+            gingerbreadhunter.newhunttask = nil
         end
+        gingerbreadhunter.disabled = true
+    end
+    
+    -- snowballs
+    if snowballmanager and snowballmanager.enabled == true then
+        print('[Yearly Seasonal Events] Removing snowball spawning.')
+        snowballmanager:SetEnabled(false)
     end
 end
 
