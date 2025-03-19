@@ -31,6 +31,7 @@ local _current_seasonal_event = net_string(inst.GUID, 'seasonalevents._current_s
 local _previous_year_event
 local _previous_seasonal_event
 local _init = net_event(inst.GUID, 'seasonalevents._init')
+local _initialized = false
 
 --------------------------------------------------------------------------
 --[[ Private member functions ]]
@@ -51,21 +52,28 @@ local function StartEvent(event)
     -- startup event mid-game
     if event == SPECIAL_EVENTS.CARNIVAL then
         _startCarnival()
-        _carnivalconfetti()
     elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
         _startHalloween()
-        _hallowednightstorm()
     elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
         _startWintersFeast()
-        _winterfeastjingle()
     elseif event == SPECIAL_EVENTS.YOTD then
         _startYOTD()
-        _fireworks()
-    elseif IS_YEAR_OF_THE_SPECIAL_EVENTS[event] then 
-        _fireworks()
     end
 
-    _announce(event)
+    -- fanfarres and announcements
+    if _initialized then
+        if event == SPECIAL_EVENTS.CARNIVAL then
+            _carnivalconfetti()
+        elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
+            _hallowednightstorm()
+        elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
+            _winterfeastjingle()
+        elseif IS_YEAR_OF_THE_SPECIAL_EVENTS[event] then 
+            _fireworks()
+        end
+
+        _announce(event)
+    end
     
     if TheWorld.components.specialeventsetup then
         TheWorld.components.specialeventsetup:SetupNewSpecialEvent(event)
@@ -162,6 +170,7 @@ local function OnInit(inst)
     if _season then 
         StartEvent(_season)
     end
+    _initialized = true
 end
 
 --------------------------------------------------------------------------
