@@ -244,11 +244,15 @@ end
 --------------------------------------------------------------------------
 
 function _startYOTD()
-    TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=1})
+    if TheWorld.ismastersim then
+        TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=1})
+    end
 end
 
 function _stopYOTD()
-    TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=0})
+    if TheWorld.ismastersim then
+        TheWorld.components.yotd_raceprizemanager:LoadPostPass(nil, {prize=0})
+    end
 end
 
 --------------------------------------------------------------------------
