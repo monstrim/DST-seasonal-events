@@ -9,7 +9,8 @@ return Class(function(self, inst)
 --------------------------------------------------------------------------
 
 local BatOver = require "widgets/batover"
--- ui_utils
+require "utils/event_utils"
+require "utils/ui_utils"
 
 --------------------------------------------------------------------------
 --[[ Constants ]]
@@ -29,30 +30,72 @@ local _current_year_event = net_string(inst.GUID, 'seasonalevents._current_year_
 local _current_seasonal_event = net_string(inst.GUID, 'seasonalevents._current_seasonal_event', 'currentseasonalevent_dirty')
 local _previous_year_event
 local _previous_seasonal_event
+local _init = net_event(inst.GUID, 'seasonalevents._init')
 
 --------------------------------------------------------------------------
 --[[ Private member functions ]]
 --------------------------------------------------------------------------
 
-local function EnableEvent(event)
+local function StartEvent(event)
     if event == nil or event == SPECIAL_EVENTS.NONE then
         return
     end
+
     WORLD_EXTRA_EVENTS[event] = true
+
     local key = SPECIAL_EVENT_KEYS[event]
     if key and TECH[key] then
         TECH[key].SCIENCE = 0
     end
+
+    -- startup event mid-game
+    if event == SPECIAL_EVENTS.CARNIVAL then
+        _startCarnival()
+        _carnivalconfetti()
+    elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
+        _startHalloween()
+        _hallowednightstorm()
+    elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
+        _startWintersFeast()
+        _winterfeastjingle()
+    elseif event == SPECIAL_EVENTS.YOTD then
+        _startYOTD()
+        _fireworks()
+    elseif IS_YEAR_OF_THE_SPECIAL_EVENTS[event] then 
+        _fireworks()
+    end
+
+    _announce(event)
+    
+    if TheWorld.components.specialeventsetup then
+        TheWorld.components.specialeventsetup:SetupNewSpecialEvent(event)
+    end
 end
 
-local function DisableEvent(event)
+local function StopEvent(event)
     if event == nil or event == SPECIAL_EVENTS.NONE then
         return
     end
     WORLD_EXTRA_EVENTS[event] = nil
+
     local key = SPECIAL_EVENT_KEYS[event]
     if key and TECH[key] then
         TECH[key].SCIENCE = 10
+    end
+
+    -- cleanup event
+    if event == SPECIAL_EVENTS.CARNIVAL then
+        _stopCarnival()
+    elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
+        _stopHalloween()
+    elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
+        _stopWintersFeast()
+    elseif event == SPECIAL_EVENTS.YOTD then
+        _stopYOTD()
+    end
+    
+    if TheWorld.components.specialeventsetup then
+        TheWorld.components.specialeventsetup:ShutdownPrevSpecialEvent(event)
     end
 end    
 
@@ -68,6 +111,10 @@ function self:SetSeasonalEvent(value)
     _current_seasonal_event:set(value or SPECIAL_EVENTS.NONE)
 end
 
+function self:WorldEventsInit()
+    _init:push()
+end
+
 --------------------------------------------------------------------------
 --[[ Private event handlers ]]
 --------------------------------------------------------------------------
@@ -75,9 +122,9 @@ end
 local function OnYearDirty(inst)
     local val = _current_year_event:value()
 
-    if val and val ~= _previous_year_event then
-        DisableEvent(_previous_year_event)
-        EnableEvent(val)
+    if val ~= _previous_year_event then
+        StopEvent(_previous_year_event)
+        StartEvent(val)
     end
     _previous_year_event = val
 end
@@ -85,14 +132,36 @@ end
 local function OnSeasonDirty(inst)
     local val = _current_seasonal_event:value()
 
-    if _previous_seasonal_event and _previous_seasonal_event ~= val then
-        DisableEvent(_previous_seasonal_event)
-    end
-
-    if val and val ~= _previous_seasonal_event then
-        EnableEvent(val)
+    if val ~= _previous_seasonal_event then
+        StopEvent(_previous_seasonal_event)
+        StartEvent(val)
     end
     _previous_seasonal_event = val
+end
+
+local function OnInit(inst)
+    local _year = _current_year_event:value()
+    local _season = _current_seasonal_event:value()
+
+    if WORLD_SPECIAL_EVENT then
+        if WORLD_SPECIAL_EVENT ~= _year and WORLD_SPECIAL_EVENT ~= _season then
+            StopEvent(WORLD_SPECIAL_EVENT)
+        end
+        WORLD_SPECIAL_EVENT = nil
+    end
+
+    for event,_ in pairs(WORLD_EXTRA_EVENTS) do
+        if event ~= _year and event ~= _season then
+            StopEvent(event)
+        end
+    end
+
+    if _year then 
+        StartEvent(_year)
+    end
+    if _season then 
+        StartEvent(_season)
+    end
 end
 
 --------------------------------------------------------------------------
@@ -111,6 +180,7 @@ end
 -- Listen for events
 inst:ListenForEvent('currentyearevent_dirty', OnYearDirty)
 inst:ListenForEvent('currentseasonalevent_dirty', OnSeasonDirty)
+inst:ListenForEvent('seasonalevents._init', OnInit)
 
 --------------------------------------------------------------------------
 --[[ END ]]
