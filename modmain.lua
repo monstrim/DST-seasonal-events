@@ -10,6 +10,7 @@ AddPrefabPostInit('forest_network', function (inst) if GLOBAL.TheWorld.ismasters
 AddPrefabPostInit('cave_network', function (inst) if GLOBAL.TheWorld.ismastersim then inst:AddComponent('eventcalendar') end end)
 
 -- Trackers for enabling/disabling events
+AddPrefabPostInit('carnival_crowkid', GLOBAL._trackCrowkids)
 for i = GLOBAL.HALLOWEDNIGHTS_TINKET_START, GLOBAL.HALLOWEDNIGHTS_TINKET_END do
     AddPrefabPostInit('trinket_'..tostring(i), GLOBAL._trackTrinkets)
 end

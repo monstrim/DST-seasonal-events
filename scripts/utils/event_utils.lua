@@ -41,6 +41,7 @@ end
 -- TODO: prefabs/carnival_crowkit - state flyaway, remove(?)
 
 local carnival_host
+_trackCrowkids, _iterCrowkids = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -71,6 +72,12 @@ function _stopCarnival()
                 carnival_host:DoTaskInTime(3, carnival_host.Remove)
                 carnival_host = nil
             end
+
+            -- crowkids
+            _iterCrowkids(function(inst)
+                inst.ShouldFlyAway = true 
+                inst:DoTaskInTime(3, inst.Remove)
+            end)
         end
     end
 end
