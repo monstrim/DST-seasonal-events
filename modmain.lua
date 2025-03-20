@@ -26,6 +26,10 @@ AddPrefabPostInit('deer_blue', GLOBAL._trackDeer)
 AddPrefabPostInit('pumpkin', GLOBAL._trackPumpkins)
 AddPrefabPostInit('pumpkin_lantern', GLOBAL._trackPumpkins)
 
+AddPrefabPostInit('livingtree_halloween', GLOBAL._trackLivtrees)
+AddPrefabPostInit('livingtree_sapling', GLOBAL._trackLivroots)
+AddPrefabPostInit('livingtree_root', GLOBAL._trackLivroots)
+
 for i = GLOBAL.HALLOWEDNIGHTS_TINKET_START, GLOBAL.HALLOWEDNIGHTS_TINKET_END do
     AddPrefabPostInit('trinket_'..tostring(i), GLOBAL._trackTrinkets)
 end

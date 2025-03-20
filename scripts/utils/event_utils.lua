@@ -86,15 +86,14 @@ end
 --[[ Hallowed Nights ]]
 --------------------------------------------------------------------------
 -- TODO: prefabs/livingtree fn (server) - change for livingtree_haloween prefab (can be done regardless of halloween status)
--- TODO: prefabs/livingtree_halloween fn (common) - add net_bool, replicate callback, add/remove listeners, show/hide animstate
--- TODO: prefabs/livingtree_halloween fn (server) - toggle bool, add component, toggle aura med/zero, set netvar
--- TODO: prefabs/livingtree_root_planted fn (common) - animstate show/hide
--- TODO: prefabs/livingtree_root fn (common) - animstate show/hide
--- TODO: prefabs/livingtree_root fn (server) - change imagename
+-- TODO: prefabs/livingtree_halloween fn (common) - add net_bool, replicate callback, add/remove listeners
+-- TODO: prefabs/livingtree_halloween fn (server) - add component
 -- TODO: prefabs/playercommon fn - add spook component, add/remove listen
 
 _trackTrinkets, _iterTrinkets = createTracker()
 _trackPumpkins, _iterPumpkins = createTracker()
+_trackLivtrees, _iterLivtrees = createTracker()
+_trackLivroots, _iterLivroots = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -106,7 +105,25 @@ function _startHalloween()
         -- pumpkin perish time (server)
         VEGGIES.pumpkin.perishtime = TUNING.PERISH_PRESERVED
         _iterPumpkins(function(inst) inst.components.perishable:SetPerishTime(inst.prefab == 'pumpkin_lantern' and TUNING.PERISH_SUPERSLOW or TUNING.PERISH_PRESERVED) end)
+
+        -- livingtrees (server)
+        _iterLivtrees(function(inst)
+            if inst._eyeflames then inst._eyeflames:set(true) end
+            if inst.components.sanityaura then inst.components.sanityaura.aura = -TUNING.SANITYAURA_MED end
+            if inst.components.container then inst.components.container.canbeopened = true end
+        end) 
+
+        -- livingroots (server)
+        _iterLivroots(function(inst) 
+            if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root_hallowed_nights") end
+        end) 
     end
+
+    -- livingtrees (common)
+    _iterLivtrees(function(inst) inst.AnimState:Show("eye") end) 
+
+    -- livingroots (common)
+    _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
 end
 
 
@@ -118,7 +135,25 @@ function _stopHalloween()
         -- pumpkin perish time (server)
         VEGGIES.pumpkin.perishtime = TUNING.PERISH_MED
         _iterPumpkins(function(inst) inst.components.perishable:SetPerishTime(TUNING.PERISH_MED) end)
+
+        -- livingroots (server)
+        _iterLivtrees(function(inst)
+            if inst._eyeflames then inst._eyeflames:set(false) end
+            if inst.components.sanityaura then inst.components.sanityaura.aura = 0 end
+            if inst.components.container then inst.components.container.canbeopened = false end
+        end) 
+
+        -- livingroots (server)
+        _iterLivroots(function(inst)
+            if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root") end
+        end) 
     end
+
+    -- livingtrees (common)
+    _iterLivtrees(function(inst) inst.AnimState:Hide("eye") end) 
+
+    -- livingroots (common)
+    _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
 end
 
 --------------------------------------------------------------------------
