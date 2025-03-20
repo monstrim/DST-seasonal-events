@@ -63,6 +63,8 @@ local function StartEvent(event)
         _startWintersFeast()
     elseif event == SPECIAL_EVENTS.YOTD then
         _startYOTD()
+    elseif event == SPECIAL_EVENTS.YOTP then
+        _startYOTP()
     end
 
     -- fanfarres and announcements
@@ -111,6 +113,8 @@ local function StopEvent(event)
         _stopWintersFeast()
     elseif event == SPECIAL_EVENTS.YOTD then
         _stopYOTD()
+    elseif event == SPECIAL_EVENTS.YOTP then
+        _stopYOTP()
     end
     
     if TheWorld.components.specialeventsetup then

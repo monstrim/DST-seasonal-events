@@ -212,8 +212,32 @@ end
 --[[ Year of the Pig King ]]
 --------------------------------------------------------------------------
 -- TODO: prefabs/pigking (common) - toggle add/clear override
--- TODO: prefabs/goldnugget - toggle minigame tag
 
+_trackNuggies, _iterNuggies = createTracker()
+
+--------------------------------------------------------------------------
+
+function _startYOTP()
+    -- gold nuggets and lucky gold nuggets
+    _iterNuggies(function(inst) 
+        if inst.prefab == 'goldnugget' then inst:RemoveTag("minigameitem")
+        elseif inst.prefab == 'lucky_goldnugget' then inst:AddTag("minigameitem")
+        else print('[Yearly Special Events] Not a goldnugget')
+        end
+    end)
+end
+
+--------------------------------------------------------------------------
+
+function _stopYOTP()
+    -- gold nuggets and lucky gold nuggets
+    _iterNuggies(function(inst) 
+        if inst.prefab == 'goldnugget' then inst:AddTag("minigameitem")
+        elseif inst.prefab == 'lucky_goldnugget' then inst:RemoveTag("minigameitem")
+        else print('[Yearly Special Events] Not a goldnugget')
+        end
+    end)
+end
 
 --------------------------------------------------------------------------
 --[[ Year of the Carrat ]]
