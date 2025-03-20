@@ -16,6 +16,8 @@ AddPrefabPostInit('lucky_goldnugget', GLOBAL._trackNuggies)
 AddPrefabPostInit('deer', GLOBAL._trackDeer)
 AddPrefabPostInit('deer_red', GLOBAL._trackDeer)
 AddPrefabPostInit('deer_blue', GLOBAL._trackDeer)
+AddPrefabPostInit('pumpkin', GLOBAL._trackPumpkins)
+AddPrefabPostInit('pumpkin_lantern', GLOBAL._trackPumpkins)
 for i = GLOBAL.HALLOWEDNIGHTS_TINKET_START, GLOBAL.HALLOWEDNIGHTS_TINKET_END do
     AddPrefabPostInit('trinket_'..tostring(i), GLOBAL._trackTrinkets)
 end

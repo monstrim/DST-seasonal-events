@@ -38,7 +38,6 @@ end
 --[[ Summer Cawnival ]]
 --------------------------------------------------------------------------
 -- TODO: prefabs/carnival_plaza fn - add component, replicate onactivate, register plaza, add remove callback, add and control spawner
--- TODO: prefabs/carnival_crowkit - state flyaway, remove(?)
 
 local carnival_host
 _trackCrowkids, _iterCrowkids = createTracker()
@@ -92,23 +91,32 @@ end
 -- TODO: prefabs/livingtree_root fn (common) - animstate show/hide
 -- TODO: prefabs/livingtree_root fn (server) - change imagename
 -- TODO: prefabs/playercommon fn - add spook component, add/remove listen
--- TODO: prefabs/pumpkin_lantern - SetPerishTime
--- TODO: prefabs/veggies(pumpkin) - SetPerishTime
 
 _trackTrinkets, _iterTrinkets = createTracker()
+_trackPumpkins, _iterPumpkins = createTracker()
 
 --------------------------------------------------------------------------
 
 function _startHalloween()
     if TheWorld.ismastersim then
+        -- candy for trinkets (server)
         _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = 5 end)
+
+        -- pumpkin perish time (server)
+        VEGGIES.pumpkin.perishtime = TUNING.PERISH_PRESERVED
+        _iterPumpkins(function(inst) inst.components.perishable:SetPerishTime(inst.prefab == 'pumpkin_lantern' and TUNING.PERISH_SUPERSLOW or TUNING.PERISH_PRESERVED) end)
     end
 end
 
 
 function _stopHalloween()
     if TheWorld.ismastersim then
+        -- candy for trinkets (server)
         _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = nil end)
+
+        -- pumpkin perish time (server)
+        VEGGIES.pumpkin.perishtime = TUNING.PERISH_MED
+        _iterPumpkins(function(inst) inst.components.perishable:SetPerishTime(TUNING.PERISH_MED) end)
     end
 end
 
