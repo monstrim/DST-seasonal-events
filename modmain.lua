@@ -19,6 +19,8 @@ AddPrefabPostInit('carnival_crowkid', GLOBAL._trackCrowkids)
 AddPrefabPostInit('goldnugget', GLOBAL._trackNuggies)
 AddPrefabPostInit('lucky_goldnugget', GLOBAL._trackNuggies)
 
+AddPrefabPostInit('deerclops', GLOBAL._trackDeerclops)
+
 AddPrefabPostInit('deer', GLOBAL._trackDeer)
 AddPrefabPostInit('deer_red', GLOBAL._trackDeer)
 AddPrefabPostInit('deer_blue', GLOBAL._trackDeer)

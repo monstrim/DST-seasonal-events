@@ -160,8 +160,7 @@ end
 --[[ Winters Feast ]]
 --------------------------------------------------------------------------
 -- TODO: components/klaussackspawner postinit - remove timers, remove watchers, call post init
--- TODO: prefabs/deerclops normalfn (common) - replicate yulecommonfn, set build and build var
--- TODO: prefabs/deerclops normalfn (server) - set yule and laserbeam var, component timer, listener 
+-- TODO: prefabs/deerclops normalfn (server) - component timer, listener 
 -- TODO: prefabs/deer fn (server) - replicate setupsounds
 -- TODO: prefabs/bearger normalfn - set build
 -- TODO: prefabs/dragonfly prefab fn - SetBuild
@@ -180,6 +179,7 @@ local gingerbreadhunter
 local snowballmanager
 
 _trackDeer, _iterDeer = createTracker()
+_trackDeerclops, _iterDeerclops = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -215,6 +215,12 @@ function _startWintersFeast()
         elseif gingerbreadhunter then
             print('[Yearly Seasonal Events] gingerbreadhunter already enabled.')
         end
+
+        -- deerclops common_fn (server)
+        _iterDeerclops(function(inst)
+            inst.yule = true
+            inst.haslaserbeam = true
+        end)
     end
 
     -- deer common_fn (common)
@@ -223,6 +229,22 @@ function _startWintersFeast()
         inst.AnimState:OverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
         inst.AnimState:OverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
         inst.AnimState:OverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
+    end)
+
+    -- deerclops common_fn (common)
+    _iterDeerclops(function(inst)
+        if not inst.Light then
+            inst.entity:AddLight()
+            inst.Light:SetIntensity(.6)
+            inst.Light:SetRadius(8)
+            inst.Light:SetFalloff(3)
+            inst.Light:SetColour(1, 0, 0)
+        else
+            inst.Light:Enable(true)
+        end
+
+        inst.build = 'deerclops_yule'
+        inst.AnimState:SetBuild(inst.build)
     end)
 end
 
@@ -249,6 +271,12 @@ function _stopWintersFeast()
             print('[Yearly Seasonal Events] Removing snowball spawning.')
             snowballmanager:SetEnabled(false)
         end
+
+        -- deerclops common_fn (server)
+        _iterDeerclops(function(inst)
+            inst.yule = nil
+            inst.haslaserbeam = nil
+        end)
     end
 
     -- deer_common (common)
@@ -257,6 +285,14 @@ function _stopWintersFeast()
         inst.AnimState:ClearOverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
         inst.AnimState:ClearOverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
         inst.AnimState:ClearOverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
+    end)
+
+    -- deerclops common_fn (common)
+    _iterDeerclops(function(inst)
+        inst.Light:Enable(false)
+
+        inst.build = 'deerclops_build'
+        inst.AnimState:SetBuild(inst.build)
     end)
 end
 
