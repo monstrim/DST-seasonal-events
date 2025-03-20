@@ -20,6 +20,7 @@ local function createTracker(report)
         inst:ListenForEvent('onremove', _removeFn)
     end
 
+    -- be careful not to add/remove items DURING iter, I guess?
     local function _iterateFn(fn)
         for GUID, inst in pairs(_tracklist) do
             if inst then
