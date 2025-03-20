@@ -13,6 +13,9 @@ AddPrefabPostInit('cave_network', function (inst) if GLOBAL.TheWorld.ismastersim
 AddPrefabPostInit('carnival_crowkid', GLOBAL._trackCrowkids)
 AddPrefabPostInit('goldnugget', GLOBAL._trackNuggies)
 AddPrefabPostInit('lucky_goldnugget', GLOBAL._trackNuggies)
+AddPrefabPostInit('deer', GLOBAL._trackDeer)
+AddPrefabPostInit('deer_red', GLOBAL._trackDeer)
+AddPrefabPostInit('deer_blue', GLOBAL._trackDeer)
 for i = GLOBAL.HALLOWEDNIGHTS_TINKET_START, GLOBAL.HALLOWEDNIGHTS_TINKET_END do
     AddPrefabPostInit('trinket_'..tostring(i), GLOBAL._trackTrinkets)
 end

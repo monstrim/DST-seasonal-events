@@ -119,9 +119,6 @@ end
 -- TODO: prefabs/deerclops normalfn (common) - replicate yulecommonfn, set build and build var
 -- TODO: prefabs/deerclops normalfn (server) - set yule and laserbeam var, component timer, listener 
 -- TODO: prefabs/deer fn (server) - replicate setupsounds
--- TODO: prefabs/deer common fn - add/clear override
--- TODO: prefabs/deer unshackle fn (server) - add/clear override (possibly not needed)
--- TODO: prefabs/deer unshackle (common) - single task... (possibly not needed)
 -- TODO: prefabs/bearger normalfn - set build
 -- TODO: prefabs/dragonfly prefab fn - SetBuild
 -- TODO: prefabs/dragonfly TransformNormal - call externally as self.TransformNormal 
@@ -137,6 +134,10 @@ end
 
 local gingerbreadhunter
 local snowballmanager
+
+_trackDeer, _iterDeer = createTracker()
+
+--------------------------------------------------------------------------
 
 function _initWintersFeast()
     if TheWorld.ismastersim then
@@ -170,6 +171,14 @@ function _startWintersFeast()
     elseif gingerbreadhunter then
         print('[Yearly Seasonal Events] gingerbreadhunter already enabled.')
     end
+
+    -- deer common_fn (common)
+    _iterDeer(function(inst)
+        inst.AnimState:OverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
+        inst.AnimState:OverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
+        inst.AnimState:OverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
+        inst.AnimState:OverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
+    end)
 end
 
 --------------------------------------------------------------------------
@@ -194,6 +203,14 @@ function _stopWintersFeast()
         print('[Yearly Seasonal Events] Removing snowball spawning.')
         snowballmanager:SetEnabled(false)
     end
+
+    -- deer_common (common)
+    _iterDeer(function(inst)
+        inst.AnimState:ClearOverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
+        inst.AnimState:ClearOverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
+        inst.AnimState:ClearOverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
+    end)
 end
 
 --------------------------------------------------------------------------
