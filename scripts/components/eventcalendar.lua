@@ -88,7 +88,7 @@ local function _checkSeasonalEvents()
     local currentday = TheWorld.state.elapseddaysinseason + 1
     local event_data = seasonal_events[TheWorld.state.season]
 
-    if event_data and (event_data.start_day < currentday) and (currentday <= event_data.stop_day) then
+    if event_data and (event_data.start_day <= currentday) and (currentday < event_data.stop_day) then
         current_seasonal_event = event_data.event
     else
         current_seasonal_event = nil
