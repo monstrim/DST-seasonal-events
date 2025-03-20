@@ -20,6 +20,7 @@ local function createTracker(report)
         inst:ListenForEvent('onremove', _removeFn)
     end
 
+    -- be careful not to add/remove items DURING iter, I guess?
     local function _iterateFn(fn)
         for GUID, inst in pairs(_tracklist) do
             if inst then
@@ -38,9 +39,9 @@ end
 --[[ Summer Cawnival ]]
 --------------------------------------------------------------------------
 -- TODO: prefabs/carnival_plaza fn - add component, replicate onactivate, register plaza, add remove callback, add and control spawner
--- TODO: prefabs/carnival_crowkit - state flyaway, remove(?)
 
 local carnival_host
+_trackCrowkids, _iterCrowkids = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -71,6 +72,12 @@ function _stopCarnival()
                 carnival_host:DoTaskInTime(3, carnival_host.Remove)
                 carnival_host = nil
             end
+
+            -- crowkids
+            _iterCrowkids(function(inst)
+                inst.ShouldFlyAway = true 
+                inst:DoTaskInTime(3, inst.Remove)
+            end)
         end
     end
 end
@@ -79,42 +86,82 @@ end
 --[[ Hallowed Nights ]]
 --------------------------------------------------------------------------
 -- TODO: prefabs/livingtree fn (server) - change for livingtree_haloween prefab (can be done regardless of halloween status)
--- TODO: prefabs/livingtree_halloween fn (common) - add net_bool, replicate callback, add/remove listeners, show/hide animstate
--- TODO: prefabs/livingtree_halloween fn (server) - toggle bool, add component, toggle aura med/zero, set netvar
--- TODO: prefabs/livingtree_root_planted fn (common) - animstate show/hide
--- TODO: prefabs/livingtree_root fn (common) - animstate show/hide
--- TODO: prefabs/livingtree_root fn (server) - change imagename
+-- TODO: prefabs/livingtree_halloween fn (common) - add net_bool, replicate callback, add/remove listeners
+-- TODO: prefabs/livingtree_halloween fn (server) - add component
 -- TODO: prefabs/playercommon fn - add spook component, add/remove listen
--- TODO: prefabs/pumpkin_lantern - SetPerishTime
--- TODO: prefabs/veggies(pumpkin) - SetPerishTime
 
 _trackTrinkets, _iterTrinkets = createTracker()
+_trackPumpkins, _iterPumpkins = createTracker()
+_trackLivtrees, _iterLivtrees = createTracker()
+_trackLivroots, _iterLivroots = createTracker()
 
 --------------------------------------------------------------------------
 
 function _startHalloween()
     if TheWorld.ismastersim then
+        -- candy for trinkets (server)
         _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = 5 end)
+
+        -- pumpkin perish time (server)
+        VEGGIES.pumpkin.perishtime = TUNING.PERISH_PRESERVED
+        _iterPumpkins(function(inst) inst.components.perishable:SetPerishTime(inst.prefab == 'pumpkin_lantern' and TUNING.PERISH_SUPERSLOW or TUNING.PERISH_PRESERVED) end)
+
+        -- livingtrees (server)
+        _iterLivtrees(function(inst)
+            if inst._eyeflames then inst._eyeflames:set(true) end
+            if inst.components.sanityaura then inst.components.sanityaura.aura = -TUNING.SANITYAURA_MED end
+            if inst.components.container then inst.components.container.canbeopened = true end
+        end) 
+
+        -- livingroots (server)
+        _iterLivroots(function(inst) 
+            if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root_hallowed_nights") end
+        end) 
     end
+
+    -- livingtrees (common)
+    _iterLivtrees(function(inst) inst.AnimState:Show("eye") end) 
+
+    -- livingroots (common)
+    _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
 end
 
 
 function _stopHalloween()
     if TheWorld.ismastersim then
+        -- candy for trinkets (server)
         _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = nil end)
+
+        -- pumpkin perish time (server)
+        VEGGIES.pumpkin.perishtime = TUNING.PERISH_MED
+        _iterPumpkins(function(inst) inst.components.perishable:SetPerishTime(TUNING.PERISH_MED) end)
+
+        -- livingroots (server)
+        _iterLivtrees(function(inst)
+            if inst._eyeflames then inst._eyeflames:set(false) end
+            if inst.components.sanityaura then inst.components.sanityaura.aura = 0 end
+            if inst.components.container then inst.components.container.canbeopened = false end
+        end) 
+
+        -- livingroots (server)
+        _iterLivroots(function(inst)
+            if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root") end
+        end) 
     end
+
+    -- livingtrees (common)
+    _iterLivtrees(function(inst) inst.AnimState:Hide("eye") end) 
+
+    -- livingroots (common)
+    _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
 end
 
 --------------------------------------------------------------------------
 --[[ Winters Feast ]]
 --------------------------------------------------------------------------
 -- TODO: components/klaussackspawner postinit - remove timers, remove watchers, call post init
--- TODO: prefabs/deerclops normalfn (common) - replicate yulecommonfn, set build and build var
--- TODO: prefabs/deerclops normalfn (server) - set yule and laserbeam var, component timer, listener 
+-- TODO: prefabs/deerclops normalfn (server) - component timer, listener 
 -- TODO: prefabs/deer fn (server) - replicate setupsounds
--- TODO: prefabs/deer common fn - add/clear override
--- TODO: prefabs/deer unshackle fn (server) - add/clear override (possibly not needed)
--- TODO: prefabs/deer unshackle (common) - single task... (possibly not needed)
 -- TODO: prefabs/bearger normalfn - set build
 -- TODO: prefabs/dragonfly prefab fn - SetBuild
 -- TODO: prefabs/dragonfly TransformNormal - call externally as self.TransformNormal 
@@ -131,12 +178,17 @@ end
 local gingerbreadhunter
 local snowballmanager
 
+_trackDeer, _iterDeer = createTracker()
+_trackDeerclops, _iterDeerclops = createTracker()
+
+--------------------------------------------------------------------------
+
 function _initWintersFeast()
     if TheWorld.ismastersim then
         gingerbreadhunter = TheWorld.components.gingerbreadhunter
         snowballmanager = TheWorld.components.snowballmanager
         
-        -- gingerbread hunting
+        -- gingerbread hunting (server)
         if not TheWorld:HasTag('cave') and not gingerbreadhunter then
             print('[Yearly Seasonal Events] Adding and disabling gingerbreadhunter component.')
             gingerbreadhunter = TheWorld:AddComponent("gingerbreadhunter")
@@ -150,43 +202,98 @@ end
 --------------------------------------------------------------------------
 
 function _startWintersFeast()
-    -- gingerbread hunting
-    if gingerbreadhunter and gingerbreadhunter.disabled then
-        print('[Yearly Seasonal Events] Reenabling gingerbreadhunter component.')
-        gingerbreadhunter.OnIsDay = gingerbreadhunter.__OnIsDay
-        gingerbreadhunter.__OnIsDay = nil
-        gingerbreadhunter.disabled = nil
-        -- skip three days to start hunt on day 1
-        TheWorld.components.gingerbreadhunter:OnIsDay()
-        TheWorld.components.gingerbreadhunter:OnIsDay()
-        TheWorld.components.gingerbreadhunter:OnIsDay()
-    elseif gingerbreadhunter then
-        print('[Yearly Seasonal Events] gingerbreadhunter already enabled.')
+    if TheWorld.ismastersim then
+        -- gingerbread hunting (server)
+        if gingerbreadhunter and gingerbreadhunter.disabled then
+            print('[Yearly Seasonal Events] Reenabling gingerbreadhunter component.')
+            gingerbreadhunter.OnIsDay = gingerbreadhunter.__OnIsDay
+            gingerbreadhunter.__OnIsDay = nil
+            gingerbreadhunter.disabled = nil
+            -- skip three days to start hunt on day 1
+            TheWorld.components.days = 2
+            TheWorld.components.gingerbreadhunter:OnIsDay()
+        elseif gingerbreadhunter then
+            print('[Yearly Seasonal Events] gingerbreadhunter already enabled.')
+        end
+
+        -- deerclops common_fn (server)
+        _iterDeerclops(function(inst)
+            inst.yule = true
+            inst.haslaserbeam = true
+        end)
     end
+
+    -- deer common_fn (common)
+    _iterDeer(function(inst)
+        inst.AnimState:OverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
+        inst.AnimState:OverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
+        inst.AnimState:OverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
+        inst.AnimState:OverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
+    end)
+
+    -- deerclops common_fn (common)
+    _iterDeerclops(function(inst)
+        if not inst.Light then
+            inst.entity:AddLight()
+            inst.Light:SetIntensity(.6)
+            inst.Light:SetRadius(8)
+            inst.Light:SetFalloff(3)
+            inst.Light:SetColour(1, 0, 0)
+        else
+            inst.Light:Enable(true)
+        end
+
+        inst.build = 'deerclops_yule'
+        inst.AnimState:SetBuild(inst.build)
+    end)
 end
 
 --------------------------------------------------------------------------
 
 function _stopWintersFeast()
-    -- gingerbread hunting
-    if gingerbreadhunter and gingerbreadhunter.disabled then
-        print('[Yearly Seasonal Events] Gingerbreadhunter already disabled.')
-    elseif gingerbreadhunter then
-        print('[Yearly Seasonal Events] Disabling gingerbreadhunter component.')
-        gingerbreadhunter.__OnIsDay = gingerbreadhunter.OnIsDay
-        gingerbreadhunter.OnIsDay = function() end
-        if gingerbreadhunter.newhunttask then
-            gingerbreadhunter.newhunttask:Cancel()
-            gingerbreadhunter.newhunttask = nil
+    if TheWorld.ismastersim then
+        -- gingerbread hunting (server)
+        if gingerbreadhunter and gingerbreadhunter.disabled then
+            print('[Yearly Seasonal Events] Gingerbreadhunter already disabled.')
+        elseif gingerbreadhunter then
+            print('[Yearly Seasonal Events] Disabling gingerbreadhunter component.')
+            gingerbreadhunter.__OnIsDay = gingerbreadhunter.OnIsDay
+            gingerbreadhunter.OnIsDay = function() end
+            if gingerbreadhunter.newhunttask then
+                gingerbreadhunter.newhunttask:Cancel()
+                gingerbreadhunter.newhunttask = nil
+            end
+            gingerbreadhunter.disabled = true
         end
-        gingerbreadhunter.disabled = true
+        
+        -- snowballs (server)
+        if snowballmanager and snowballmanager.enabled == true then
+            print('[Yearly Seasonal Events] Removing snowball spawning.')
+            snowballmanager:SetEnabled(false)
+        end
+
+        -- deerclops common_fn (server)
+        _iterDeerclops(function(inst)
+            inst.yule = nil
+            inst.haslaserbeam = nil
+        end)
     end
-    
-    -- snowballs
-    if snowballmanager and snowballmanager.enabled == true then
-        print('[Yearly Seasonal Events] Removing snowball spawning.')
-        snowballmanager:SetEnabled(false)
-    end
+
+    -- deer_common (common)
+    _iterDeer(function(inst)
+        inst.AnimState:ClearOverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
+        inst.AnimState:ClearOverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
+        inst.AnimState:ClearOverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
+    end)
+
+    -- deerclops common_fn (common)
+    _iterDeerclops(function(inst)
+        inst.Light:Enable(false)
+
+        inst.build = 'deerclops_build'
+        inst.AnimState:SetBuild(inst.build)
+    end)
 end
 
 --------------------------------------------------------------------------
@@ -205,8 +312,32 @@ end
 --[[ Year of the Pig King ]]
 --------------------------------------------------------------------------
 -- TODO: prefabs/pigking (common) - toggle add/clear override
--- TODO: prefabs/goldnugget - toggle minigame tag
 
+_trackNuggies, _iterNuggies = createTracker()
+
+--------------------------------------------------------------------------
+
+function _startYOTP()
+    -- gold nuggets and lucky gold nuggets
+    _iterNuggies(function(inst) 
+        if inst.prefab == 'goldnugget' then inst:RemoveTag("minigameitem")
+        elseif inst.prefab == 'lucky_goldnugget' then inst:AddTag("minigameitem")
+        else print('[Yearly Special Events] Not a goldnugget')
+        end
+    end)
+end
+
+--------------------------------------------------------------------------
+
+function _stopYOTP()
+    -- gold nuggets and lucky gold nuggets
+    _iterNuggies(function(inst) 
+        if inst.prefab == 'goldnugget' then inst:AddTag("minigameitem")
+        elseif inst.prefab == 'lucky_goldnugget' then inst:RemoveTag("minigameitem")
+        else print('[Yearly Special Events] Not a goldnugget')
+        end
+    end)
+end
 
 --------------------------------------------------------------------------
 --[[ Year of the Carrat ]]
