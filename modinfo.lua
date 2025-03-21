@@ -10,9 +10,9 @@ Version 1.3
 
 ----------------------------------------
 
+󰀓 Fix for fixed year in caves.
 󰀩 Major code refactor. 
 󰀝 Added framework for future improvements regarding every Special Event game feature that must be enabled/disabled. (there's a lot! 󰀕)
-󰀓 Many minor fixes.
 ]]
 
 author = "Monstah"
