@@ -160,7 +160,7 @@ end
 --[[ Winters Feast ]]
 --------------------------------------------------------------------------
 -- TODO: components/klaussackspawner postinit - remove timers, remove watchers, call post init
--- TODO: prefabs/deerclops normalfn (server) - component timer, listener 
+-- TODO: prefabs/deerclops normalfn (server) - listener 
 -- TODO: prefabs/deer fn (server) - replicate setupsounds
 -- TODO: prefabs/bearger normalfn - set build
 -- TODO: prefabs/dragonfly prefab fn - SetBuild
@@ -210,7 +210,7 @@ function _startWintersFeast()
             gingerbreadhunter.__OnIsDay = nil
             gingerbreadhunter.disabled = nil
             -- skip three days to start hunt on day 1
-            TheWorld.components.days = 2
+            TheWorld.components.gingerbreadhunter.days = 2
             TheWorld.components.gingerbreadhunter:OnIsDay()
         elseif gingerbreadhunter then
             print('[Yearly Seasonal Events] gingerbreadhunter already enabled.')
@@ -218,6 +218,10 @@ function _startWintersFeast()
 
         -- deerclops common_fn (server)
         _iterDeerclops(function(inst)
+            if inst.components.timer == nil then 
+                print('[Yearly Seasonal Events] adding timer to deerclops.')
+                inst:AddComponent('timer') 
+            end
             inst.yule = true
             inst.haslaserbeam = true
         end)
