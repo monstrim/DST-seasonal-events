@@ -387,5 +387,46 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Depth Worm ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/shadowthrall (server) - replicate and set lootsetupfn
--- TODO: prefabs/worm (server) - replicate and set loot fn
+
+_trackWorms, _iterWorms = createTracker()
+_trackShadows, _iterShadows = createTracker()
+
+-- replicated from prefabs/worm
+local function _worm_lootsetfn(lootdropper)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+end
+
+-- replicated from prefabs/shadowthrall_mouth
+local function _shadowthrall_lootsetfn(lootdropper)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)    
+end
+
+--------------------------------------------------------------------------
+
+function _startYOTS()
+    if TheWorld.ismastersim then
+        -- depth worm
+        _iterWorms(function(inst) inst.components.lootdropper:SetLootSetupFn(_worm_lootsetfn) end)
+
+        -- shadowthrall_mouth
+        _iterShadows(function(inst) inst.components.lootdropper:SetLootSetupFn(_shadowthrall_lootsetfn) end)
+    end
+end
+
+--------------------------------------------------------------------------
+
+function _stopYOTS()
+    if TheWorld.ismastersim then
+        -- depth worm
+        _iterWorms(function(inst) inst.components.lootdropper:SetLootSetupFn() end)
+
+        -- shadowthrall_mouth
+        _iterShadows(function(inst) inst.components.lootdropper:SetLootSetupFn() end)
+    end
+end
