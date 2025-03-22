@@ -284,9 +284,9 @@ function _startHalloween()
         -- livingtrees (server)
         _iterLivtrees(function(inst)
             if not inst.components.sanityaura then inst:AddComponent("sanityaura") end
-            if inst._eyeflames then inst._eyeflames:set(true) end
-            if inst.components.sanityaura then inst.components.sanityaura.aura = -TUNING.SANITYAURA_MED end
-            if inst.components.container then inst.components.container.canbeopened = true end
+            inst._eyeflames:set(true)
+            inst.components.sanityaura.aura = -TUNING.SANITYAURA_MED
+            inst.components.container.canbeopened = true
         end) 
 
         -- livingroots (server)
@@ -312,9 +312,9 @@ function _stopHalloween()
 
         -- livingroots (server)
         _iterLivtrees(function(inst)
-            if inst._eyeflames then inst._eyeflames:set(false) end
-            if inst.components.sanityaura then inst.components.sanityaura.aura = 0 end
-            if inst.components.container then inst.components.container.canbeopened = false end
+            inst._eyeflames:set(false)
+            inst.components.sanityaura.aura = 0
+            inst.components.container.canbeopened = false
         end) 
 
         -- livingroots (server)
