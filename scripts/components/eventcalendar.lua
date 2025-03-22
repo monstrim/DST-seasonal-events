@@ -60,6 +60,7 @@ local current_year
 local current_new_moon
 local current_seasonal_event
 local replica = self.inst.replica.eventcalendar
+local shard
 
 --------------------------------------------------------------------------
 --[[ Private member functions ]]
@@ -129,6 +130,10 @@ end
 --------------------------------------------------------------------------
 
 function self:Sync()
+    if TheWorld.ismastershard then
+        shard:SetYear(current_year)
+        shard:SetSeasonalEvent(current_seasonal_event)
+    end
     replica:SetYearEvent(year_of_list[current_year])
     replica:SetSeasonalEvent(current_seasonal_event)
 end
@@ -136,6 +141,12 @@ end
 --------------------------------------------------------------------------
 --[[ Private event handlers ]]
 --------------------------------------------------------------------------
+
+local function OnShardSync(src, data)
+    current_year = data.current_year
+    current_seasonal_event = data.current_seasonal_event
+    self:Sync()
+end
 
 local function OnCyclesChange(inst)
     _checkSeasonalEvents()
@@ -166,24 +177,35 @@ end
 --[[ Initialization ]]
 --------------------------------------------------------------------------
 
--- Initialize events and seasons
-_yearOfInit()
-_seasonInit()
-_checkSeasonalEvents()
-current_new_moon = 2 --will zero on next winter
+if TheWorld.ismastershard then 
+    -- Initialize events and seasons
+    _yearOfInit()
+    _seasonInit()
+    _checkSeasonalEvents()
+    current_new_moon = 2 --will zero on next winter
 
--- Listen for events
-inst:WatchWorldState("cycles", OnCyclesChange)
-inst:WatchWorldState("season", OnSeasonChange)
-inst:WatchWorldState('moonphase', OnMoonChange)
-inst:WatchWorldState("springlength", function(inst) _seasonInit() end)
-inst:WatchWorldState("summerlength", function(inst) _seasonInit() end)
-inst:WatchWorldState("autumnlength", function(inst) _seasonInit() end)
-inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
+    inst:DoTaskInTime(0, function()
+        shard = TheWorld.shard.components.shard_calendar
 
--- Finally, sync
-self:Sync()
-replica:WorldEventsInit()
+        -- Listen for events
+        inst:WatchWorldState("cycles", OnCyclesChange)
+        inst:WatchWorldState("season", OnSeasonChange)
+        inst:WatchWorldState('moonphase', OnMoonChange)
+        inst:WatchWorldState("springlength", function(inst) _seasonInit() end)
+        inst:WatchWorldState("summerlength", function(inst) _seasonInit() end)
+        inst:WatchWorldState("autumnlength", function(inst) _seasonInit() end)
+        inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
+    
+        -- Finally, sync
+        self:Sync()
+        replica:WorldEventsInit()
+    end)
+else
+    -- Secondary shards just listen to the shard calendar for updates
+    inst:ListenForEvent("eventcalendar_sync", OnShardSync)
+    inst:DoTaskInTime(1, function() replica:WorldEventsInit() end)
+end
+
 
 --------------------------------------------------------------------------
 --[[ Save/Load ]]
@@ -206,6 +228,7 @@ function self:OnLoad(data)
 		end
     end
 
+    shard = TheWorld.shard.components.shard_calendar
     self:Sync()
     replica:WorldEventsInit()
 end
@@ -215,14 +238,24 @@ end
 --------------------------------------------------------------------------
 
 -- local _advance = nil
+-- local _advance_task = nil
 -- -- Keep fast-forwarding time
 -- _advance = function(inst)
---     inst:DoTaskInTime(1.5, function(inst)
+--     _advance_task = inst:DoTaskInTime(1, function(inst)
 --         TheWorld:PushEvent('ms_nextcycle')
 --         _advance(inst)
 --     end)
 -- end
 -- _advance(inst)
+-- inst:DoTaskInTime(1, function() 
+--     TheWorld:ListenForEvent('ms_nextcycle', function()
+--         if not _advance_task then _advance(inst) end
+--     end)
+--     TheWorld:ListenForEvent('master_autosaverupdate', function() 
+--         _advance_task:Cancel()
+--         _advance_task = nil
+--     end) 
+-- end)
 
 --------------------------------------------------------------------------
 --[[ END ]]
