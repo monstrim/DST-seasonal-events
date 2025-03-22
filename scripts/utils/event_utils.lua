@@ -34,6 +34,8 @@ local function createTracker(report)
 
     return _trackFn, _iterateFn
 end
+
+
 local function killListeners(inst, event, source)
     source = source or inst
     if inst.event_listening[event] then
@@ -43,8 +45,6 @@ local function killListeners(inst, event, source)
         source.event_listeners[event][inst] = nil
     end
 end
-
-
 
 --------------------------------------------------------------------------
 --[[ Summer Cawnival ]]
@@ -239,7 +239,6 @@ end
 --[[ Winters Feast ]]
 --------------------------------------------------------------------------
 -- TODO: components/klaussackspawner postinit - remove timers, remove watchers, call post init
--- TODO: prefabs/deerclops normalfn (server) - listener 
 -- TODO: prefabs/deer fn (server) - replicate setupsounds
 -- TODO: prefabs/bearger normalfn - set build
 -- TODO: prefabs/hermitcrab loadpostpass - learn/forget
@@ -257,6 +256,17 @@ local snowballmanager
 _trackDeer, _iterDeer = createTracker()
 _trackDeerclops, _iterDeerclops = createTracker()
 _trackDragonfly, _iterDragonfly = createTracker()
+
+--------------------------------------------------------------------------
+
+local function _deerclops_onyule(inst, data)
+    if not (inst.sg:HasStateTag("sleeping") or inst.sg:HasStateTag("waking")) then
+        inst.Light:SetIntensity(.6)
+        inst.Light:SetRadius(8)
+        inst.Light:SetFalloff(3)
+        inst.Light:SetColour(1, 0, 0)
+    end
+end
 
 --------------------------------------------------------------------------
 
@@ -301,6 +311,7 @@ function _startWintersFeast()
             end
             inst.yule = true
             inst.haslaserbeam = true
+            inst:ListenForEvent("newstate", _deerclops_onyule)
         end)
     end
 
@@ -360,6 +371,7 @@ function _stopWintersFeast()
         _iterDeerclops(function(inst)
             inst.yule = nil
             inst.haslaserbeam = nil
+            killListeners(inst, "newstate") -- might be our replicated _listener or the original (local) callback
         end)
     end
 
