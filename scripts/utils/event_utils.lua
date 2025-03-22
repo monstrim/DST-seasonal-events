@@ -262,8 +262,6 @@ end
 --------------------------------------------------------------------------
 -- TODO: prefabs/hermitcrab loadpostpass - learn/forget
 -- TODO: prefabs/hermitcrab initfriendstuff - learn/forget?
--- TODO: prefabs/klaus fn (common) - add/clear override
--- TODO: prefabs/klaus fn (server) - add/remove(?) chanceloot... OK? there will be other klauses
 -- TODO: prefabs/snow - ...whatever, man...
 
 local gingerbreadhunter
@@ -271,11 +269,13 @@ local snowballmanager
 local klaussackspawner = TheWorld.components.klaussackspawner
 local KLAUSSACK_TIMERNAME = "klaussack_spawntimer"
 
-_trackDeer, _iterDeer = createTracker()
 _trackDeerclops, _iterDeerclops = createTracker()
 _trackDragonfly, _iterDragonfly = createTracker()
 _trackBearger, _iterBearger = createTracker()
 _trackMoose, _iterMoose = createTracker()
+_trackKlaus, _iterKlaus = createTracker()
+
+_trackDeer, _iterDeer = createTracker()
 _trackMosslings, _iterMosslings = createTracker()
 
 --------------------------------------------------------------------------
@@ -348,6 +348,12 @@ function _startWintersFeast()
             inst.haslaserbeam = true
             inst:ListenForEvent("newstate", _deerclops_onyule)
         end)
+
+        -- klaus (server)
+        _iterKlaus(function(inst)
+            inst.components.lootdropper:AddChanceLoot("winter_food3", 1)
+            inst.components.lootdropper:AddChanceLoot("winter_food3", 1)
+        end)
         
         -- klaussackspawner (server)
         if klaussackspawner then
@@ -399,6 +405,14 @@ function _startWintersFeast()
     -- moose (common)
     _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_yule_build") end)
 
+    -- klaus (common)
+    _iterKlaus(function(inst)
+        inst.AnimState:OverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
+        inst.AnimState:OverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
+        inst.AnimState:OverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
+        inst.AnimState:OverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
+    end)
+
     -- mossling (common)
     _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_yule_build") end)
 end
@@ -432,6 +446,11 @@ function _stopWintersFeast()
             inst.yule = nil
             inst.haslaserbeam = nil
             killListeners(inst, "newstate") -- might be our replicated _listener or the original (local) callback
+        end)
+
+        -- klaus (server)
+        _iterKlaus(function(inst)
+            inst.components.lootdropper:SetLoot(inst.components.lootdropper.loots)
         end)
         
         -- klaussackspawner (server)
@@ -472,6 +491,14 @@ function _stopWintersFeast()
 
     -- moose (common)
     _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_build") end)
+
+    -- klaus (common)
+    _iterKlaus(function(inst)
+        inst.AnimState:ClearOverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
+    end)
 
     -- mossling (common)
     _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_build") end)

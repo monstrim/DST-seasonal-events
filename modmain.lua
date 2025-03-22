@@ -40,6 +40,7 @@ AddPrefabPostInit('deerclops', GLOBAL._trackDeerclops)
 AddPrefabPostInit('dragonfly', GLOBAL._trackDragonfly)
 AddPrefabPostInit('bearger', GLOBAL._trackBearger)
 AddPrefabPostInit('moose', GLOBAL._trackMoose)
+AddPrefabPostInit('klaus', GLOBAL._trackKlaus)
 
 AddPrefabPostInit('deer', GLOBAL._trackDeer)
 AddPrefabPostInit('deer_red', GLOBAL._trackDeer)
