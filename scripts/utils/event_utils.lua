@@ -259,7 +259,6 @@ end
 --------------------------------------------------------------------------
 --[[ Winters Feast ]]
 --------------------------------------------------------------------------
--- TODO: components/klaussackspawner postinit - remove timers, remove watchers, call post init
 -- TODO: prefabs/deer fn (server) - replicate setupsounds
 -- TODO: prefabs/bearger normalfn - set build
 -- TODO: prefabs/hermitcrab loadpostpass - learn/forget
@@ -272,6 +271,8 @@ end
 
 local gingerbreadhunter
 local snowballmanager
+local klaussackspawner = TheWorld.components.klaussackspawner
+local KLAUSSACK_TIMERNAME = "klaussack_spawntimer"
 
 _trackDeer, _iterDeer = createTracker()
 _trackDeerclops, _iterDeerclops = createTracker()
@@ -295,6 +296,7 @@ function _initWintersFeast()
     if TheWorld.ismastersim then
         gingerbreadhunter = TheWorld.components.gingerbreadhunter
         snowballmanager = TheWorld.components.snowballmanager
+        klaussackspawner = TheWorld.components.klaussackspawner
         
         -- gingerbread hunting (server)
         if not TheWorld:HasTag('cave') and not gingerbreadhunter then
@@ -337,6 +339,13 @@ function _startWintersFeast()
             inst.haslaserbeam = true
             inst:ListenForEvent("newstate", _deerclops_onyule)
         end)
+        
+        -- klaussackspawner (server)
+        if klaussackspawner then
+            killtimers(KLAUSSACK_TIMERNAME)
+            killWatchers(klaussackspawner, 'iswinter')
+            klaussackspawner:OnPostInit()
+        end
 
         -- player_common (server)
         _iterPlayers(function(inst) inst:RemoveComponent("wintertreegiftable") end)
@@ -400,6 +409,13 @@ function _stopWintersFeast()
             inst.haslaserbeam = nil
             killListeners(inst, "newstate") -- might be our replicated _listener or the original (local) callback
         end)
+        
+        -- klaussackspawner (server)
+        if klaussackspawner then
+            killtimers(KLAUSSACK_TIMERNAME)
+            killWatchers(klaussackspawner, 'iswinter')
+            klaussackspawner:OnPostInit()
+        end
     end
 
     -- deer_common (common)
