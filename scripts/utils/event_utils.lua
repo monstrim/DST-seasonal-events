@@ -290,11 +290,12 @@ local function _deerclops_onyule(inst, data)
     end
 end
 
-local function _deerclops_idlesound(inst, volume)
+-- replicated from prefabs/deer
+local function _deer_idlesound(inst, volume)
     inst.SoundEmitter:PlaySound("dontstarve/creatures/together/deer/bell_idle", nil, volume)
 end
 
-local function _deerclops_bellsound(inst, volume)
+local function _deer_bellsound(inst, volume)
     inst.SoundEmitter:PlaySound("dontstarve/creatures/together/deer/bell", nil, volume)
 end
 
@@ -357,8 +358,8 @@ function _startWintersFeast()
 
         -- deer common_fn (server)
         _iterDeer(function(inst)
-            inst.DoBellSound = DoBellSound
-            inst.DoBellIdleSound = DoBellIdleSound
+            inst.DoBellSound = _deer_idlesound
+            inst.DoBellIdleSound = _deer_bellsound
         end)
 
         -- player_common (server)
