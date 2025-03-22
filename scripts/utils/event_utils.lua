@@ -35,6 +35,38 @@ local function createTracker(report)
     return _trackFn, _iterateFn
 end
 
+
+local function killWatchers(inst, var)
+    inst.worldstatewatching[var] = nil
+    if next(inst.worldstatewatching) == nil then
+        inst.worldstatewatching = nil
+    end
+    TheWorld.components.worldstate:RemoveWatcher(var, inst)
+end
+
+
+local function killListeners(inst, event, source)
+    source = source or inst
+    if inst.event_listening[event] then
+        inst.event_listening[event][source] = nil
+    end
+    if source.event_listeners[event] then
+        source.event_listeners[event][inst] = nil
+    end
+end
+
+
+local function killTimers(name)
+    TheWorld.components.worldsettingstimer:StopTimer(name)
+    TheWorld.components.worldsettingstimer.timers[name] = nil
+end
+
+--------------------------------------------------------------------------
+--[[ General ]]
+--------------------------------------------------------------------------
+
+_trackPlayers, _iterPlayers = createTracker()
+
 --------------------------------------------------------------------------
 --[[ Summer Cawnival ]]
 --------------------------------------------------------------------------
@@ -194,6 +226,7 @@ function _startHalloween()
     _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
 end
 
+--------------------------------------------------------------------------
 
 function _stopHalloween()
     if TheWorld.ismastersim then
@@ -227,27 +260,44 @@ end
 --------------------------------------------------------------------------
 --[[ Winters Feast ]]
 --------------------------------------------------------------------------
--- TODO: components/klaussackspawner postinit - remove timers, remove watchers, call post init
--- TODO: prefabs/deerclops normalfn (server) - listener 
--- TODO: prefabs/deer fn (server) - replicate setupsounds
--- TODO: prefabs/bearger normalfn - set build
--- TODO: prefabs/dragonfly prefab fn - SetBuild
--- TODO: prefabs/dragonfly TransformNormal - call externally as self.TransformNormal 
--- TODO: prefabs/dragonfly TransformFire - call externally as self.TransformFire
 -- TODO: prefabs/hermitcrab loadpostpass - learn/forget
 -- TODO: prefabs/hermitcrab initfriendstuff - learn/forget?
--- TODO: prefabs/klaus fn (common) - add/clear override
--- TODO: prefabs/klaus fn (server) - add/remove(?) chanceloot... OK? there will be other klauses
--- TODO: prefabs/moose (common) - setbuild
--- TODO: prefabs/mossling (common) - set build
--- TODO: prefabs/playercommon fn - add component, add/remove listen
 -- TODO: prefabs/snow - ...whatever, man...
 
 local gingerbreadhunter
 local snowballmanager
+local klaussackspawner = TheWorld.components.klaussackspawner
+local KLAUSSACK_TIMERNAME = "klaussack_spawntimer"
+
+_trackDeerclops, _iterDeerclops = createTracker()
+_trackDragonfly, _iterDragonfly = createTracker()
+_trackBearger, _iterBearger = createTracker()
+_trackMoose, _iterMoose = createTracker()
+_trackKlaus, _iterKlaus = createTracker()
 
 _trackDeer, _iterDeer = createTracker()
-_trackDeerclops, _iterDeerclops = createTracker()
+_trackMosslings, _iterMosslings = createTracker()
+
+--------------------------------------------------------------------------
+
+-- replicated from prefabs/deerclops
+local function _deerclops_onyule(inst, data)
+    if not (inst.sg:HasStateTag("sleeping") or inst.sg:HasStateTag("waking")) then
+        inst.Light:SetIntensity(.6)
+        inst.Light:SetRadius(8)
+        inst.Light:SetFalloff(3)
+        inst.Light:SetColour(1, 0, 0)
+    end
+end
+
+-- replicated from prefabs/deer
+local function _deer_idlesound(inst, volume)
+    inst.SoundEmitter:PlaySound("dontstarve/creatures/together/deer/bell_idle", nil, volume)
+end
+
+local function _deer_bellsound(inst, volume)
+    inst.SoundEmitter:PlaySound("dontstarve/creatures/together/deer/bell", nil, volume)
+end
 
 --------------------------------------------------------------------------
 
@@ -255,6 +305,7 @@ function _initWintersFeast()
     if TheWorld.ismastersim then
         gingerbreadhunter = TheWorld.components.gingerbreadhunter
         snowballmanager = TheWorld.components.snowballmanager
+        klaussackspawner = TheWorld.components.klaussackspawner
         
         -- gingerbread hunting (server)
         if not TheWorld:HasTag('cave') and not gingerbreadhunter then
@@ -264,6 +315,9 @@ function _initWintersFeast()
             gingerbreadhunter.OnIsDay = function() end
             gingerbreadhunter.disabled = true
         end
+
+        -- player_common (server)
+        _iterPlayers(function(inst) inst:AddComponent("wintertreegiftable") end)
     end
 end
 
@@ -292,7 +346,30 @@ function _startWintersFeast()
             end
             inst.yule = true
             inst.haslaserbeam = true
+            inst:ListenForEvent("newstate", _deerclops_onyule)
         end)
+
+        -- klaus (server)
+        _iterKlaus(function(inst)
+            inst.components.lootdropper:AddChanceLoot("winter_food3", 1)
+            inst.components.lootdropper:AddChanceLoot("winter_food3", 1)
+        end)
+        
+        -- klaussackspawner (server)
+        if klaussackspawner then
+            killtimers(KLAUSSACK_TIMERNAME)
+            killWatchers(klaussackspawner, 'iswinter')
+            klaussackspawner:OnPostInit()
+        end
+
+        -- deer common_fn (server)
+        _iterDeer(function(inst)
+            inst.DoBellSound = _deer_idlesound
+            inst.DoBellIdleSound = _deer_bellsound
+        end)
+
+        -- player_common (server)
+        _iterPlayers(function(inst) inst:RemoveComponent("wintertreegiftable") end)
     end
 
     -- deer common_fn (common)
@@ -318,6 +395,26 @@ function _startWintersFeast()
         inst.build = 'deerclops_yule'
         inst.AnimState:SetBuild(inst.build)
     end)
+
+    -- beager normalfn (common)
+    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_yule") end)
+
+    -- dragonfly (common)
+    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_yule_build") end)
+
+    -- moose (common)
+    _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_yule_build") end)
+
+    -- klaus (common)
+    _iterKlaus(function(inst)
+        inst.AnimState:OverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
+        inst.AnimState:OverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
+        inst.AnimState:OverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
+        inst.AnimState:OverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
+    end)
+
+    -- mossling (common)
+    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_yule_build") end)
 end
 
 --------------------------------------------------------------------------
@@ -348,6 +445,25 @@ function _stopWintersFeast()
         _iterDeerclops(function(inst)
             inst.yule = nil
             inst.haslaserbeam = nil
+            killListeners(inst, "newstate") -- might be our replicated _listener or the original (local) callback
+        end)
+
+        -- klaus (server)
+        _iterKlaus(function(inst)
+            inst.components.lootdropper:SetLoot(inst.components.lootdropper.loots)
+        end)
+        
+        -- klaussackspawner (server)
+        if klaussackspawner then
+            killtimers(KLAUSSACK_TIMERNAME)
+            killWatchers(klaussackspawner, 'iswinter')
+            klaussackspawner:OnPostInit()
+        end
+
+        -- deer common_fn (server)
+        _iterDeer(function(inst)
+            inst.DoBellSound = function() end
+            inst.DoBellIdleSound = function() end
         end)
     end
 
@@ -366,6 +482,26 @@ function _stopWintersFeast()
         inst.build = 'deerclops_build'
         inst.AnimState:SetBuild(inst.build)
     end)
+
+    -- beager normalfn (server)
+    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_build") end)
+
+    -- dragonfly (common)
+    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_build") end)
+
+    -- moose (common)
+    _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_build") end)
+
+    -- klaus (common)
+    _iterKlaus(function(inst)
+        inst.AnimState:ClearOverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
+    end)
+
+    -- mossling (common)
+    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_build") end)
 end
 
 --------------------------------------------------------------------------

@@ -14,6 +14,9 @@ AddPrefabPostInit('cave_network', function (inst) if GLOBAL.TheWorld.ismastersim
 --------------------------------------------------------------------------
 --[[ Trackers for enabling/disabling events ]]
 --------------------------------------------------------------------------
+
+AddPlayerPostInit(GLOBAL._trackPlayers)
+
 -- Cawnival
 AddPrefabPostInit('carnival_crowkid', GLOBAL._trackCrowkids)
 AddPrefabPostInit('carnival_plaza', GLOBAL._trackPlazas)
@@ -34,10 +37,15 @@ end
 --------------------------------------------------------------------------
 -- Winter's Feast
 AddPrefabPostInit('deerclops', GLOBAL._trackDeerclops)
+AddPrefabPostInit('dragonfly', GLOBAL._trackDragonfly)
+AddPrefabPostInit('bearger', GLOBAL._trackBearger)
+AddPrefabPostInit('moose', GLOBAL._trackMoose)
+AddPrefabPostInit('klaus', GLOBAL._trackKlaus)
 
 AddPrefabPostInit('deer', GLOBAL._trackDeer)
 AddPrefabPostInit('deer_red', GLOBAL._trackDeer)
 AddPrefabPostInit('deer_blue', GLOBAL._trackDeer)
+AddPrefabPostInit('mossling', GLOBAL._trackMosslings)
 
 --------------------------------------------------------------------------
 -- YOTG
