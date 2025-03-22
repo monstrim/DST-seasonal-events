@@ -226,6 +226,7 @@ function _startHalloween()
     _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
 end
 
+--------------------------------------------------------------------------
 
 function _stopHalloween()
     if TheWorld.ismastersim then
@@ -259,7 +260,6 @@ end
 --------------------------------------------------------------------------
 --[[ Winters Feast ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/bearger normalfn - set build
 -- TODO: prefabs/hermitcrab loadpostpass - learn/forget
 -- TODO: prefabs/hermitcrab initfriendstuff - learn/forget?
 -- TODO: prefabs/klaus fn (common) - add/clear override
@@ -276,6 +276,7 @@ local KLAUSSACK_TIMERNAME = "klaussack_spawntimer"
 _trackDeer, _iterDeer = createTracker()
 _trackDeerclops, _iterDeerclops = createTracker()
 _trackDragonfly, _iterDragonfly = createTracker()
+_trackBearger, _iterBearger = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -388,6 +389,9 @@ function _startWintersFeast()
         inst.AnimState:SetBuild(inst.build)
     end)
 
+    -- beager normalfn (common)
+    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_yule") end)
+
     -- dragonfly (common)
     _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_yule_build") end)
 end
@@ -452,6 +456,9 @@ function _stopWintersFeast()
         inst.build = 'deerclops_build'
         inst.AnimState:SetBuild(inst.build)
     end)
+
+    -- beager normalfn (server)
+    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_build") end)
 
     -- dragonfly (common)
     _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_build") end)
