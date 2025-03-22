@@ -238,14 +238,24 @@ end
 --------------------------------------------------------------------------
 
 -- local _advance = nil
+-- local _advance_task = nil
 -- -- Keep fast-forwarding time
 -- _advance = function(inst)
---     inst:DoTaskInTime(1.5, function(inst)
+--     _advance_task = inst:DoTaskInTime(1, function(inst)
 --         TheWorld:PushEvent('ms_nextcycle')
 --         _advance(inst)
 --     end)
 -- end
 -- _advance(inst)
+-- inst:DoTaskInTime(1, function() 
+--     TheWorld:ListenForEvent('ms_nextcycle', function()
+--         if not _advance_task then _advance(inst) end
+--     end)
+--     TheWorld:ListenForEvent('master_autosaverupdate', function() 
+--         _advance_task:Cancel()
+--         _advance_task = nil
+--     end) 
+-- end)
 
 --------------------------------------------------------------------------
 --[[ END ]]
