@@ -38,17 +38,42 @@ end
 --------------------------------------------------------------------------
 --[[ Summer Cawnival ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/carnival_plaza fn - add component, replicate onactivate, register plaza, add remove callback, add and control spawner
 
 local carnival_host
 _trackCrowkids, _iterCrowkids = createTracker()
+_trackPlazas, _iterPlazas = createTracker()
+
+--------------------------------------------------------------------------
+
+-- replicated from prefabs/carnival_plaza
+local function _plaza_onactivate(inst, doer)
+	if inst._choppeddown then
+		return false
+	end
+
+	inst.AnimState:PlayAnimation("ringing")
+	inst.SoundEmitter:PlaySound("summerevent/plaza/ringing")
+	inst.AnimState:PushAnimation("idle", true)
+	
+	inst.components.activatable.inactive = true
+    if TheWorld.components.carnivalevent and IsSpecialEventActive(SPECIAL_EVENTS.CARNIVAL) then --altered to enable/disable
+        return TheWorld.components.carnivalevent:SummonHost(inst)
+    end
+    return false, "NOCARNIVAL"
+end
+
+local function _plaza_onremove(inst)
+    if TheWorld.components.carnivalevent then
+        TheWorld.components.carnivalevent:UnregisterPlaza(inst)
+    end
+end
 
 --------------------------------------------------------------------------
 
 function _startCarnival()
     if TheWorld.ismastersim then
         if not TheWorld:HasTag('cave') then
-            -- carnival host
+            -- carnival host (server)
             if not carnival_host and TheWorld.components.carnivalevent then
                 TheWorld.components.carnivalevent:OnPostInit()
                 carnival_host = c_find("carnival_host")
@@ -58,6 +83,45 @@ function _startCarnival()
                 carnival_host.sg:GoToState("glide")
             end
         end
+
+        -- carnival_plaza (server)
+        _iterPlazas(function(inst)
+            -- these are all added together, so only check for this component
+            if not inst.components.activatable then
+                -- add component
+                inst:AddComponent("activatable")
+                inst.components.activatable.standingaction = true
+                inst.components.activatable.OnActivate = _plaza_onactivate
+
+                if TheWorld.components.carnivalevent ~= nil then
+                    -- register plaza
+                    inst:DoTaskInTime(0, function()
+                        if TheWorld.components.carnivalevent then
+                            TheWorld.components.carnivalevent:RegisterPlaza(inst)
+                        end
+                    end)
+                    -- add remove callback
+                    inst:ListenForEvent("onremove", _plaza_onremove)
+    
+                    -- add spawner
+                    inst:AddComponent("childspawner")
+                    inst.components.childspawner.childname = "carnival_crowkid"
+                    inst.components.childspawner:SetMaxChildren(1)
+                    inst.components.childspawner.childreninside = 0
+                    inst.components.childspawner:SetRegenPeriod(4, 0)
+                    inst.components.childspawner:SetSpawnPeriod(5, 5)
+                    inst.components.childspawner.allowboats = false
+                    inst.components.childspawner.spawnradius = {min = 2, max = 6}
+                    inst.components.childspawner.spawn_height = 30
+                    inst.components.childspawner.canspawnfn = function() return true end
+                    inst.components.childspawner:SetSpawnedFn(function(inst, child) child.sg:GoToState("glide") end)
+                end
+            end
+            -- control spawner
+            if inst.components.childspawner then
+                inst.components.childspawner:StartSpawning()
+            end
+        end)
     end
 end
 
@@ -65,20 +129,25 @@ end
 
 function _stopCarnival()
     if TheWorld.ismastersim then
-        if not TheWorld:HasTag('cave') then
-            -- carnival host
-            if carnival_host then
-                carnival_host.sg:GoToState("flyaway")
-                carnival_host:DoTaskInTime(3, carnival_host.Remove)
-                carnival_host = nil
-            end
-
-            -- crowkids
-            _iterCrowkids(function(inst)
-                inst.ShouldFlyAway = true 
-                inst:DoTaskInTime(3, inst.Remove)
-            end)
+        -- carnival host (server)
+        if carnival_host then
+            carnival_host.sg:GoToState("flyaway")
+            carnival_host:DoTaskInTime(3, carnival_host.Remove)
+            carnival_host = nil
         end
+
+        -- crowkids (server)
+        _iterCrowkids(function(inst)
+            inst.ShouldFlyAway = true 
+            inst:DoTaskInTime(3, inst.Remove)
+        end)
+
+        -- carnival_plaza (server)
+        _iterPlazas(function(inst)
+            if inst.components.childspawner then
+                inst.components.childspawner:StopSpawning()
+            end
+        end)
     end
 end
 
@@ -153,7 +222,7 @@ function _stopHalloween()
     _iterLivtrees(function(inst) inst.AnimState:Hide("eye") end) 
 
     -- livingroots (common)
-    _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
+    _iterLivroots(function(inst) inst.AnimState:Hide("eye") end) 
 end
 
 --------------------------------------------------------------------------

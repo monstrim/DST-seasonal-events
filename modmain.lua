@@ -16,6 +16,7 @@ AddPrefabPostInit('cave_network', function (inst) if GLOBAL.TheWorld.ismastersim
 --------------------------------------------------------------------------
 -- Cawnival
 AddPrefabPostInit('carnival_crowkid', GLOBAL._trackCrowkids)
+AddPrefabPostInit('carnival_plaza', GLOBAL._trackPlazas)
 
 --------------------------------------------------------------------------
 -- Halloween
