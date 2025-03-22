@@ -303,10 +303,35 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Gobbler ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/perd (common) - add/remove tag
 -- TODO: prefabs/perd (server) - component, replicate functions, vars and listeners
 -- TODO: prefabs/berrybush (server) - add/kill , change callbacks... but maybe dont (trigger invalid??)
 -- TODO: prefabs/perdshrine (server) - replicate functions, callback, watcher... but maybe dont (trigger invalid??)
+
+_trackPerds, _iterPerds = createTracker()
+
+--------------------------------------------------------------------------
+
+function _startYOTG()
+    if TheWorld.ismastersim then
+        -- Perds (server)
+        inst.seekshrine = true
+    end
+
+    -- Perds (common)
+    _iterPerds(function(inst) inst:AddTag("perd") end)
+end
+
+--------------------------------------------------------------------------
+
+function _stopYOTG()
+    if TheWorld.ismastersim then
+        -- Perds (server)
+        inst.seekshrine = nil
+    end
+
+    -- Perds (common)
+    _iterPerds(function(inst) inst:RemoveTag("perd") end)
+end
 
 --------------------------------------------------------------------------
 --[[ Year of the Varg ]]

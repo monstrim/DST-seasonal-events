@@ -61,10 +61,14 @@ local function StartEvent(event)
         _startHalloween()
     elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
         _startWintersFeast()
-    elseif event == SPECIAL_EVENTS.YOTD then
-        _startYOTD()
+    elseif event == SPECIAL_EVENTS.YOTG then
+        _startYOTG()
     elseif event == SPECIAL_EVENTS.YOTP then
         _startYOTP()
+    elseif event == SPECIAL_EVENTS.YOTD then
+        _startYOTD()
+    elseif event == SPECIAL_EVENTS.YOTS then
+        _startYOTS()
     end
 
     -- fanfarres and announcements
@@ -111,10 +115,14 @@ local function StopEvent(event)
         _stopHalloween()
     elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
         _stopWintersFeast()
-    elseif event == SPECIAL_EVENTS.YOTD then
-        _stopYOTD()
+    elseif event == SPECIAL_EVENTS.YOTG then
+        _stopYOTG()
     elseif event == SPECIAL_EVENTS.YOTP then
         _stopYOTP()
+    elseif event == SPECIAL_EVENTS.YOTD then
+        _stopYOTD()
+    elseif event == SPECIAL_EVENTS.YOTS then
+        _stopYOTS()
     end
     
     if TheWorld.components.specialeventsetup then
