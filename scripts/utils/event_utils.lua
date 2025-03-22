@@ -303,21 +303,47 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Gobbler ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/perd (common) - add/remove tag
 -- TODO: prefabs/perd (server) - component, replicate functions, vars and listeners
 -- TODO: prefabs/berrybush (server) - add/kill , change callbacks... but maybe dont (trigger invalid??)
 -- TODO: prefabs/perdshrine (server) - replicate functions, callback, watcher... but maybe dont (trigger invalid??)
 
+_trackPerds, _iterPerds = createTracker()
+
+--------------------------------------------------------------------------
+
+function _startYOTG()
+    if TheWorld.ismastersim then
+        -- Perds (server)
+        inst.seekshrine = true
+    end
+
+    -- Perds (common)
+    _iterPerds(function(inst) inst:AddTag("perd") end)
+end
+
+--------------------------------------------------------------------------
+
+function _stopYOTG()
+    if TheWorld.ismastersim then
+        -- Perds (server)
+        inst.seekshrine = nil
+    end
+
+    -- Perds (common)
+    _iterPerds(function(inst) inst:RemoveTag("perd") end)
+end
+
 --------------------------------------------------------------------------
 --[[ Year of the Varg ]]
 --------------------------------------------------------------------------
+-- Nothing here??
 
 --------------------------------------------------------------------------
 --[[ Year of the Pig King ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/pigking (common) - toggle add/clear override
 
 _trackNuggies, _iterNuggies = createTracker()
+_trackPigking, _iterPigking = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -329,6 +355,9 @@ function _startYOTP()
         else print('[Yearly Special Events] Not a goldnugget')
         end
     end)
+
+    -- pig king
+    _iterPigking(function(inst) inst.AnimState:AddOverrideBuild("Pig_King_elite_build") end)
 end
 
 --------------------------------------------------------------------------
@@ -341,23 +370,82 @@ function _stopYOTP()
         else print('[Yearly Special Events] Not a goldnugget')
         end
     end)
+
+    -- pig king
+    _iterPigking(function(inst) inst.AnimState:ClearOverrideBuild("Pig_King_elite_build") end)
 end
 
 --------------------------------------------------------------------------
 --[[ Year of the Carrat ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/carrat ghostracer - add/remove overridebuild
--- TODO: prefabs/carrat fn (common) - add/remove tag, add/remove override build, replicate get_dropaction_string
--- TODO: prefabs/carrat fn (server) - replicate train funcs, replicate callbacks, remove tag, add components, add/kill listeners
+-- TODO: prefabs/carrat fn (common) - replicate get_dropaction_string
+-- TODO: prefabs/carrat fn (server) - replicate train funcs, replicate callbacks, add/kill listeners
 -- TODO: prefabs/beefaloherd fn - replicate carrat spawner and add/remove listen
 -- TODO: prefabs/rat_gym (server) - add component, replicate callbacks
+
+_trackCarrats, _iterCarrats = createTracker()
+_trackGhostracer, _iterGhostracer = createTracker()
+
+--------------------------------------------------------------------------
+
+function _startYOTC()
+    if TheWorld.ismastersim then
+        -- carrats (server)
+       _iterCarrats(function(inst)
+            inst:AddComponent("named")
+        end)
+    end
+
+    -- carrats (common)
+    _iterCarrats(function(inst)
+        inst.AnimState:AddOverrideBuild("redpouch_yotc")
+        if not inst:HasTag("_named") then inst:AddTag("_named") end
+    end)
+
+    -- carrat ghostracer
+    _iterGhostracer(function(inst) inst.AnimState:AddOverrideBuild("redpouch_yotc") end)
+end
+
+--------------------------------------------------------------------------
+
+function _stopYOTC()
+    if TheWorld.ismastersim then
+        -- carrats (server)
+       _iterCarrats(function(inst)
+            inst:RemoveComponent("named")
+        end)
+    end
+
+    -- carrats (common)
+    _iterCarrats(function(inst)
+        inst.AnimState:ClearOverrideBuild("redpouch_yotc")
+        if inst:HasTag("_named") then inst:RemoveTag("_named") end
+    end)
+
+    -- carrat ghostracer
+    _iterGhostracer(function(inst) inst.AnimState:ClearOverrideBuild("redpouch_yotc") end)
+end
 
 --------------------------------------------------------------------------
 --[[ Year of the Beefalo ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/merm (common) - toggle add/remove override
--- TODO: prefabs/pigman (common) - toggle add/clear override
 -- TODO: playercommon fn (common) - add/remove netint, replicate and do task... or not (skins?)
+
+_trackPigmen, _iterPigmen = createTracker()
+
+--------------------------------------------------------------------------
+
+function _startYOTB()
+    -- pigmen
+    _iterPigmen(function(inst) inst.AnimState:AddOverrideBuild("pigman_yotb") end)
+end
+
+--------------------------------------------------------------------------
+
+function _stopYOTB()
+    -- pigmen
+    _iterPigmen(function(inst) inst.AnimState:ClearOverrideBuild("pigman_yotb") end)
+end
 
 --------------------------------------------------------------------------
 --[[ Year of the Catcoon ]]
@@ -367,6 +455,7 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Bunnyman ]]
 --------------------------------------------------------------------------
+-- Nothing here??
 
 --------------------------------------------------------------------------
 --[[ Year of the Dragonfly ]]
@@ -387,5 +476,46 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Depth Worm ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/shadowthrall (server) - replicate and set lootsetupfn
--- TODO: prefabs/worm (server) - replicate and set loot fn
+
+_trackWorms, _iterWorms = createTracker()
+_trackShadows, _iterShadows = createTracker()
+
+-- replicated from prefabs/worm
+local function _worm_lootsetfn(lootdropper)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+end
+
+-- replicated from prefabs/shadowthrall_mouth
+local function _shadowthrall_lootsetfn(lootdropper)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)
+    lootdropper:AddChanceLoot("lucky_goldnugget", 1)    
+end
+
+--------------------------------------------------------------------------
+
+function _startYOTS()
+    if TheWorld.ismastersim then
+        -- depth worm
+        _iterWorms(function(inst) inst.components.lootdropper:SetLootSetupFn(_worm_lootsetfn) end)
+
+        -- shadowthrall_mouth
+        _iterShadows(function(inst) inst.components.lootdropper:SetLootSetupFn(_shadowthrall_lootsetfn) end)
+    end
+end
+
+--------------------------------------------------------------------------
+
+function _stopYOTS()
+    if TheWorld.ismastersim then
+        -- depth worm
+        _iterWorms(function(inst) inst.components.lootdropper:SetLootSetupFn() end)
+
+        -- shadowthrall_mouth
+        _iterShadows(function(inst) inst.components.lootdropper:SetLootSetupFn() end)
+    end
+end
