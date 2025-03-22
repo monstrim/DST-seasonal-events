@@ -449,7 +449,7 @@ function _startWintersFeast()
         
         -- klaussackspawner (server)
         if klaussackspawner then
-            killtimers(KLAUSSACK_TIMERNAME)
+            killTimers(KLAUSSACK_TIMERNAME)
             killWatchers(klaussackspawner, 'iswinter')
             klaussackspawner:OnPostInit()
         end
@@ -547,7 +547,7 @@ function _stopWintersFeast()
         
         -- klaussackspawner (server)
         if klaussackspawner then
-            killtimers(KLAUSSACK_TIMERNAME)
+            killTimers(KLAUSSACK_TIMERNAME)
             killWatchers(klaussackspawner, 'iswinter')
             klaussackspawner:OnPostInit()
         end
