@@ -231,9 +231,6 @@ end
 -- TODO: prefabs/deerclops normalfn (server) - listener 
 -- TODO: prefabs/deer fn (server) - replicate setupsounds
 -- TODO: prefabs/bearger normalfn - set build
--- TODO: prefabs/dragonfly prefab fn - SetBuild
--- TODO: prefabs/dragonfly TransformNormal - call externally as self.TransformNormal 
--- TODO: prefabs/dragonfly TransformFire - call externally as self.TransformFire
 -- TODO: prefabs/hermitcrab loadpostpass - learn/forget
 -- TODO: prefabs/hermitcrab initfriendstuff - learn/forget?
 -- TODO: prefabs/klaus fn (common) - add/clear override
@@ -248,6 +245,7 @@ local snowballmanager
 
 _trackDeer, _iterDeer = createTracker()
 _trackDeerclops, _iterDeerclops = createTracker()
+_trackDragonfly, _iterDragonfly = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -318,6 +316,9 @@ function _startWintersFeast()
         inst.build = 'deerclops_yule'
         inst.AnimState:SetBuild(inst.build)
     end)
+
+    -- dragonfly (common)
+    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_yule_build") end)
 end
 
 --------------------------------------------------------------------------
@@ -366,6 +367,9 @@ function _stopWintersFeast()
         inst.build = 'deerclops_build'
         inst.AnimState:SetBuild(inst.build)
     end)
+
+    -- dragonfly (common)
+    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_build") end)
 end
 
 --------------------------------------------------------------------------

@@ -34,6 +34,7 @@ end
 --------------------------------------------------------------------------
 -- Winter's Feast
 AddPrefabPostInit('deerclops', GLOBAL._trackDeerclops)
+AddPrefabPostInit('dragonfly', GLOBAL._trackDragonfly)
 
 AddPrefabPostInit('deer', GLOBAL._trackDeer)
 AddPrefabPostInit('deer_red', GLOBAL._trackDeer)
