@@ -315,9 +315,9 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Pig King ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/pigking (common) - toggle add/clear override
 
 _trackNuggies, _iterNuggies = createTracker()
+_trackPigking, _iterPigking = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -329,6 +329,9 @@ function _startYOTP()
         else print('[Yearly Special Events] Not a goldnugget')
         end
     end)
+
+    -- pig king
+    _iterPigking(function(inst) inst.AnimState:AddOverrideBuild("Pig_King_elite_build") end)
 end
 
 --------------------------------------------------------------------------
@@ -341,6 +344,9 @@ function _stopYOTP()
         else print('[Yearly Special Events] Not a goldnugget')
         end
     end)
+
+    -- pig king
+    _iterPigking(function(inst) inst.AnimState:ClearOverrideBuild("Pig_King_elite_build") end)
 end
 
 --------------------------------------------------------------------------

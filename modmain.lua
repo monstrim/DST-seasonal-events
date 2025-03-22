@@ -17,6 +17,7 @@ AddPrefabPostInit('cave_network', function (inst) if GLOBAL.TheWorld.ismastersim
 --------------------------------------------------------------------------
 AddPrefabPostInit('carnival_crowkid', GLOBAL._trackCrowkids)
 
+AddPrefabPostInit('pigking', GLOBAL._trackPigking)
 AddPrefabPostInit('goldnugget', GLOBAL._trackNuggies)
 AddPrefabPostInit('lucky_goldnugget', GLOBAL._trackNuggies)
 
