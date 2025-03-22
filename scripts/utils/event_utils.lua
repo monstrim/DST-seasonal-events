@@ -259,7 +259,6 @@ end
 --------------------------------------------------------------------------
 --[[ Winters Feast ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/deer fn (server) - replicate setupsounds
 -- TODO: prefabs/bearger normalfn - set build
 -- TODO: prefabs/hermitcrab loadpostpass - learn/forget
 -- TODO: prefabs/hermitcrab initfriendstuff - learn/forget?
@@ -288,6 +287,14 @@ local function _deerclops_onyule(inst, data)
         inst.Light:SetFalloff(3)
         inst.Light:SetColour(1, 0, 0)
     end
+end
+
+local function _deerclops_idlesound(inst, volume)
+    inst.SoundEmitter:PlaySound("dontstarve/creatures/together/deer/bell_idle", nil, volume)
+end
+
+local function _deerclops_bellsound(inst, volume)
+    inst.SoundEmitter:PlaySound("dontstarve/creatures/together/deer/bell", nil, volume)
 end
 
 --------------------------------------------------------------------------
@@ -346,6 +353,12 @@ function _startWintersFeast()
             killWatchers(klaussackspawner, 'iswinter')
             klaussackspawner:OnPostInit()
         end
+
+        -- deer common_fn (server)
+        _iterDeer(function(inst)
+            inst.DoBellSound = DoBellSound
+            inst.DoBellIdleSound = DoBellIdleSound
+        end)
 
         -- player_common (server)
         _iterPlayers(function(inst) inst:RemoveComponent("wintertreegiftable") end)
@@ -416,6 +429,12 @@ function _stopWintersFeast()
             killWatchers(klaussackspawner, 'iswinter')
             klaussackspawner:OnPostInit()
         end
+
+        -- deer common_fn (server)
+        _iterDeer(function(inst)
+            inst.DoBellSound = function() end
+            inst.DoBellIdleSound = function() end
+        end)
     end
 
     -- deer_common (common)
