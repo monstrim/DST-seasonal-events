@@ -36,6 +36,15 @@ local function createTracker(report)
 end
 
 
+local function killWatchers(inst, var)
+    inst.worldstatewatching[var] = nil
+    if next(inst.worldstatewatching) == nil then
+        inst.worldstatewatching = nil
+    end
+    TheWorld.components.worldstate:RemoveWatcher(var, inst)
+end
+
+
 local function killListeners(inst, event, source)
     source = source or inst
     if inst.event_listening[event] then
@@ -44,6 +53,12 @@ local function killListeners(inst, event, source)
     if source.event_listeners[event] then
         source.event_listeners[event][inst] = nil
     end
+end
+
+
+local function killTimers(name)
+    TheWorld.components.worldsettingstimer:StopTimer(name)
+    TheWorld.components.worldsettingstimer.timers[name] = nil
 end
 
 --------------------------------------------------------------------------
