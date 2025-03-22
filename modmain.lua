@@ -1,7 +1,6 @@
 require = GLOBAL.require
 
 require('utils/event_utils')
-local BatOver = require('widgets/batover')
 
 --------------------------------------------------------------------------
 --[[ Main mod logic ]]
@@ -15,8 +14,10 @@ AddPrefabPostInit('cave_network', function (inst) if GLOBAL.TheWorld.ismastersim
 --[[ Trackers for enabling/disabling events ]]
 --------------------------------------------------------------------------
 
+AddPlayerPostInit(GLOBAL._setupPlayer)
 AddPlayerPostInit(GLOBAL._trackPlayers)
 
+--------------------------------------------------------------------------
 -- Cawnival
 AddPrefabPostInit('carnival_crowkid', GLOBAL._trackCrowkids)
 AddPrefabPostInit('carnival_plaza', GLOBAL._trackPlazas)
@@ -85,18 +86,3 @@ AddPrefabPostInit('shadowthrall_mouth', GLOBAL._trackShadows)
 --------------------------------------------------------------------------
 --[[ Init HUD overlay ]]
 --------------------------------------------------------------------------
--- TODO: move to replica somehow?
-AddPlayerPostInit(function (player) 
-    player:AddComonent('spooked')
-    player:DoTaskInTime(0, function(player)
-        if player == GLOBAL.ThePlayer then
-            print('[Yearly Seasonal Events] Starting HUD')
-            -- HUD for hallows eve
-            local hud = player.HUD
-            if hud and hud.overlayroot and not hud.batover then
-                print('[Yearly Seasonal Events] batover added')
-                hud.batover = hud.overlayroot:AddChild(BatOver(player))
-            end
-        end
-    end) 
-end)

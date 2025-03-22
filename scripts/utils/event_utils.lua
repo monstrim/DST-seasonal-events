@@ -1,3 +1,4 @@
+local BatOver = require "widgets/batover"
 local ex_fns = require "prefabs/player_common_extensions"
 
 --------------------------------------------------------------------------
@@ -70,6 +71,22 @@ end
 --------------------------------------------------------------------------
 
 _trackPlayers, _iterPlayers = createTracker()
+
+--------------------------------------------------------------------------
+
+function _setupPlayer(player) 
+    -- Hallows Eve
+    player:AddComponent("spooked")
+    player:DoTaskInTime(0, function(player)
+        if player == ThePlayer then
+            local hud = player.HUD
+            if hud and hud.overlayroot and not hud.batover then
+                print('[Yearly Seasonal Events] Starting batover HUD')
+                hud.batover = hud.overlayroot:AddChild(BatOver(player))
+            end
+        end
+    end) 
+end
 
 --------------------------------------------------------------------------
 --[[ Summer Cawnival ]]
