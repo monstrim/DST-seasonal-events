@@ -271,7 +271,7 @@ end
 
 local gingerbreadhunter
 local snowballmanager
-local klaussackspawner = TheWorld.components.klaussackspawner
+local klaussackspawner
 local KLAUSSACK_TIMERNAME = "klaussack_spawntimer"
 
 _trackDeer, _iterDeer = createTracker()
