@@ -87,6 +87,7 @@ AddPrefabPostInit('shadowthrall_mouth', GLOBAL._trackShadows)
 --------------------------------------------------------------------------
 -- TODO: move to replica somehow?
 AddPlayerPostInit(function (player) 
+    player:AddComonent('spooked')
     player:DoTaskInTime(0, function(player)
         if player == GLOBAL.ThePlayer then
             print('[Yearly Seasonal Events] Starting HUD')

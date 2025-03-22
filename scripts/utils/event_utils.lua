@@ -1,3 +1,7 @@
+local ex_fns = require "prefabs/player_common_extensions"
+
+--------------------------------------------------------------------------
+
 -- Replicates, activates and deactivates all functionalities that would normally be done once at game start,
 -- depending on wether the events are active or not, and then left alone throughout the gaming session.
 
@@ -185,7 +189,6 @@ end
 --------------------------------------------------------------------------
 --[[ Hallowed Nights ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/playercommon fn - add spook component, add/remove listen
 
 _trackTrinkets, _iterTrinkets = createTracker()
 _trackPumpkins, _iterPumpkins = createTracker()
@@ -269,6 +272,9 @@ function _startHalloween()
     end) 
 
     if TheWorld.ismastersim then
+        -- player
+        _iterPlayers(function(inst) inst:ListenForEvent("spooked", ex_fns.OnSpooked) end)
+
         -- candy for trinkets (server)
         _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = 5 end)
 
@@ -298,6 +304,9 @@ end
 
 function _stopHalloween()
     if TheWorld.ismastersim then
+        -- player
+        _iterPlayers(function(inst) inst:RemoveEventCallback("spooked", ex_fns.OnSpooked) end)
+
         -- candy for trinkets (server)
         _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = nil end)
 
