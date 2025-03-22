@@ -240,12 +240,9 @@ end
 --------------------------------------------------------------------------
 
 function _setupLivtrees(inst)
-    print('[Yearly Seasonal Events] _setupLivtrees.')
     local task = inst:DoTaskInTime(0, function() 
-        print('[Yearly Seasonal Events] DoTaskInTime.')
         -- replicated from prefabs/livingtree
         if not inst:HasTag("burnt") and not inst:HasTag("stump") then
-            print('[Yearly Seasonal Events] Switching trees.')
             local x, y, z = inst.Transform:GetWorldPosition()
             inst:Remove()
             local new_tree = SpawnPrefab("livingtree_halloween")
@@ -256,9 +253,7 @@ function _setupLivtrees(inst)
         end
     end)
 
-    inst:ListenForEvent('onremove', function() task:Cancel() 
-        print('[Yearly Seasonal Events] cancel.')
-    end)
+    inst:ListenForEvent('onremove', function() task:Cancel() end)
 end
 
 --------------------------------------------------------------------------
