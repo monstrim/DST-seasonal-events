@@ -259,6 +259,7 @@ _trackDragonfly, _iterDragonfly = createTracker()
 
 --------------------------------------------------------------------------
 
+-- replicated from prefabs/deerclops
 local function _deerclops_onyule(inst, data)
     if not (inst.sg:HasStateTag("sleeping") or inst.sg:HasStateTag("waking")) then
         inst.Light:SetIntensity(.6)
