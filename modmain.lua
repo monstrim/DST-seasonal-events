@@ -21,6 +21,8 @@ AddPrefabPostInit('pigking', GLOBAL._trackPigking)
 AddPrefabPostInit('goldnugget', GLOBAL._trackNuggies)
 AddPrefabPostInit('lucky_goldnugget', GLOBAL._trackNuggies)
 AddPrefabPostInit('perd', GLOBAL._trackPerds)
+AddPrefabPostInit('carrat', GLOBAL._trackCarrats)
+AddPrefabPostInit('carrat_ghostracer', GLOBAL._trackGhostracer)
 
 AddPrefabPostInit('deerclops', GLOBAL._trackDeerclops)
 

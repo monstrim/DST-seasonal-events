@@ -377,11 +377,53 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Carrat ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/carrat ghostracer - add/remove overridebuild
--- TODO: prefabs/carrat fn (common) - add/remove tag, add/remove override build, replicate get_dropaction_string
--- TODO: prefabs/carrat fn (server) - replicate train funcs, replicate callbacks, remove tag, add components, add/kill listeners
+-- TODO: prefabs/carrat fn (common) - replicate get_dropaction_string
+-- TODO: prefabs/carrat fn (server) - replicate train funcs, replicate callbacks, add/kill listeners
 -- TODO: prefabs/beefaloherd fn - replicate carrat spawner and add/remove listen
 -- TODO: prefabs/rat_gym (server) - add component, replicate callbacks
+
+_trackCarrats, _iterCarrats = createTracker()
+_trackGhostracer, _iterGhostracer = createTracker()
+
+--------------------------------------------------------------------------
+
+function _startYOTC()
+    if TheWorld.ismastersim then
+        -- carrats (server)
+       _iterCarrats(function(inst)
+            inst:AddComponent("named")
+        end)
+    end
+
+    -- carrats (common)
+    _iterCarrats(function(inst)
+        inst.AnimState:AddOverrideBuild("redpouch_yotc")
+        if not inst:HasTag("_named") then inst:AddTag("_named") end
+    end)
+
+    -- carrat ghostracer
+    _iterGhostracer(function(inst) inst.AnimState:AddOverrideBuild("redpouch_yotc") end)
+end
+
+--------------------------------------------------------------------------
+
+function _stopYOTC()
+    if TheWorld.ismastersim then
+        -- carrats (server)
+       _iterCarrats(function(inst)
+            inst:RemoveComponent("named")
+        end)
+    end
+
+    -- carrats (common)
+    _iterCarrats(function(inst)
+        inst.AnimState:ClearOverrideBuild("redpouch_yotc")
+        if inst:HasTag("_named") then inst:RemoveTag("_named") end
+    end)
+
+    -- carrat ghostracer
+    _iterGhostracer(function(inst) inst.AnimState:ClearOverrideBuild("redpouch_yotc") end)
+end
 
 --------------------------------------------------------------------------
 --[[ Year of the Beefalo ]]

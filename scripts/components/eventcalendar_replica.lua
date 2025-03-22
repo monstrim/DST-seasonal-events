@@ -65,6 +65,8 @@ local function StartEvent(event)
         _startYOTG()
     elseif event == SPECIAL_EVENTS.YOTP then
         _startYOTP()
+    elseif event == SPECIAL_EVENTS.YOTC then
+        _startYOTC()
     elseif event == SPECIAL_EVENTS.YOTD then
         _startYOTD()
     elseif event == SPECIAL_EVENTS.YOTS then
@@ -119,6 +121,8 @@ local function StopEvent(event)
         _stopYOTG()
     elseif event == SPECIAL_EVENTS.YOTP then
         _stopYOTP()
+    elseif event == SPECIAL_EVENTS.YOTC then
+        _stopYOTC()
     elseif event == SPECIAL_EVENTS.YOTD then
         _stopYOTD()
     elseif event == SPECIAL_EVENTS.YOTS then
