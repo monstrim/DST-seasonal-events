@@ -428,9 +428,23 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Beefalo ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/merm (common) - toggle add/remove override
--- TODO: prefabs/pigman (common) - toggle add/clear override
 -- TODO: playercommon fn (common) - add/remove netint, replicate and do task... or not (skins?)
+
+_trackPigmen, _iterPigmen = createTracker()
+
+--------------------------------------------------------------------------
+
+function _startYOTB()
+    -- pigmen
+    _iterPigmen(function(inst) inst.AnimState:AddOverrideBuild("pigman_yotb") end)
+end
+
+--------------------------------------------------------------------------
+
+function _stopYOTB()
+    -- pigmen
+    _iterPigmen(function(inst) inst.AnimState:ClearOverrideBuild("pigman_yotb") end)
+end
 
 --------------------------------------------------------------------------
 --[[ Year of the Catcoon ]]
