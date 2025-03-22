@@ -47,6 +47,12 @@ local function killListeners(inst, event, source)
 end
 
 --------------------------------------------------------------------------
+--[[ General ]]
+--------------------------------------------------------------------------
+
+_trackPlayers, _iterPlayers = createTracker()
+
+--------------------------------------------------------------------------
 --[[ Summer Cawnival ]]
 --------------------------------------------------------------------------
 
@@ -247,7 +253,6 @@ end
 -- TODO: prefabs/klaus fn (server) - add/remove(?) chanceloot... OK? there will be other klauses
 -- TODO: prefabs/moose (common) - setbuild
 -- TODO: prefabs/mossling (common) - set build
--- TODO: prefabs/playercommon fn - add component, add/remove listen
 -- TODO: prefabs/snow - ...whatever, man...
 
 local gingerbreadhunter
@@ -284,6 +289,9 @@ function _initWintersFeast()
             gingerbreadhunter.OnIsDay = function() end
             gingerbreadhunter.disabled = true
         end
+
+        -- player_common (server)
+        _iterPlayers(function(inst) inst:AddComponent("wintertreegiftable") end)
     end
 end
 
@@ -314,6 +322,9 @@ function _startWintersFeast()
             inst.haslaserbeam = true
             inst:ListenForEvent("newstate", _deerclops_onyule)
         end)
+
+        -- player_common (server)
+        _iterPlayers(function(inst) inst:RemoveComponent("wintertreegiftable") end)
     end
 
     -- deer common_fn (common)

@@ -14,6 +14,8 @@ AddPrefabPostInit('cave_network', function (inst) if GLOBAL.TheWorld.ismastersim
 --------------------------------------------------------------------------
 --[[ Trackers for enabling/disabling events ]]
 --------------------------------------------------------------------------
+AddPlayerPostInit(GLOBAL._trackPlayers)
+
 -- Cawnival
 AddPrefabPostInit('carnival_crowkid', GLOBAL._trackCrowkids)
 AddPrefabPostInit('carnival_plaza', GLOBAL._trackPlazas)
