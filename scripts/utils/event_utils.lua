@@ -185,7 +185,6 @@ end
 --------------------------------------------------------------------------
 --[[ Hallowed Nights ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/livingtree_halloween fn (common) - add net_bool, replicate callback, add/remove listeners
 -- TODO: prefabs/livingtree_halloween fn (server) - add component
 -- TODO: prefabs/playercommon fn - add spook component, add/remove listen
 
@@ -193,6 +192,51 @@ _trackTrinkets, _iterTrinkets = createTracker()
 _trackPumpkins, _iterPumpkins = createTracker()
 _trackLivtrees, _iterLivtrees = createTracker()
 _trackLivroots, _iterLivroots = createTracker()
+
+--------------------------------------------------------------------------
+
+-- replicated from prefabs/livingtree_halloween
+local function _livingtree_eye(inst)
+    if TheWorld.ismastersim then
+        if not inst._eyeflames:value() then
+            inst.AnimState:SetLightOverride(0)
+            inst.SoundEmitter:KillSound("eyeflames")
+        else
+            inst.AnimState:SetLightOverride(.2)
+            if not inst.SoundEmitter:PlayingSound("eyeflames") then
+                inst.SoundEmitter:PlaySound("dontstarve/wilson/torch_LP", "eyeflames")
+                inst.SoundEmitter:SetParameter("eyeflames", "intensity", .2)
+            end
+        end
+        if TheNet:IsDedicated() then
+            return
+        end
+    end
+
+    if inst._eyeflames:value() then
+        if inst.eyefxl == nil then
+            inst.eyefxl = SpawnPrefab("eyeflame")
+            inst.eyefxl.entity:SetParent(inst.entity) --prevent 1st frame sleep on clients
+            inst.eyefxl.entity:AddFollower()
+            inst.eyefxl.Follower:FollowSymbol(inst.GUID, "eye1", 0, 0, 0)
+        end
+        if inst.eyefxr == nil then
+            inst.eyefxr = SpawnPrefab("eyeflame")
+            inst.eyefxr.entity:SetParent(inst.entity) --prevent 1st frame sleep on clients
+            inst.eyefxr.entity:AddFollower()
+            inst.eyefxr.Follower:FollowSymbol(inst.GUID, "eye2", 0, 0, 0)
+        end
+    else
+        if inst.eyefxl ~= nil then
+            inst.eyefxl:Remove()
+            inst.eyefxl = nil
+        end
+        if inst.eyefxr ~= nil then
+            inst.eyefxr:Remove()
+            inst.eyefxr = nil
+        end
+    end
+end
 
 --------------------------------------------------------------------------
 
@@ -221,6 +265,15 @@ end
 --------------------------------------------------------------------------
 
 function _startHalloween()
+    -- livingtrees (common) (before because of listenforevent)
+    _iterLivtrees(function(inst)
+        inst.AnimState:Show("eye")
+        if not inst._eyeflames then
+            inst._eyeflames = net_bool(inst.GUID, "livingtree._eyeflames", "eyeflamesdirty")
+            inst:ListenForEvent("eyeflamesdirty", _livingtree_eye)
+        end
+    end) 
+
     if TheWorld.ismastersim then
         -- candy for trinkets (server)
         _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = 5 end)
@@ -241,9 +294,6 @@ function _startHalloween()
             if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root_hallowed_nights") end
         end) 
     end
-
-    -- livingtrees (common)
-    _iterLivtrees(function(inst) inst.AnimState:Show("eye") end) 
 
     -- livingroots (common)
     _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
