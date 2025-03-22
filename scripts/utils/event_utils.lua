@@ -20,9 +20,9 @@ local function createTracker(report)
         inst:ListenForEvent('onremove', _removeFn)
     end
 
-    -- be careful not to add/remove items DURING iter, I guess?
     local function _iterateFn(fn)
-        for GUID, inst in pairs(_tracklist) do
+        local _iterlist = shallowcopy(_tracklist)
+        for GUID, inst in pairs(_iterlist) do
             if inst then
                 if report then print('[Yearly Seasonal Events] callback on '..tostring(inst)) end 
                 fn(inst)
@@ -333,8 +333,6 @@ end
 --------------------------------------------------------------------------
 --[[ Winters Feast ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/hermitcrab loadpostpass - learn/forget
--- TODO: prefabs/hermitcrab initfriendstuff - learn/forget?
 -- TODO: prefabs/snow - ...whatever, man...
 
 local gingerbreadhunter
