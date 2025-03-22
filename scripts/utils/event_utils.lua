@@ -86,41 +86,41 @@ function _startCarnival()
 
         -- carnival_plaza (server)
         _iterPlazas(function(inst)
-            -- these are all added together, so only check for this component
+            -- these are all added together, so only check for one component...
+            if TheWorld.components.carnivalevent and not inst.components.childspawner then
+                -- register plaza
+                inst:DoTaskInTime(0, function()
+                    if TheWorld.components.carnivalevent then
+                        TheWorld.components.carnivalevent:RegisterPlaza(inst)
+                    end
+                end)
+
+                -- add remove callback
+                inst:ListenForEvent("onremove", _plaza_onremove)
+
+                -- add spawner
+                inst:AddComponent("childspawner")
+                inst.components.childspawner.childname = "carnival_crowkid"
+                inst.components.childspawner:SetMaxChildren(1)
+                inst.components.childspawner.childreninside = 0
+                inst.components.childspawner:SetRegenPeriod(4, 0)
+                inst.components.childspawner:SetSpawnPeriod(5, 5)
+                inst.components.childspawner.allowboats = false
+                inst.components.childspawner.spawnradius = {min = 2, max = 6}
+                inst.components.childspawner.spawn_height = 30
+                inst.components.childspawner.canspawnfn = function() return true end
+                inst.components.childspawner:SetSpawnedFn(function(inst, child) child.sg:GoToState("glide") end)
+            end
+
+            -- ...but not this one, because we'll remove it later
             if not inst.components.activatable then
-                -- add component
                 inst:AddComponent("activatable")
                 inst.components.activatable.standingaction = true
                 inst.components.activatable.OnActivate = _plaza_onactivate
+            end
 
-                if TheWorld.components.carnivalevent ~= nil then
-                    -- register plaza
-                    inst:DoTaskInTime(0, function()
-                        if TheWorld.components.carnivalevent then
-                            TheWorld.components.carnivalevent:RegisterPlaza(inst)
-                        end
-                    end)
-                    -- add remove callback
-                    inst:ListenForEvent("onremove", _plaza_onremove)
-    
-                    -- add spawner
-                    inst:AddComponent("childspawner")
-                    inst.components.childspawner.childname = "carnival_crowkid"
-                    inst.components.childspawner:SetMaxChildren(1)
-                    inst.components.childspawner.childreninside = 0
-                    inst.components.childspawner:SetRegenPeriod(4, 0)
-                    inst.components.childspawner:SetSpawnPeriod(5, 5)
-                    inst.components.childspawner.allowboats = false
-                    inst.components.childspawner.spawnradius = {min = 2, max = 6}
-                    inst.components.childspawner.spawn_height = 30
-                    inst.components.childspawner.canspawnfn = function() return true end
-                    inst.components.childspawner:SetSpawnedFn(function(inst, child) child.sg:GoToState("glide") end)
-                end
-            end
             -- control spawner
-            if inst.components.childspawner then
-                inst.components.childspawner:StartSpawning()
-            end
+            inst.components.childspawner:StartSpawning()
         end)
     end
 end
@@ -144,9 +144,8 @@ function _stopCarnival()
 
         -- carnival_plaza (server)
         _iterPlazas(function(inst)
-            if inst.components.childspawner then
-                inst.components.childspawner:StopSpawning()
-            end
+            inst.components.childspawner:StopSpawning()
+            inst:RemoveComponent("activatable")
         end)
     end
 end
