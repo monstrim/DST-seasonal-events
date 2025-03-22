@@ -8,6 +8,7 @@ local BatOver = require('widgets/batover')
 --[[ Main mod logic ]]
 --------------------------------------------------------------------------
 AddReplicableComponent('eventcalendar')
+AddPrefabPostInit('shard_network', function (inst) if GLOBAL.TheWorld.ismastersim then inst:AddComponent('shard_calendar') end end)
 AddPrefabPostInit('forest_network', function (inst) if GLOBAL.TheWorld.ismastersim then inst:AddComponent('eventcalendar') end end)
 AddPrefabPostInit('cave_network', function (inst) if GLOBAL.TheWorld.ismastersim then inst:AddComponent('eventcalendar') end end)
 
