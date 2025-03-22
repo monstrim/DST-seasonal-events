@@ -34,6 +34,17 @@ local function createTracker(report)
 
     return _trackFn, _iterateFn
 end
+local function killListeners(inst, event, source)
+    source = source or inst
+    if inst.event_listening[event] then
+        inst.event_listening[event][source] = nil
+    end
+    if source.event_listeners[event] then
+        source.event_listeners[event][inst] = nil
+    end
+end
+
+
 
 --------------------------------------------------------------------------
 --[[ Summer Cawnival ]]
