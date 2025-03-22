@@ -264,7 +264,6 @@ end
 -- TODO: prefabs/hermitcrab initfriendstuff - learn/forget?
 -- TODO: prefabs/klaus fn (common) - add/clear override
 -- TODO: prefabs/klaus fn (server) - add/remove(?) chanceloot... OK? there will be other klauses
--- TODO: prefabs/mossling (common) - set build
 -- TODO: prefabs/snow - ...whatever, man...
 
 local gingerbreadhunter
@@ -277,6 +276,7 @@ _trackDeerclops, _iterDeerclops = createTracker()
 _trackDragonfly, _iterDragonfly = createTracker()
 _trackBearger, _iterBearger = createTracker()
 _trackMoose, _iterMoose = createTracker()
+_trackMosslings, _iterMosslings = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -398,6 +398,9 @@ function _startWintersFeast()
 
     -- moose (common)
     _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_yule_build") end)
+
+    -- mossling (common)
+    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_yule_build") end)
 end
 
 --------------------------------------------------------------------------
@@ -469,6 +472,9 @@ function _stopWintersFeast()
 
     -- moose (common)
     _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_build") end)
+
+    -- mossling (common)
+    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_build") end)
 end
 
 --------------------------------------------------------------------------

@@ -44,6 +44,7 @@ AddPrefabPostInit('moose', GLOBAL._trackMoose)
 AddPrefabPostInit('deer', GLOBAL._trackDeer)
 AddPrefabPostInit('deer_red', GLOBAL._trackDeer)
 AddPrefabPostInit('deer_blue', GLOBAL._trackDeer)
+AddPrefabPostInit('mossling', GLOBAL._trackMosslings)
 
 --------------------------------------------------------------------------
 -- YOTG
