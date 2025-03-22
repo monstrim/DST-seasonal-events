@@ -185,7 +185,6 @@ end
 --------------------------------------------------------------------------
 --[[ Hallowed Nights ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/livingtree_halloween fn (server) - add component
 -- TODO: prefabs/playercommon fn - add spook component, add/remove listen
 
 _trackTrinkets, _iterTrinkets = createTracker()
@@ -284,6 +283,7 @@ function _startHalloween()
 
         -- livingtrees (server)
         _iterLivtrees(function(inst)
+            if not inst.components.sanityaura then inst:AddComponent("sanityaura") end
             if inst._eyeflames then inst._eyeflames:set(true) end
             if inst.components.sanityaura then inst.components.sanityaura.aura = -TUNING.SANITYAURA_MED end
             if inst.components.container then inst.components.container.canbeopened = true end
