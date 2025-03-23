@@ -418,6 +418,7 @@ function _startWintersFeast()
         -- player_common (server)
         _iterPlayers(function(inst)
             inst:AddComponent("wintertreegiftable")
+            inst.components.wintertreegiftable.
         end)
 
         -- gingerbread hunting (server)
@@ -613,7 +614,7 @@ _trackPerds, _iterPerds = createTracker()
 function _startYOTG()
     if TheWorld.ismastersim then
         -- Perds (server)
-        inst.seekshrine = true
+        _iterPerds(function(inst) inst.seekshrine = true end)
     end
 
     -- Perds (common)
@@ -625,7 +626,7 @@ end
 function _stopYOTG()
     if TheWorld.ismastersim then
         -- Perds (server)
-        inst.seekshrine = nil
+        _iterPerds(function(inst) inst.seekshrine = nil end)
     end
 
     -- Perds (common)
