@@ -42,6 +42,7 @@ end
 
 
 local function killWatchers(inst, var)
+    if not inst.worldstatewatching then return end
     inst.worldstatewatching[var] = nil
     if next(inst.worldstatewatching) == nil then
         inst.worldstatewatching = nil
