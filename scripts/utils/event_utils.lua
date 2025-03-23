@@ -42,6 +42,7 @@ end
 
 
 local function killWatchers(inst, var)
+    if not inst.worldstatewatching then return end
     inst.worldstatewatching[var] = nil
     if next(inst.worldstatewatching) == nil then
         inst.worldstatewatching = nil
@@ -407,9 +408,6 @@ function _initWintersFeast()
             gingerbreadhunter.OnIsDay = function() end
             gingerbreadhunter.disabled = true
         end
-
-        -- player_common (server)
-        _iterPlayers(function(inst) inst:AddComponent("wintertreegiftable") end)
     end
 end
 
@@ -417,6 +415,12 @@ end
 
 function _startWintersFeast()
     if TheWorld.ismastersim then
+        -- player_common (server)
+        _iterPlayers(function(inst)
+            inst:AddComponent("wintertreegiftable")
+            inst.components.wintertreegiftable.
+        end)
+
         -- gingerbread hunting (server)
         if gingerbreadhunter and gingerbreadhunter.disabled then
             print('[Yearly Seasonal Events] Reenabling gingerbreadhunter component.')
@@ -459,9 +463,6 @@ function _startWintersFeast()
             inst.DoBellSound = _deer_idlesound
             inst.DoBellIdleSound = _deer_bellsound
         end)
-
-        -- player_common (server)
-        _iterPlayers(function(inst) inst:RemoveComponent("wintertreegiftable") end)
     end
 
     -- deer common_fn (common)
@@ -513,6 +514,9 @@ end
 
 function _stopWintersFeast()
     if TheWorld.ismastersim then
+        -- player_common (server)
+        _iterPlayers(function(inst) inst:RemoveComponent("wintertreegiftable") end)
+
         -- gingerbread hunting (server)
         if gingerbreadhunter and gingerbreadhunter.disabled then
             print('[Yearly Seasonal Events] Gingerbreadhunter already disabled.')
@@ -610,7 +614,7 @@ _trackPerds, _iterPerds = createTracker()
 function _startYOTG()
     if TheWorld.ismastersim then
         -- Perds (server)
-        inst.seekshrine = true
+        _iterPerds(function(inst) inst.seekshrine = true end)
     end
 
     -- Perds (common)
@@ -622,7 +626,7 @@ end
 function _stopYOTG()
     if TheWorld.ismastersim then
         -- Perds (server)
-        inst.seekshrine = nil
+        _iterPerds(function(inst) inst.seekshrine = nil end)
     end
 
     -- Perds (common)
