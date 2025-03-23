@@ -252,7 +252,7 @@ end
 --         if not _advance_task then _advance(inst) end
 --     end)
 --     TheWorld:ListenForEvent('master_autosaverupdate', function() 
---         _advance_task:Cancel()
+--         if _advance_task then _advance_task:Cancel() end
 --         _advance_task = nil
 --     end) 
 -- end)
