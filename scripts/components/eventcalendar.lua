@@ -89,7 +89,7 @@ local function _checkSeasonalEvents()
     local currentday = TheWorld.state.elapseddaysinseason + 1
     local event_data = seasonal_events[TheWorld.state.season]
 
-    if event_data and (event_data.start_day < currentday) and (currentday <= event_data.stop_day) then
+    if event_data and (event_data.start_day <= currentday) and (currentday < event_data.stop_day) then
         current_seasonal_event = event_data.event
     else
         current_seasonal_event = nil
@@ -97,7 +97,7 @@ local function _checkSeasonalEvents()
 end
 
 
-local function _seasonInit ()
+local function _seasonInit()
     --TODO: check if winter available
     new_year_season = 'winter' or 'TODO'
     
@@ -184,17 +184,19 @@ if TheWorld.ismastershard then
     _checkSeasonalEvents()
     current_new_moon = 2 --will zero on next winter
 
+    inst:WatchWorldState("springlength", function(inst) _seasonInit() end)
+    inst:WatchWorldState("summerlength", function(inst) _seasonInit() end)
+    inst:WatchWorldState("autumnlength", function(inst) _seasonInit() end)
+    inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
+
     inst:DoTaskInTime(0, function()
+        -- set shard (needs dotaskintime because its initialized after this component)
         shard = TheWorld.shard.components.shard_calendar
 
         -- Listen for events
         inst:WatchWorldState("cycles", OnCyclesChange)
         inst:WatchWorldState("season", OnSeasonChange)
         inst:WatchWorldState('moonphase', OnMoonChange)
-        inst:WatchWorldState("springlength", function(inst) _seasonInit() end)
-        inst:WatchWorldState("summerlength", function(inst) _seasonInit() end)
-        inst:WatchWorldState("autumnlength", function(inst) _seasonInit() end)
-        inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
     
         -- Finally, sync
         self:Sync()
@@ -252,7 +254,7 @@ end
 --         if not _advance_task then _advance(inst) end
 --     end)
 --     TheWorld:ListenForEvent('master_autosaverupdate', function() 
---         _advance_task:Cancel()
+--         if _advance_task then _advance_task:Cancel() end
 --         _advance_task = nil
 --     end) 
 -- end)

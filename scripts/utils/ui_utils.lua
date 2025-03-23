@@ -26,7 +26,7 @@ end
 -- Seasonal event start sounds
 
 function _winterfeastjingle()
-    if TheWorld.ismastersim then
+    if TheWorld.ismastersim and not TheWorld:HasTag('cave') then
         TheWorld:PushEvent('ms_forceprecipitation', true)
     end
 
@@ -48,12 +48,8 @@ end
 
 function _hallowednightstorm()
     if TheWorld.ismastersim then
-        TheWorld:DoTaskInTime(1, function() SpawnPrefab('thunder_close') end)
-        TheWorld:DoTaskInTime(2, function() SpawnPrefab('thunder_far') end)
-        TheWorld:DoTaskInTime(3, function() SpawnPrefab('thunder_close') end)
-        TheWorld:DoTaskInTime(5, function() SpawnPrefab('thunder_far') end)
-        TheWorld:DoTaskInTime(8, function() SpawnPrefab('thunder_close') end)
-        TheWorld:DoTaskInTime(13, function() SpawnPrefab('thunder_far') end)
+        TheWorld:DoTaskInTime(0, function() SpawnPrefab('thunder_close') end)
+        TheWorld:DoTaskInTime(1, function() SpawnPrefab('thunder_far') end)
     end
 
     if ThePlayer then
@@ -89,7 +85,8 @@ end
 -------------------
 
 function _fireworks()
-    local boom = "wickerbottom_rework/megaflare/explode"
+    -- local boom = "wickerbottom_rework/megaflare/explode"
+    local boom = "turnoftides/common/together/miniflare/explode"
     local colors = {
         {r=1.0,g=1.0,b=1.0},
         {r=0.8,g=1.0,b=1.0},
@@ -104,11 +101,7 @@ function _fireworks()
         _playSound(boom, nil, 1)
     end
     
-    if ThePlayer then
-        TheWorld:DoTaskInTime(2, _explode)
-        TheWorld:DoTaskInTime(5, _explode)
-        TheWorld:DoTaskInTime(7, _explode)
-        TheWorld:DoTaskInTime(12, _explode)
-        TheWorld:DoTaskInTime(19, _explode)
+    if ThePlayer and not TheWorld:HasTag('cave') then 
+        for i=1,5 do TheWorld:DoTaskInTime(math.random() * 5, _explode) end 
     end
 end
