@@ -97,7 +97,7 @@ local function _checkSeasonalEvents()
 end
 
 
-local function _seasonInit ()
+local function _seasonInit()
     --TODO: check if winter available
     new_year_season = 'winter' or 'TODO'
     
@@ -184,17 +184,19 @@ if TheWorld.ismastershard then
     _checkSeasonalEvents()
     current_new_moon = 2 --will zero on next winter
 
+    inst:WatchWorldState("springlength", function(inst) _seasonInit() end)
+    inst:WatchWorldState("summerlength", function(inst) _seasonInit() end)
+    inst:WatchWorldState("autumnlength", function(inst) _seasonInit() end)
+    inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
+
     inst:DoTaskInTime(0, function()
+        -- set shard (needs dotaskintime because its initialized after this component)
         shard = TheWorld.shard.components.shard_calendar
 
         -- Listen for events
         inst:WatchWorldState("cycles", OnCyclesChange)
         inst:WatchWorldState("season", OnSeasonChange)
         inst:WatchWorldState('moonphase', OnMoonChange)
-        inst:WatchWorldState("springlength", function(inst) _seasonInit() end)
-        inst:WatchWorldState("summerlength", function(inst) _seasonInit() end)
-        inst:WatchWorldState("autumnlength", function(inst) _seasonInit() end)
-        inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
     
         -- Finally, sync
         self:Sync()

@@ -2,7 +2,7 @@
 
 name = "Yearly Seasonal Events"
 description = [[
-Version 1.3.1
+Version 1.3.2
 
 󰀧 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 
@@ -10,13 +10,11 @@ Version 1.3.1
 
 ----------------------------------------
 
-󰀓 Fix for fixed year in caves.
-󰀩 Major code refactor. 
-󰀝 Added framework for future improvements regarding every Special Event game feature that must be enabled/disabled. (there's a lot! 󰀕)
+󰀏 Nearly all existing features implemented!! This is nearly the final update for a while (or at least until new Year Of events are launched). Go gingerbread pig hunting and receive Winter's feast gifts! Get spooked on Halloween, and play Carnival games on summer!
 ]]
 
 author = "Monstah"
-version = "1.3.1"
+version = "1.3.2"
 
 
 api_version = 10

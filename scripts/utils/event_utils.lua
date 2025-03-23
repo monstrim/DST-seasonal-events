@@ -418,7 +418,6 @@ function _startWintersFeast()
         -- player_common (server)
         _iterPlayers(function(inst)
             inst:AddComponent("wintertreegiftable")
-            inst.components.wintertreegiftable.
         end)
 
         -- gingerbread hunting (server)
