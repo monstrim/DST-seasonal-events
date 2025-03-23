@@ -77,7 +77,6 @@ _trackPlayers, _iterPlayers = createTracker()
 
 function _setupPlayer(player) 
     -- Hallows Eve
-    player:AddComponent("spooked")
     player:DoTaskInTime(0, function(player)
         if player == ThePlayer then
             local hud = player.HUD
@@ -291,7 +290,10 @@ function _startHalloween()
 
     if TheWorld.ismastersim then
         -- player
-        _iterPlayers(function(inst) inst:ListenForEvent("spooked", ex_fns.OnSpooked) end)
+        _iterPlayers(function(inst)
+            inst:AddComponent("spooked")
+            inst:ListenForEvent("spooked", ex_fns.OnSpooked)
+        end)
 
         -- candy for trinkets (server)
         _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = 5 end)
@@ -323,7 +325,10 @@ end
 function _stopHalloween()
     if TheWorld.ismastersim then
         -- player
-        _iterPlayers(function(inst) inst:RemoveEventCallback("spooked", ex_fns.OnSpooked) end)
+        _iterPlayers(function(inst)
+            inst:RemoveComponent("spooked")
+            inst:RemoveEventCallback("spooked", ex_fns.OnSpooked)
+        end)
 
         -- candy for trinkets (server)
         _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = nil end)
