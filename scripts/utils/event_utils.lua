@@ -607,11 +607,58 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Gobbler ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/perd (server) - component, replicate functions, vars and listeners
 -- TODO: prefabs/berrybush (server) - add/kill , change callbacks... but maybe dont (trigger invalid??)
 -- TODO: prefabs/perdshrine (server) - replicate functions, callback, watcher... but maybe dont (trigger invalid??)
 
 _trackPerds, _iterPerds = createTracker()
+
+--------------------------------------------------------------------------
+
+-- replicated from prefabs/perd
+local PERD_TAGS = { "perd" }
+local function _yotg_perd_onattacked(inst)
+    local tochain = {}
+    local x, y, z = inst.Transform:GetWorldPosition()
+    for i, v in ipairs(TheSim:FindEntities(x, y, z, 14, PERD_TAGS)) do
+        if v.seekshrine then
+            v.seekshrine = nil
+            -- inst:RemoveEventCallback("attacked", OnAttacked)
+            killListeners(inst, "attacked") -- the callback might be the (local) original or our replicated one
+            if v ~= inst then
+                table.insert(tochain, v)
+            end
+        end
+    end
+    for i, v in ipairs(tochain) do
+        _yotg_perd_onattacked(v)
+    end
+end
+
+local function _yotg_perd_onaeat(inst, food)
+    --eat off the ground, not picked berries
+    if food.components.inventoryitem ~= nil and
+        not food.components.inventoryitem:IsHeld() and
+        not inst.components.timer:TimerExists("offeringcooldown") then
+        inst.sg.statemem.dropoffering = true
+        if not inst.seekshrine then
+            inst.seekshrine = true
+            inst:ListenForEvent("attacked", _yotg_perd_onattacked)
+        end
+    end
+end
+
+local function _yotg_perd_lootsetfn(lootdropper)
+    if not lootdropper.inst.components.timer:TimerExists("offeringcooldown") then
+        lootdropper:AddChanceLoot("redpouch", .1)
+    end
+end
+
+local function _yotg_perd_dropoffering(inst)
+    if not inst.components.timer:TimerExists("offeringcooldown") then
+        inst.components.timer:StartTimer("offeringcooldown", TUNING.TOTAL_DAY_TIME)
+        LaunchAt(SpawnPrefab("redpouch"), inst, inst:GetNearestPlayer(true) or inst:GetNearestPlayer(), .5, 1, .5)
+    end
+end
 
 --------------------------------------------------------------------------
 
@@ -621,7 +668,14 @@ function _startYOTG()
 
     if TheWorld.ismastersim then
         -- Perds (server)
-        _iterPerds(function(inst) inst.seekshrine = true end)
+        _iterPerds(function(inst)
+            inst:AddComponent("timer")
+            inst.components.eater:SetOnEatFn(_yotg_perd_onaeat)
+            inst.components.lootdropper:SetLootSetupFn(_yotg_perd_lootsetfn)
+            inst.DropOffering = _yotg_perd_dropoffering
+            inst.seekshrine = true
+            inst:ListenForEvent("attacked", _yotg_perd_onattacked)
+        end)
     end
 end
 
@@ -633,7 +687,15 @@ function _stopYOTG()
 
     if TheWorld.ismastersim then
         -- Perds (server)
-        _iterPerds(function(inst) inst.seekshrine = nil end)
+        _iterPerds(function(inst)
+            inst:RemoveComponent("timer")
+            inst.components.eater:SetOnEatFn(nil)
+            inst.components.lootdropper:SetLootSetupFn(nil)
+            inst.DropOffering = nil
+            inst.seekshrine = nil
+            -- inst:RemoveEventCallback("attacked", _yotg_perd_onattacked)
+            killListeners(inst, "attacked") -- the callback might be the (local) original or our replicated one
+        end)
     end
 end
 
