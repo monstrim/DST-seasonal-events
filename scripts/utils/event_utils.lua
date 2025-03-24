@@ -781,11 +781,11 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Carrat ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/beefaloherd fn - replicate carrat spawner and add/remove listen
 -- TODO: prefabs/rat_gym (server) - add component, replicate callbacks
 
 _trackCarrats, _iterCarrats = createTracker()
 _trackGhostracer, _iterGhostracer = createTracker()
+_trackHerds, _iterHerds = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -794,6 +794,29 @@ local function _respawn_prefab(inst)
     inst:OnSave(data)
     local newinst = ReplacePrefab(inst, inst.prefab)
     newinst:OnLoad(data)
+end
+
+-- replicated from prefabs/beefaloherd
+local function _yotc_spawncarrat(inst, phase)
+    if phase == "night" then
+        local carrat = false
+        local beefalo = {}
+        for k, v in pairs(inst.components.herd.members) do
+            if k:HasTag("HasCarrat") then
+                carrat = true
+                break
+            end
+
+            -- Baby beefalo cannot have carrats spawn on them.
+            if not k:HasTag("baby") then
+                table.insert(beefalo,k)
+            end
+        end
+
+        if not carrat and #beefalo > 0 and math.random() < 0.33 then
+            beefalo[math.random(1,#beefalo)]:AddTag("HasCarrat")
+        end
+    end
 end
 
 --------------------------------------------------------------------------
@@ -805,6 +828,9 @@ function _startYOTC()
     if TheWorld.ismastersim then
         -- carrats (server) - these are so complicated, it's best to just recreate them
        _iterCarrats(_respawn_prefab)
+
+        -- beefalo herds
+       _iterHerds(function(inst) inst:ListenForEvent("phasechanged", function(src,phase) _yotc_spawncarrat(inst,phase) end, TheWorld) end)
     end
 end
 
@@ -818,6 +844,9 @@ function _stopYOTC()
         -- carrats (server) - these are so complicated, it's best to just recreate them
        _iterCarrats(_respawn_prefab)
     end
+
+    -- beefalo herds
+   _iterHerds(function(inst) killListeners(inst, "phasechanged") end)
 end
 
 --------------------------------------------------------------------------
