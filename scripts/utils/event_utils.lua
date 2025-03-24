@@ -781,8 +781,6 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Carrat ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/carrat fn (common) - replicate get_dropaction_string
--- TODO: prefabs/carrat fn (server) - replicate train funcs, replicate callbacks, add/kill listeners
 -- TODO: prefabs/beefaloherd fn - replicate carrat spawner and add/remove listen
 -- TODO: prefabs/rat_gym (server) - add component, replicate callbacks
 
@@ -791,41 +789,34 @@ _trackGhostracer, _iterGhostracer = createTracker()
 
 --------------------------------------------------------------------------
 
-function _startYOTC()
-    -- carrats (common)
-    _iterCarrats(function(inst)
-        inst.AnimState:AddOverrideBuild("redpouch_yotc")
-        if not inst:HasTag("_named") then inst:AddTag("_named") end
-    end)
+local function _respawn_prefab(inst) 
+    local data = {}
+    inst:OnSave(data)
+    local newinst = ReplacePrefab(inst, inst.prefab)
+    newinst:OnLoad(data)
+end
 
+--------------------------------------------------------------------------
+
+function _startYOTC()
     -- carrat ghostracer
     _iterGhostracer(function(inst) inst.AnimState:AddOverrideBuild("redpouch_yotc") end)
 
     if TheWorld.ismastersim then
-        -- carrats (server)
-       _iterCarrats(function(inst)
-            inst:AddComponent("named")
-        end)
+        -- carrats (server) - these are so complicated, it's best to just recreate them
+       _iterCarrats(_respawn_prefab)
     end
 end
 
 --------------------------------------------------------------------------
 
 function _stopYOTC()
-    -- carrats (common)
-    _iterCarrats(function(inst)
-        inst.AnimState:ClearOverrideBuild("redpouch_yotc")
-        if inst:HasTag("_named") then inst:RemoveTag("_named") end
-    end)
-
     -- carrat ghostracer
     _iterGhostracer(function(inst) inst.AnimState:ClearOverrideBuild("redpouch_yotc") end)
 
     if TheWorld.ismastersim then
-        -- carrats (server)
-       _iterCarrats(function(inst)
-            inst:RemoveComponent("named")
-        end)
+        -- carrats (server) - these are so complicated, it's best to just recreate them
+       _iterCarrats(_respawn_prefab)
     end
 end
 
