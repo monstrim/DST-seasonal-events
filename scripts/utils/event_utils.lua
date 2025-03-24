@@ -607,10 +607,10 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Gobbler ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/berrybush (server) - add/kill , change callbacks... but maybe dont (trigger invalid??)
 -- TODO: prefabs/perdshrine (server) - replicate functions, callback, watcher... but maybe dont (trigger invalid??)
 
 _trackPerds, _iterPerds = createTracker()
+_trackBushes, _iterBushes = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -634,7 +634,7 @@ local function _yotg_perd_onattacked(inst)
     end
 end
 
-local function _yotg_perd_onaeat(inst, food)
+local function _yotg_perd_oneat(inst, food)
     --eat off the ground, not picked berries
     if food.components.inventoryitem ~= nil and
         not food.components.inventoryitem:IsHeld() and
@@ -660,6 +660,19 @@ local function _yotg_perd_dropoffering(inst)
     end
 end
 
+-- replicated from prefabs/berrybush
+local function _yotg_bush_spawnperd(inst)
+    if inst:IsValid() then
+        local perd = SpawnPrefab("perd")
+        local x, y, z = inst.Transform:GetWorldPosition()
+        local angle = math.random() * PI2
+        perd.Transform:SetPosition(x + math.cos(angle), 0, z + math.sin(angle))
+        perd.sg:GoToState("appear")
+        perd.components.homeseeker:SetHome(inst)
+        inst:PushEvent("onwenthome") -- which itself calls shake()
+    end
+end
+
 --------------------------------------------------------------------------
 
 function _startYOTG()
@@ -670,12 +683,15 @@ function _startYOTG()
         -- Perds (server)
         _iterPerds(function(inst)
             inst:AddComponent("timer")
-            inst.components.eater:SetOnEatFn(_yotg_perd_onaeat)
+            inst.components.eater:SetOnEatFn(_yotg_perd_oneat)
             inst.components.lootdropper:SetLootSetupFn(_yotg_perd_lootsetfn)
             inst.DropOffering = _yotg_perd_dropoffering
             inst.seekshrine = true
             inst:ListenForEvent("attacked", _yotg_perd_onattacked)
         end)
+
+        -- berrybush (server)
+        _iterBushes(function(inst) inst:ListenForEvent("spawnperd", _yotg_bush_spawnperd) end)
     end
 end
 
@@ -696,6 +712,9 @@ function _stopYOTG()
             -- inst:RemoveEventCallback("attacked", _yotg_perd_onattacked)
             killListeners(inst, "attacked") -- the callback might be the (local) original or our replicated one
         end)
+
+        -- berrybush (server)
+        _iterBushes(function(inst) killListeners(inst, "spawnperd") end)
     end
 end
 
