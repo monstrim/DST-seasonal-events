@@ -279,7 +279,7 @@ end
 --------------------------------------------------------------------------
 
 function _startHalloween()
-    -- livingtrees (common) (before because of listenforevent)
+    -- livingtrees (common) 
     _iterLivtrees(function(inst)
         inst.AnimState:Show("eye")
         if not inst._eyeflames then
@@ -287,6 +287,9 @@ function _startHalloween()
             inst:ListenForEvent("eyeflamesdirty", _livingtree_eye)
         end
     end) 
+
+    -- livingroots (common)
+    _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
 
     if TheWorld.ismastersim then
         -- player
@@ -315,14 +318,17 @@ function _startHalloween()
             if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root_hallowed_nights") end
         end) 
     end
-
-    -- livingroots (common)
-    _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
 end
 
 --------------------------------------------------------------------------
 
 function _stopHalloween()
+    -- livingtrees (common)
+    _iterLivtrees(function(inst) inst.AnimState:Hide("eye") end) 
+
+    -- livingroots (common)
+    _iterLivroots(function(inst) inst.AnimState:Hide("eye") end) 
+
     if TheWorld.ismastersim then
         -- player
         _iterPlayers(function(inst)
@@ -349,12 +355,6 @@ function _stopHalloween()
             if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root") end
         end) 
     end
-
-    -- livingtrees (common)
-    _iterLivtrees(function(inst) inst.AnimState:Hide("eye") end) 
-
-    -- livingroots (common)
-    _iterLivroots(function(inst) inst.AnimState:Hide("eye") end) 
 end
 
 --------------------------------------------------------------------------
@@ -419,6 +419,50 @@ end
 --------------------------------------------------------------------------
 
 function _startWintersFeast()
+    -- deer common_fn (common)
+    _iterDeer(function(inst)
+        inst.AnimState:OverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
+        inst.AnimState:OverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
+        inst.AnimState:OverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
+        inst.AnimState:OverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
+    end)
+
+    -- deerclops common_fn (common)
+    _iterDeerclops(function(inst)
+        if not inst.Light then
+            inst.entity:AddLight()
+            inst.Light:SetIntensity(.6)
+            inst.Light:SetRadius(8)
+            inst.Light:SetFalloff(3)
+            inst.Light:SetColour(1, 0, 0)
+        else
+            inst.Light:Enable(true)
+        end
+
+        inst.build = 'deerclops_yule'
+        inst.AnimState:SetBuild(inst.build)
+    end)
+
+    -- beager normalfn (common)
+    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_yule") end)
+
+    -- dragonfly (common)
+    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_yule_build") end)
+
+    -- moose (common)
+    _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_yule_build") end)
+
+    -- klaus (common)
+    _iterKlaus(function(inst)
+        inst.AnimState:OverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
+        inst.AnimState:OverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
+        inst.AnimState:OverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
+        inst.AnimState:OverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
+    end)
+
+    -- mossling (common)
+    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_yule_build") end)
+
     if TheWorld.ismastersim then
         -- player_common (server)
         _iterPlayers(function(inst)
@@ -468,55 +512,47 @@ function _startWintersFeast()
             inst.DoBellIdleSound = _deer_bellsound
         end)
     end
-
-    -- deer common_fn (common)
-    _iterDeer(function(inst)
-        inst.AnimState:OverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
-        inst.AnimState:OverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
-        inst.AnimState:OverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
-        inst.AnimState:OverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
-    end)
-
-    -- deerclops common_fn (common)
-    _iterDeerclops(function(inst)
-        if not inst.Light then
-            inst.entity:AddLight()
-            inst.Light:SetIntensity(.6)
-            inst.Light:SetRadius(8)
-            inst.Light:SetFalloff(3)
-            inst.Light:SetColour(1, 0, 0)
-        else
-            inst.Light:Enable(true)
-        end
-
-        inst.build = 'deerclops_yule'
-        inst.AnimState:SetBuild(inst.build)
-    end)
-
-    -- beager normalfn (common)
-    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_yule") end)
-
-    -- dragonfly (common)
-    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_yule_build") end)
-
-    -- moose (common)
-    _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_yule_build") end)
-
-    -- klaus (common)
-    _iterKlaus(function(inst)
-        inst.AnimState:OverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
-        inst.AnimState:OverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
-        inst.AnimState:OverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
-        inst.AnimState:OverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
-    end)
-
-    -- mossling (common)
-    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_yule_build") end)
 end
 
 --------------------------------------------------------------------------
 
 function _stopWintersFeast()
+    -- deerclops common_fn (common)
+    _iterDeerclops(function(inst)
+        inst.Light:Enable(false)
+
+        inst.build = 'deerclops_build'
+        inst.AnimState:SetBuild(inst.build)
+    end)
+
+    -- beager normalfn (server)
+    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_build") end)
+
+    -- dragonfly (common)
+    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_build") end)
+
+    -- moose (common)
+    _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_build") end)
+
+    -- klaus (common)
+    _iterKlaus(function(inst)
+        inst.AnimState:ClearOverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
+    end)
+
+    -- deer_common (common)
+    _iterDeer(function(inst)
+        inst.AnimState:ClearOverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
+        inst.AnimState:ClearOverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
+        inst.AnimState:ClearOverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
+    end)
+
+    -- mossling (common)
+    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_build") end)
+
     if TheWorld.ismastersim then
         -- player_common (server)
         _iterPlayers(function(inst) inst:RemoveComponent("wintertreegiftable") end)
@@ -566,75 +602,138 @@ function _stopWintersFeast()
             inst.DoBellIdleSound = function() end
         end)
     end
-
-    -- deer_common (common)
-    _iterDeer(function(inst)
-        inst.AnimState:ClearOverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
-        inst.AnimState:ClearOverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
-        inst.AnimState:ClearOverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
-        inst.AnimState:ClearOverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
-    end)
-
-    -- deerclops common_fn (common)
-    _iterDeerclops(function(inst)
-        inst.Light:Enable(false)
-
-        inst.build = 'deerclops_build'
-        inst.AnimState:SetBuild(inst.build)
-    end)
-
-    -- beager normalfn (server)
-    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_build") end)
-
-    -- dragonfly (common)
-    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_build") end)
-
-    -- moose (common)
-    _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_build") end)
-
-    -- klaus (common)
-    _iterKlaus(function(inst)
-        inst.AnimState:ClearOverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
-        inst.AnimState:ClearOverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
-        inst.AnimState:ClearOverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
-        inst.AnimState:ClearOverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
-    end)
-
-    -- mossling (common)
-    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_build") end)
 end
 
 --------------------------------------------------------------------------
 --[[ Year of the Gobbler ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/perd (server) - component, replicate functions, vars and listeners
--- TODO: prefabs/berrybush (server) - add/kill , change callbacks... but maybe dont (trigger invalid??)
--- TODO: prefabs/perdshrine (server) - replicate functions, callback, watcher... but maybe dont (trigger invalid??)
 
 _trackPerds, _iterPerds = createTracker()
+_trackBushes, _iterBushes = createTracker()
+_trackPerdshrines, _iterPerdshrines = createTracker()
+
+--------------------------------------------------------------------------
+
+-- replicated from prefabs/perd
+local PERD_TAGS = { "perd" }
+local function _yotg_perd_onattacked(inst)
+    local tochain = {}
+    local x, y, z = inst.Transform:GetWorldPosition()
+    for i, v in ipairs(TheSim:FindEntities(x, y, z, 14, PERD_TAGS)) do
+        if v.seekshrine then
+            v.seekshrine = nil
+            -- inst:RemoveEventCallback("attacked", OnAttacked)
+            killListeners(inst, "attacked") -- the callback might be the (local) original or our replicated one
+            if v ~= inst then
+                table.insert(tochain, v)
+            end
+        end
+    end
+    for i, v in ipairs(tochain) do
+        _yotg_perd_onattacked(v)
+    end
+end
+
+local function _yotg_perd_oneat(inst, food)
+    --eat off the ground, not picked berries
+    if food.components.inventoryitem ~= nil and
+        not food.components.inventoryitem:IsHeld() and
+        not inst.components.timer:TimerExists("offeringcooldown") then
+        inst.sg.statemem.dropoffering = true
+        if not inst.seekshrine then
+            inst.seekshrine = true
+            inst:ListenForEvent("attacked", _yotg_perd_onattacked)
+        end
+    end
+end
+
+local function _yotg_perd_lootsetfn(lootdropper)
+    if not lootdropper.inst.components.timer:TimerExists("offeringcooldown") then
+        lootdropper:AddChanceLoot("redpouch", .1)
+    end
+end
+
+local function _yotg_perd_dropoffering(inst)
+    if not inst.components.timer:TimerExists("offeringcooldown") then
+        inst.components.timer:StartTimer("offeringcooldown", TUNING.TOTAL_DAY_TIME)
+        LaunchAt(SpawnPrefab("redpouch"), inst, inst:GetNearestPlayer(true) or inst:GetNearestPlayer(), .5, 1, .5)
+    end
+end
+
+-- replicated from prefabs/berrybush
+local function _yotg_bush_spawnperd(inst)
+    if inst:IsValid() then
+        local perd = SpawnPrefab("perd")
+        local x, y, z = inst.Transform:GetWorldPosition()
+        local angle = math.random() * PI2
+        perd.Transform:SetPosition(x + math.cos(angle), 0, z + math.sin(angle))
+        perd.sg:GoToState("appear")
+        perd.components.homeseeker:SetHome(inst)
+        inst:PushEvent("onwenthome") -- which itself calls shake()
+    end
+end
 
 --------------------------------------------------------------------------
 
 function _startYOTG()
-    if TheWorld.ismastersim then
-        -- Perds (server)
-        _iterPerds(function(inst) inst.seekshrine = true end)
-    end
-
     -- Perds (common)
     _iterPerds(function(inst) inst:AddTag("perd") end)
+
+    if TheWorld.ismastersim then
+        -- Perds (server)
+        _iterPerds(function(inst)
+            inst:AddComponent("timer")
+            inst.components.eater:SetOnEatFn(_yotg_perd_oneat)
+            inst.components.lootdropper:SetLootSetupFn(_yotg_perd_lootsetfn)
+            inst.DropOffering = _yotg_perd_dropoffering
+            inst.seekshrine = true
+            inst:ListenForEvent("attacked", _yotg_perd_onattacked)
+        end)
+
+        -- perdshrines (server)
+        _iterPerdshrines(function(inst) 
+            if not inst.burnt then
+                local bush = inst.bush
+                inst:OnLoad({bush='empty'}) 
+                inst:OnLoad({bush=bush}) 
+            end 
+        end)
+
+        -- berrybush (server)
+        _iterBushes(function(inst) inst:ListenForEvent("spawnperd", _yotg_bush_spawnperd) end)
+    end
 end
 
 --------------------------------------------------------------------------
 
 function _stopYOTG()
-    if TheWorld.ismastersim then
-        -- Perds (server)
-        _iterPerds(function(inst) inst.seekshrine = nil end)
-    end
-
     -- Perds (common)
     _iterPerds(function(inst) inst:RemoveTag("perd") end)
+
+    if TheWorld.ismastersim then
+        -- Perds (server)
+        _iterPerds(function(inst)
+            inst:RemoveComponent("timer")
+            inst.components.eater:SetOnEatFn(nil)
+            inst.components.lootdropper:SetLootSetupFn(nil)
+            inst.DropOffering = nil
+            inst.seekshrine = nil
+            -- inst:RemoveEventCallback("attacked", _yotg_perd_onattacked)
+            killListeners(inst, "attacked") -- the callback might be the (local) original or our replicated one
+        end)
+
+        -- perdshrines (server)
+        _iterPerdshrines(function(inst) 
+            if not inst.burnt then
+                local bush = inst.bush
+                inst:OnLoad({bush='empty'}) 
+                inst:OnLoad({bush=bush}) 
+            end 
+        end)
+
+        -- berrybush (server)
+        _iterBushes(function(inst) killListeners(inst, "spawnperd") end)
+    end
 end
 
 --------------------------------------------------------------------------
@@ -693,13 +792,6 @@ _trackGhostracer, _iterGhostracer = createTracker()
 --------------------------------------------------------------------------
 
 function _startYOTC()
-    if TheWorld.ismastersim then
-        -- carrats (server)
-       _iterCarrats(function(inst)
-            inst:AddComponent("named")
-        end)
-    end
-
     -- carrats (common)
     _iterCarrats(function(inst)
         inst.AnimState:AddOverrideBuild("redpouch_yotc")
@@ -708,18 +800,18 @@ function _startYOTC()
 
     -- carrat ghostracer
     _iterGhostracer(function(inst) inst.AnimState:AddOverrideBuild("redpouch_yotc") end)
+
+    if TheWorld.ismastersim then
+        -- carrats (server)
+       _iterCarrats(function(inst)
+            inst:AddComponent("named")
+        end)
+    end
 end
 
 --------------------------------------------------------------------------
 
 function _stopYOTC()
-    if TheWorld.ismastersim then
-        -- carrats (server)
-       _iterCarrats(function(inst)
-            inst:RemoveComponent("named")
-        end)
-    end
-
     -- carrats (common)
     _iterCarrats(function(inst)
         inst.AnimState:ClearOverrideBuild("redpouch_yotc")
@@ -728,6 +820,13 @@ function _stopYOTC()
 
     -- carrat ghostracer
     _iterGhostracer(function(inst) inst.AnimState:ClearOverrideBuild("redpouch_yotc") end)
+
+    if TheWorld.ismastersim then
+        -- carrats (server)
+       _iterCarrats(function(inst)
+            inst:RemoveComponent("named")
+        end)
+    end
 end
 
 --------------------------------------------------------------------------
