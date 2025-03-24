@@ -51,6 +51,7 @@ AddPrefabPostInit('mossling', GLOBAL._trackMosslings)
 
 --------------------------------------------------------------------------
 -- YOTG
+AddPrefabPostInit('perdshrine', GLOBAL._trackPerdshrines)
 AddPrefabPostInit('perd', GLOBAL._trackPerds)
 AddPrefabPostInit('berrybush', GLOBAL._trackBushes)
 

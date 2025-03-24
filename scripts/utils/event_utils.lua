@@ -607,10 +607,10 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Gobbler ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/perdshrine (server) - replicate functions, callback, watcher... but maybe dont (trigger invalid??)
 
 _trackPerds, _iterPerds = createTracker()
 _trackBushes, _iterBushes = createTracker()
+_trackPerdshrines, _iterPerdshrines = createTracker()
 
 --------------------------------------------------------------------------
 
@@ -690,6 +690,15 @@ function _startYOTG()
             inst:ListenForEvent("attacked", _yotg_perd_onattacked)
         end)
 
+        -- perdshrines (server)
+        _iterPerdshrines(function(inst) 
+            if not inst.burnt then
+                local bush = inst.bush
+                inst:OnLoad({bush='empty'}) 
+                inst:OnLoad({bush=bush}) 
+            end 
+        end)
+
         -- berrybush (server)
         _iterBushes(function(inst) inst:ListenForEvent("spawnperd", _yotg_bush_spawnperd) end)
     end
@@ -711,6 +720,15 @@ function _stopYOTG()
             inst.seekshrine = nil
             -- inst:RemoveEventCallback("attacked", _yotg_perd_onattacked)
             killListeners(inst, "attacked") -- the callback might be the (local) original or our replicated one
+        end)
+
+        -- perdshrines (server)
+        _iterPerdshrines(function(inst) 
+            if not inst.burnt then
+                local bush = inst.bush
+                inst:OnLoad({bush='empty'}) 
+                inst:OnLoad({bush=bush}) 
+            end 
         end)
 
         -- berrybush (server)
