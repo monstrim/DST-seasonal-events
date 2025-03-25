@@ -781,10 +781,10 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Carrat ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/rat_gym (server) - add component, replicate callbacks
 
 _trackCarrats, _iterCarrats = createTracker()
 _trackGhostracer, _iterGhostracer = createTracker()
+_trackGyms, _iterGyms = createTracker()
 _trackHerds, _iterHerds = createTracker()
 
 --------------------------------------------------------------------------
@@ -819,18 +819,86 @@ local function _yotc_spawncarrat(inst, phase)
     end
 end
 
+-- replicated from prefabs/rat_gym
+local function _yotc_accept_fn(inst, item, giver)
+    if item.prefab == "carrat" and inst.components.inventory:NumItems() <= 0 then
+        if (not item.components.perishable or item.components.perishable:GetPercent() >(TUNING.CARRAT_GYM.TRAINING_TIME/TUNING.CARRAT.PERISH_TIME + 0.1) ) then
+            return true
+        else
+            giver.components.talker:Say(GetString(giver, "ANNOUNCE_WEAK_RAT"))
+        end
+    end
+end
+
+local function _yotc_getcarrat(inst, item, train)
+    inst:PushEvent("ratupdate")
+    if inst.components.trader ~= nil then
+        inst.components.trader:Disable()
+    end
+    inst.components.shelf:PutItemOnShelf(item)
+    inst.components.gym:SetTrainee(item)
+    if train then
+        inst.components.gym:StartTraining(inst)
+    end
+    if item._color ~= nil then
+        inst.AnimState:OverrideSymbol("carrat_tail", "yotc_carrat_colour_swaps", item._color.."_carrat_tail")
+        inst.AnimState:OverrideSymbol("carrat_ear", "yotc_carrat_colour_swaps", item._color.."_carrat_ear")
+        inst.AnimState:OverrideSymbol("carrot_parts", "yotc_carrat_colour_swaps", item._color.."_carrot_parts")
+    else
+        inst.AnimState:OverrideSymbol("carrat_tail", "carrat_build", "carrat_tail")
+        inst.AnimState:OverrideSymbol("carrat_ear", "carrat_build", "carrat_ear")
+        inst.AnimState:OverrideSymbol("carrot_parts", "carrat_build", "carrot_parts")
+    end
+    if TheWorld.state.isnight then
+        inst:PushEvent("rest")
+    end
+end
+
+local function _yotc_ejectitem(inst,item)
+    if item ~= nil then
+        if item ~= inst.components.shelf.itemonshelf then
+            inst.components.inventory:DropItem(item)
+        end
+        inst.components.shelf:TakeItem(nil) -- taker == nil means item isn't given to an inventory
+        if item.sg ~= nil then
+            item.sg:GoToState("idle")
+        end
+    end
+end
+
+local function _yotc_getitem_fn(inst, giver, item)
+    if giver:HasTag("player") then
+        inst.rat_trainer_id = giver.userid
+    end
+    if item then
+        if item.prefab == "carrat" and not inst.components.burnable:IsBurning() then
+            _yotc_getcarrat(inst, item, true)
+        else
+            _yotc_ejectitem(inst,item)
+        end
+    end
+end
+
 --------------------------------------------------------------------------
 
 function _startYOTC()
-    -- carrat ghostracer
+    -- carrat ghostracer (common)
     _iterGhostracer(function(inst) inst.AnimState:AddOverrideBuild("redpouch_yotc") end)
 
     if TheWorld.ismastersim then
         -- carrats (server) - these are so complicated, it's best to just recreate them
-       _iterCarrats(_respawn_prefab)
+        _iterCarrats(_respawn_prefab)
 
-        -- beefalo herds
-       _iterHerds(function(inst) inst:ListenForEvent("phasechanged", function(src,phase) _yotc_spawncarrat(inst,phase) end, TheWorld) end)
+        -- beefalo herds (server)
+        _iterHerds(function(inst) inst:ListenForEvent("phasechanged", function(src,phase) _yotc_spawncarrat(inst,phase) end, TheWorld) end)
+
+        -- rat gyms (server)
+        _iterGyms(function(inst)
+            inst:AddComponent("trader")
+            inst.components.trader:SetAcceptTest(_yotc_accept_fn)
+            inst.components.trader.onaccept = _yotc_getitem_fn
+            inst.components.trader.deleteitemonaccept = false
+        end)
     end
 end
 
@@ -842,11 +910,17 @@ function _stopYOTC()
 
     if TheWorld.ismastersim then
         -- carrats (server) - these are so complicated, it's best to just recreate them
-       _iterCarrats(_respawn_prefab)
-    end
+        _iterCarrats(_respawn_prefab)
 
-    -- beefalo herds
-   _iterHerds(function(inst) killListeners(inst, "phasechanged") end)
+        -- beefalo herds (server)
+        _iterHerds(function(inst) killListeners(inst, "phasechanged") end)
+
+        -- rat gyms (server)
+        _iterGyms(function(inst)
+             inst.components.workable.onwork()
+             inst:RemoveComponent("trader")
+        end)
+    end
 end
 
 --------------------------------------------------------------------------
