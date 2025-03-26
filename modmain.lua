@@ -66,6 +66,11 @@ AddPrefabPostInit('lucky_goldnugget', GLOBAL._trackNuggies)
 -- YOTC
 AddPrefabPostInit('carrat', GLOBAL._trackCarrats)
 AddPrefabPostInit('carrat_ghostracer', GLOBAL._trackGhostracer)
+AddPrefabPostInit('beefaloherd', GLOBAL._trackHerds)
+AddPrefabPostInit('yotc_carrat_gym_direction', GLOBAL._trackGyms)
+AddPrefabPostInit('yotc_carrat_gym_speed', GLOBAL._trackGyms)
+AddPrefabPostInit('yotc_carrat_gym_reaction', GLOBAL._trackGyms)
+AddPrefabPostInit('yotc_carrat_gym_stamina', GLOBAL._trackGyms)
 
 --------------------------------------------------------------------------
 -- YOTB
@@ -84,7 +89,3 @@ AddPrefabPostInit('mermguard_lunar', GLOBAL._trackPigmen)
 -- YOTS
 AddPrefabPostInit('worm', GLOBAL._trackWorms)
 AddPrefabPostInit('shadowthrall_mouth', GLOBAL._trackShadows)
-
---------------------------------------------------------------------------
---[[ Init HUD overlay ]]
---------------------------------------------------------------------------

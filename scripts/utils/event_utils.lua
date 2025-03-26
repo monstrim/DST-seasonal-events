@@ -781,30 +781,313 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Carrat ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/carrat fn (common) - replicate get_dropaction_string
--- TODO: prefabs/carrat fn (server) - replicate train funcs, replicate callbacks, add/kill listeners
--- TODO: prefabs/beefaloherd fn - replicate carrat spawner and add/remove listen
--- TODO: prefabs/rat_gym (server) - add component, replicate callbacks
 
 _trackCarrats, _iterCarrats = createTracker()
 _trackGhostracer, _iterGhostracer = createTracker()
+_trackGyms, _iterGyms = createTracker()
+_trackHerds, _iterHerds = createTracker()
+
+--------------------------------------------------------------------------
+
+-- replicated from prefabs/carrat
+local YOTC_RACESTART_MUSTHAVETAGS = {"yotc_racestart"}
+local YOTC_RACESTART_CANTHAVETAGS = {"fire", "burnt", "INLIMBO", "race_on"}
+local function _yotc_drop_action_string(inst, drop_pst)
+    if drop_pst == nil then
+        return nil
+    end
+    local dx, dy, dz = drop_pst:Get()
+    local drop_platform = TheWorld.Map:GetPlatformAtPoint(dx, dy, dz)
+    local start_points = TheSim:FindEntities(dx, dy, dz, TUNING.YOTC_ADDTORACE_DIST, YOTC_RACESTART_MUSTHAVETAGS, YOTC_RACESTART_CANTHAVETAGS)
+    for _, v in ipairs(start_points) do
+		if not TheWorld.Map:IsOceanAtPoint(dx, dy, dz) and drop_platform == v:GetCurrentPlatform() then
+			return "YOTC_ENTERRACE"
+		end
+    end
+    return nil
+end
+
+local function _yotc_spread_stats(inst)
+    if inst.components.yotc_racestats then
+        local points = TUNING.RACE_STATS.BAD_STAT_SPREAD
+        if inst.beefalo_carrat then
+            points = TUNING.RACE_STATS.WILD_STAT_SPREAD
+        end
+        inst.components.yotc_racestats:AddRandomPointSpread(points)
+        inst.components.yotc_racestats:SaveCurrentStatsAsBaseline()
+    end
+end
+
+local POINTS_PER_TRAIN = 1
+local function _yotc_dospeedgym(inst)
+    inst.components.yotc_racestats:ModifySpeed(POINTS_PER_TRAIN)
+    inst._trained_today = true
+end
+
+local function _yotc_dodirectiongym(inst)
+    inst.components.yotc_racestats:ModifyDirection(POINTS_PER_TRAIN)
+    inst._trained_today = true
+end
+
+local function _yotc_doreactiongym(inst)
+    inst.components.yotc_racestats:ModifyReaction(POINTS_PER_TRAIN)
+    inst._trained_today = true
+end
+
+local function _yotc_dostaminagym(inst)
+    inst.components.yotc_racestats:ModifyStamina(POINTS_PER_TRAIN)
+    inst._trained_today = true
+end
+
+local function _yotc_drop_prize_on_death(inst, data)
+    if inst.components.yotc_racecompetitor ~= nil and inst:HasTag("has_prize") then
+        local prize = inst.components.yotc_racecompetitor:CollectPrize()
+        if prize ~= nil then
+            if inst.components.lootdropper ~= nil then
+                inst.components.lootdropper:FlingItem(prize, inst:GetPosition())
+            else
+                prize.Transform:SetPosition(inst.Transform:GetWorldPosition())
+            end
+        end
+    end
+end
+
+local function _yotc_nighttime_degrade_test(inst, isnight)
+    if isnight then
+        -- Racing and post-race are considered part of active racing (because you might get locked from feeding your rat in postrace)
+        local is_not_actively_racing = inst.components.yotc_racecompetitor == nil or inst.components.yotc_racecompetitor.racestate == "prerace"
+        if is_not_actively_racing and not inst._trained_today then
+            if inst.components.yotc_racestats ~= nil then
+                local degrade_amount = math.random(POINTS_PER_TRAIN * (TUNING.CARRAT_GYM.TRAINS_PER_DAY - 1))
+                inst.components.yotc_racestats:DegradePoints(degrade_amount)
+                if inst.gymscale then
+                    inst.gymscale.updateratstats(inst.gymscale)
+                end
+            end
+        else
+            inst._trained_today = false
+        end
+    end
+end
+
+local food_colors =
+{
+    watermelon_seeds = "blue",
+
+    onion_seeds = "brown",
+    potato_seeds = "brown",
+
+	asparagus_seeds = "green",
+    durian_seeds = "green",
+
+	dragonfruit_seeds = "pink",
+	pomegranate_seeds = "pink",
+	tomato_seeds = "pink",
+	pepper_seeds = "pink",
+
+    eggplant_seeds = "purple",
+
+	garlic_seeds = "white",
+
+	corn_seeds = "yellow",
+	pumpkin_seeds = "yellow",
+
+	carrot_seeds = "NEUTRAL",
+	seeds = "RANDOM",
+}
+
+local function GetColorFromFood(inst, data)
+	local food_prefab = data ~= nil and data.food ~= nil and data.food.prefab or nil
+	return food_prefab ~= nil and food_colors[food_prefab] or nil
+end
+
+local function _yotc_oneatfn(inst, data)
+	local color = GetColorFromFood(inst, data)
+	if color ~= nil then
+		inst._setcolorfn(inst, color)
+	end
+end
+
+local function _yotc_docarratfailtalk(inst, stat)
+    if inst.components.entitytracker:GetEntity("yotc_trainer") then
+        local player = inst.components.entitytracker:GetEntity("yotc_trainer")
+        if inst:GetDistanceSqToInst(player) < 20*20 then
+            if stat == "direction" then
+                inst:DoTaskInTime(2,function() player.components.talker:Say(GetString(player, "ANNOUNCE_CARRAT_ERROR_WRONG_WAY")) end)
+            elseif stat == "reaction" then
+                inst:DoTaskInTime(2,function() player.components.talker:Say(GetString(player, "ANNOUNCE_CARRAT_ERROR_STUNNED")) end)
+            elseif stat == "speed" then
+                inst:DoTaskInTime(4,function() player.components.talker:Say(GetString(player, "ANNOUNCE_CARRAT_ERROR_WALKING")) end)
+            elseif stat == "stamina" then
+                inst:DoTaskInTime(2,function() player.components.talker:Say(GetString(player, "ANNOUNCE_CARRAT_ERROR_FELL_ASLEEP")) end)
+            end
+        end
+    end
+end
+
+-- replicated from prefabs/beefaloherd
+local function _yotc_spawncarrat(inst, phase)
+    if phase == "night" then
+        local carrat = false
+        local beefalo = {}
+        for k, v in pairs(inst.components.herd.members) do
+            if k:HasTag("HasCarrat") then
+                carrat = true
+                break
+            end
+
+            -- Baby beefalo cannot have carrats spawn on them.
+            if not k:HasTag("baby") then
+                table.insert(beefalo,k)
+            end
+        end
+
+        if not carrat and #beefalo > 0 and math.random() < 0.33 then
+            beefalo[math.random(1,#beefalo)]:AddTag("HasCarrat")
+        end
+    end
+end
+
+-- replicated from prefabs/rat_gym
+local function _yotc_accept_fn(inst, item, giver)
+    if item.prefab == "carrat" and inst.components.inventory:NumItems() <= 0 then
+        if (not item.components.perishable or item.components.perishable:GetPercent() >(TUNING.CARRAT_GYM.TRAINING_TIME/TUNING.CARRAT.PERISH_TIME + 0.1) ) then
+            return true
+        else
+            giver.components.talker:Say(GetString(giver, "ANNOUNCE_WEAK_RAT"))
+        end
+    end
+end
+
+local function _yotc_getcarrat(inst, item, train)
+    inst:PushEvent("ratupdate")
+    if inst.components.trader ~= nil then
+        inst.components.trader:Disable()
+    end
+    inst.components.shelf:PutItemOnShelf(item)
+    inst.components.gym:SetTrainee(item)
+    if train then
+        inst.components.gym:StartTraining(inst)
+    end
+    if item._color ~= nil then
+        inst.AnimState:OverrideSymbol("carrat_tail", "yotc_carrat_colour_swaps", item._color.."_carrat_tail")
+        inst.AnimState:OverrideSymbol("carrat_ear", "yotc_carrat_colour_swaps", item._color.."_carrat_ear")
+        inst.AnimState:OverrideSymbol("carrot_parts", "yotc_carrat_colour_swaps", item._color.."_carrot_parts")
+    else
+        inst.AnimState:OverrideSymbol("carrat_tail", "carrat_build", "carrat_tail")
+        inst.AnimState:OverrideSymbol("carrat_ear", "carrat_build", "carrat_ear")
+        inst.AnimState:OverrideSymbol("carrot_parts", "carrat_build", "carrot_parts")
+    end
+    if TheWorld.state.isnight then
+        inst:PushEvent("rest")
+    end
+end
+
+local function _yotc_ejectitem(inst,item)
+    if item ~= nil then
+        if item ~= inst.components.shelf.itemonshelf then
+            inst.components.inventory:DropItem(item)
+        end
+        inst.components.shelf:TakeItem(nil) -- taker == nil means item isn't given to an inventory
+        if item.sg ~= nil then
+            item.sg:GoToState("idle")
+        end
+    end
+end
+
+local function _yotc_getitem_fn(inst, giver, item)
+    if giver:HasTag("player") then
+        inst.rat_trainer_id = giver.userid
+    end
+    if item then
+        if item.prefab == "carrat" and not inst.components.burnable:IsBurning() then
+            _yotc_getcarrat(inst, item, true)
+        else
+            _yotc_ejectitem(inst,item)
+        end
+    end
+end
+
+local function _yotc_on_inventory(inst, owner)
+    if owner.components.inventoryitem then
+        owner = owner.components.inventoryitem:GetGrandOwner()
+    end
+
+    if owner ~= nil and owner:HasTag("player") then
+        inst.components.entitytracker:TrackEntity("yotc_trainer", owner)
+    end
+
+    if inst.components.yotc_racecompetitor ~= nil then
+        if owner ~= nil and owner.components.inventory ~= nil then
+            local prize = inst.components.yotc_racecompetitor:CollectPrize()
+            if prize ~= nil then
+                if not owner.components.inventory:IsFull() then
+                    owner.components.inventory:GiveItem(prize, nil, inst:GetPosition())
+                elseif inst.components.lootdropper ~= nil then
+                    inst.components.lootdropper:FlingItem(prize, inst:GetPosition())
+                else
+                    prize.Transform:SetPosition(inst.Transform:GetWorldPosition())
+                end
+            end
+        end
+
+        inst:RemoveComponent("yotc_racecompetitor")
+    end
+
+    inst:RemoveTag("noauradamage")
+
+    inst.components.named:SetName(nil)
+    inst.beefalo_carrat = nil
+
+    inst.components.inventoryitem.canbepickedup = false
+end
 
 --------------------------------------------------------------------------
 
 function _startYOTC()
-    -- carrats (common)
+    -- carrat (common)
     _iterCarrats(function(inst)
         inst.AnimState:AddOverrideBuild("redpouch_yotc")
-        if not inst:HasTag("_named") then inst:AddTag("_named") end
+        inst.GetDropActionString = _yotc_drop_action_string
     end)
 
-    -- carrat ghostracer
+    -- carrat ghostracer (common)
     _iterGhostracer(function(inst) inst.AnimState:AddOverrideBuild("redpouch_yotc") end)
 
     if TheWorld.ismastersim then
+        -- beefalo herds (server)
+        _iterHerds(function(inst) inst:ListenForEvent("phasechanged", function(src,phase) _yotc_spawncarrat(inst,phase) end, TheWorld) end)
+
+        -- rat gyms (server)
+        _iterGyms(function(inst)
+            inst:AddComponent("trader")
+            inst.components.trader:SetAcceptTest(_yotc_accept_fn)
+            inst.components.trader.onaccept = _yotc_getitem_fn
+            inst.components.trader.deleteitemonaccept = false
+        end)
+
         -- carrats (server)
-       _iterCarrats(function(inst)
+        _iterCarrats(function(inst)
+            inst.dospeedgym = _yotc_dospeedgym
+            inst.dodirectiongym = _yotc_dodirectiongym
+            inst.doreactiongym = _yotc_doreactiongym
+            inst.dostaminagym = _yotc_dostaminagym
+
+            --Remove these tags so that they can be added properly when replicating components below
             inst:AddComponent("named")
+            inst:AddComponent("entitytracker")
+            inst:AddComponent("yotc_racestats")
+            inst._spread_stats_task = inst:DoTaskInTime(0, _yotc_spread_stats)
+            inst._trained_today = false
+
+            inst:ListenForEvent("death", _yotc_drop_prize_on_death)
+            inst:ListenForEvent("oneat", _yotc_oneatfn)
+            inst:ListenForEvent("carrat_error_direction", function() _yotc_docarratfailtalk(inst,"direction") end)
+            inst:ListenForEvent("carrat_error_walking", function() _yotc_docarratfailtalk(inst,"speed") end)
+            inst:ListenForEvent("carrat_error_sleeping", function() _yotc_docarratfailtalk(inst,"stamina") end)
+            inst:WatchWorldState("isnight", _yotc_nighttime_degrade_test)
+
+            inst.components.inventoryitem:SetOnPutInInventoryFn(_yotc_on_inventory)
         end)
     end
 end
@@ -812,19 +1095,47 @@ end
 --------------------------------------------------------------------------
 
 function _stopYOTC()
-    -- carrats (common)
+    -- carrat (common)
     _iterCarrats(function(inst)
         inst.AnimState:ClearOverrideBuild("redpouch_yotc")
-        if inst:HasTag("_named") then inst:RemoveTag("_named") end
+        inst.GetDropActionString = nil
     end)
 
     -- carrat ghostracer
     _iterGhostracer(function(inst) inst.AnimState:ClearOverrideBuild("redpouch_yotc") end)
 
     if TheWorld.ismastersim then
+        -- beefalo herds (server)
+        _iterHerds(function(inst) killListeners(inst, "phasechanged") end)
+
+        -- rat gyms (server)
+        _iterGyms(function(inst)
+             inst.components.workable.onwork(inst)
+             inst:RemoveComponent("trader")
+        end)
+
         -- carrats (server)
-       _iterCarrats(function(inst)
+        _iterCarrats(function(inst)
+            inst.dospeedgym = nil
+            inst.dodirectiongym = nil
+            inst.doreactiongym = nil
+            inst.dostaminagym = nil
+
+            --Remove these tags so that they can be added properly when replicating components below
             inst:RemoveComponent("named")
+            inst:RemoveComponent("entitytracker")
+            inst:RemoveComponent("yotc_racestats")
+            inst._spread_stats_task = nil
+            inst._trained_today = nil
+
+            killListeners(inst, "death")
+            killListeners(inst, "oneat")
+            killListeners(inst, "carrat_error_direction")
+            killListeners(inst, "carrat_error_walking")
+            killListeners(inst, "carrat_error_sleeping")
+            killWatchers(inst, "isnight")
+
+            inst.components.inventoryitem:SetOnPutInInventoryFn(function() end)
         end)
     end
 end
