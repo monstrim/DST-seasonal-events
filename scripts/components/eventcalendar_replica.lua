@@ -8,7 +8,6 @@ return Class(function(self, inst)
 --[[ Dependencies ]]
 --------------------------------------------------------------------------
 
-local BatOver = require "widgets/batover"
 require "utils/event_utils"
 require "utils/ui_utils"
 
