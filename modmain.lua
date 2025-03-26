@@ -65,7 +65,6 @@ AddPrefabPostInit('lucky_goldnugget', GLOBAL._trackNuggies)
 --------------------------------------------------------------------------
 -- YOTC
 AddPrefabPostInit('carrat', GLOBAL._trackCarrats)
-AddPrefabPostInit('carrat_planted', GLOBAL._trackCarrats)
 AddPrefabPostInit('carrat_ghostracer', GLOBAL._trackGhostracer)
 AddPrefabPostInit('beefaloherd', GLOBAL._trackHerds)
 AddPrefabPostInit('yotc_carrat_gym_direction', GLOBAL._trackGyms)

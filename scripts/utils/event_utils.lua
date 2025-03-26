@@ -1110,7 +1110,7 @@ function _stopYOTC()
 
         -- rat gyms (server)
         _iterGyms(function(inst)
-             inst.components.workable.onwork()
+             inst.components.workable.onwork(inst)
              inst:RemoveComponent("trader")
         end)
 
