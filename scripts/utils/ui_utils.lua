@@ -6,10 +6,12 @@ function _eventName(event)
 end
 
 function _announce(event)
-    local event_string = (GetLocstring(event)
-        or GetLocstring('hurray') .. ' ' .. _eventName(event) .. '!')
+    if ThePlayer and not ThePlayer:HasTag('ghost') then
+        local event_string = 
+            (ThePlayer:HasTag('mime') and '')
+            or GetLocstring(event)
+            or GetLocstring('hurray') .. ' ' .. _eventName(event) .. '!'
 
-    if ThePlayer then
         ThePlayer:DoTaskInTime(math.random() * 2, function(inst)
             inst.components.talker:Say(event_string) 
         end)
