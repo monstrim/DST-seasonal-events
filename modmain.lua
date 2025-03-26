@@ -86,6 +86,10 @@ AddPrefabPostInit('merm_lunar', GLOBAL._trackPigmen)
 AddPrefabPostInit('mermguard_lunar', GLOBAL._trackPigmen)
 
 --------------------------------------------------------------------------
+-- YOTCatcoon
+AddPrefabPostInit('kitcoon', GLOBAL._trackKitcoons)
+
+--------------------------------------------------------------------------
 -- YOTS
 AddPrefabPostInit('worm', GLOBAL._trackWorms)
 AddPrefabPostInit('shadowthrall_mouth', GLOBAL._trackShadows)
