@@ -1164,7 +1164,36 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Catcoon ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/kitcoon - replicate and add/remove callback
+
+_trackKitcoons, _iterKitcoons = createTracker()
+
+-- wrapping because of inst
+local function _yotcatcoon_activate_kitcoon(inst)
+    -- replicated from prefabs/kitcoon
+    local on_collect_allkitcoons = function(world, data)
+        if data ~= nil and data.kitcoons ~= nil then
+            table.insert(data.kitcoons, inst)
+        end
+    end
+
+    inst:ListenForEvent("ms_collectallkitcoons", on_collect_allkitcoons, TheWorld)
+end
+
+--------------------------------------------------------------------------
+
+function _startYOTCatcoon()
+    if TheWorld.ismastersim then
+        -- prefabs/kitcoon (server)
+        _iterKitcoons(_yotcatcoon_activate_kitcoon)
+    end
+end
+
+function _stopYOTCatcoon()
+    if TheWorld.ismastersim then
+        -- prefabs/kitcoon (server)
+        _iterKitcoons(function(inst) killListeners(inst,"ms_collectallkitcoons", TheWorld) end)
+    end
+end
 
 --------------------------------------------------------------------------
 --[[ Year of the Bunnyman ]]

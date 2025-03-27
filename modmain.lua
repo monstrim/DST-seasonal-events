@@ -86,6 +86,17 @@ AddPrefabPostInit('merm_lunar', GLOBAL._trackPigmen)
 AddPrefabPostInit('mermguard_lunar', GLOBAL._trackPigmen)
 
 --------------------------------------------------------------------------
+-- YOTCatcoon
+AddPrefabPostInit('kitcoon_desert', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_marsh', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_moon', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_forest', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_rocky', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_grass', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_deciduous', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_savanna', GLOBAL._trackKitcoons)
+
+--------------------------------------------------------------------------
 -- YOTS
 AddPrefabPostInit('worm', GLOBAL._trackWorms)
 AddPrefabPostInit('shadowthrall_mouth', GLOBAL._trackShadows)
