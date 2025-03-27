@@ -1167,11 +1167,16 @@ end
 
 _trackKitcoons, _iterKitcoons = createTracker()
 
--- replicated from prefabs/kitcoon
-local _yotcatcoon_collect_allkitcoons = function(world, data)
-    if data ~= nil and data.kitcoons ~= nil then
-        table.insert(data.kitcoons, inst)
+-- wrapping because of inst
+local function _yotcatcoon_activate_kitcoon(inst)
+    -- replicated from prefabs/kitcoon
+    local on_collect_allkitcoons = function(world, data)
+        if data ~= nil and data.kitcoons ~= nil then
+            table.insert(data.kitcoons, inst)
+        end
     end
+
+    inst:ListenForEvent("ms_collectallkitcoons", on_collect_allkitcoons, TheWorld)
 end
 
 --------------------------------------------------------------------------
@@ -1179,7 +1184,7 @@ end
 function _startYOTCatcoon()
     if TheWorld.ismastersim then
         -- prefabs/kitcoon (server)
-        _iterKitcoons(function(inst) inst:ListenForEvent("ms_collectallkitcoons", _yotcatcoon_collect_allkitcoons, TheWorld) end)
+        _iterKitcoons(_yotcatcoon_activate_kitcoon)
     end
 end
 
