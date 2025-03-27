@@ -6,10 +6,12 @@ function _eventName(event)
 end
 
 function _announce(event)
-    local event_string = (GetLocstring(event)
-        or GetLocstring('hurray') .. ' ' .. _eventName(event) .. '!')
+    if ThePlayer and not ThePlayer:HasTag('ghost') then
+        local event_string = 
+            (ThePlayer:HasTag('mime') and '')
+            or GetLocstring(event)
+            or GetLocstring('hurray') .. ' ' .. _eventName(event) .. '!'
 
-    if ThePlayer then
         ThePlayer:DoTaskInTime(math.random() * 2, function(inst)
             inst.components.talker:Say(event_string) 
         end)
@@ -60,17 +62,19 @@ end
 -------------------
 
 function _carnivalconfetti()
+    local function _throw_fx(player) 
+        local angle = math.random() * 2 * math.pi
+        local r = math.random() * 10
+        local x,y,z = player.Transform:GetWorldPosition()
+        local dx = math.sin(angle) * r
+        local dz = math.cos(angle) * r
+        SpawnPrefab('carnival_confetti_fx').Transform:SetPosition(x+dx, y, z+dz) 
+    end
+
     if TheWorld.ismastersim then
         for _, player in ipairs(AllPlayers) do
-            for i=1,10 do
-                TheWorld:DoTaskInTime(math.random() * 4, function() 
-                    local angle = math.random() * 2 * math.pi
-                    local r = math.random() * 10
-                    local x,y,z = player.Transform:GetWorldPosition()
-                    local dx = math.sin(angle) * r
-                    local dz = math.cos(angle) * r
-                    SpawnPrefab('carnival_confetti_fx').Transform:SetPosition(x+dx, y, z+dz) 
-                end)
+            if not player:HasTag('ghost') then 
+                for i=1,10 do player:DoTaskInTime(math.random() * 4, _throw_fx) end
             end
         end
 
