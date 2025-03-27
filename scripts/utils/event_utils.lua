@@ -25,12 +25,12 @@ local function createTracker(report)
         inst:ListenForEvent('onremove', _removeFn)
     end
 
-    local function _iterateFn(fn)
+    local function _iterateFn(fn, ...)
         local _iterlist = shallowcopy(_tracklist)
         for GUID, inst in pairs(_iterlist) do
             if inst then
                 if report then print('[Yearly Seasonal Events] callback on '..tostring(inst)) end 
-                fn(inst)
+                fn(inst, ...)
             else
                 if report then print('[Yearly Seasonal Events] not found '..GUID) end 
             end
