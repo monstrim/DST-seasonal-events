@@ -1106,7 +1106,7 @@ function _stopYOTC()
 
     if TheWorld.ismastersim then
         -- beefalo herds (server)
-        _iterHerds(function(inst) killListeners(inst, "phasechanged") end)
+        _iterHerds(killListeners, "phasechanged")
 
         -- rat gyms (server)
         _iterGyms(function(inst)
@@ -1210,7 +1210,7 @@ end
 function _stopYOTCatcoon()
     if TheWorld.ismastersim then
         -- prefabs/kitcoon (server)
-        _iterKitcoons(function(inst) killListeners(inst,"ms_collectallkitcoons", TheWorld) end)
+        _iterKitcoons(killListeners, "ms_collectallkitcoons", TheWorld)
     end
 end
 
