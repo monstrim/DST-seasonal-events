@@ -1143,7 +1143,6 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Beefalo ]]
 --------------------------------------------------------------------------
--- TODO: playercommon fn (common) - add/remove netint, replicate and do task... or not (skins?)
 
 _trackPigmen, _iterPigmen = createTracker()
 
@@ -1152,6 +1151,20 @@ _trackPigmen, _iterPigmen = createTracker()
 function _startYOTB()
     -- pigmen
     _iterPigmen(function(inst) inst.AnimState:AddOverrideBuild("pigman_yotb") end)
+
+    -- playercommon fn (common)
+    _iterPlayers(function(inst) 
+        if inst.yotb_skins_sets == nil then
+            inst.yotb_skins_sets = net_shortint(inst.GUID, "player.yotb_skins_sets")
+        end
+
+        -- replicated from prefabs/player_common
+        local sets = {}
+        for i,bit in pairs(YOTB_COSTUMES)do
+            table.insert(sets,bit)
+        end
+        inst.yotb_skins_sets:set( sets[math.random(1,#sets)] )
+    end)
 end
 
 --------------------------------------------------------------------------
@@ -1159,6 +1172,11 @@ end
 function _stopYOTB()
     -- pigmen
     _iterPigmen(function(inst) inst.AnimState:ClearOverrideBuild("pigman_yotb") end)
+
+    -- playercommon fn (common)
+    _iterPlayers(function(inst) 
+        inst.yotb_skins_sets:set(0)
+    end)
 end
 
 --------------------------------------------------------------------------
