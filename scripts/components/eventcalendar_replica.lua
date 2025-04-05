@@ -8,7 +8,6 @@ return Class(function(self, inst)
 --[[ Dependencies ]]
 --------------------------------------------------------------------------
 
-local BatOver = require "widgets/batover"
 require "utils/event_utils"
 require "utils/ui_utils"
 
@@ -69,6 +68,8 @@ local function StartEvent(event)
         _startYOTC()
     elseif event == SPECIAL_EVENTS.YOTB then
         _startYOTB()
+    elseif event == SPECIAL_EVENTS.YOT_CATCOON then
+        _startYOTCatcoon()
     elseif event == SPECIAL_EVENTS.YOTD then
         _startYOTD()
     elseif event == SPECIAL_EVENTS.YOTS then
@@ -127,6 +128,8 @@ local function StopEvent(event)
         _stopYOTC()
     elseif event == SPECIAL_EVENTS.YOTB then
         _stopYOTB()
+    elseif event == SPECIAL_EVENTS.YOT_CATCOON then
+        _stopYOTCatcoon()
     elseif event == SPECIAL_EVENTS.YOTD then
         _stopYOTD()
     elseif event == SPECIAL_EVENTS.YOTS then

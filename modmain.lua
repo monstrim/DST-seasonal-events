@@ -51,7 +51,9 @@ AddPrefabPostInit('mossling', GLOBAL._trackMosslings)
 
 --------------------------------------------------------------------------
 -- YOTG
+AddPrefabPostInit('perdshrine', GLOBAL._trackPerdshrines)
 AddPrefabPostInit('perd', GLOBAL._trackPerds)
+AddPrefabPostInit('berrybush', GLOBAL._trackBushes)
 
 --------------------------------------------------------------------------
 -- YOTP
@@ -64,6 +66,11 @@ AddPrefabPostInit('lucky_goldnugget', GLOBAL._trackNuggies)
 -- YOTC
 AddPrefabPostInit('carrat', GLOBAL._trackCarrats)
 AddPrefabPostInit('carrat_ghostracer', GLOBAL._trackGhostracer)
+AddPrefabPostInit('beefaloherd', GLOBAL._trackHerds)
+AddPrefabPostInit('yotc_carrat_gym_direction', GLOBAL._trackGyms)
+AddPrefabPostInit('yotc_carrat_gym_speed', GLOBAL._trackGyms)
+AddPrefabPostInit('yotc_carrat_gym_reaction', GLOBAL._trackGyms)
+AddPrefabPostInit('yotc_carrat_gym_stamina', GLOBAL._trackGyms)
 
 --------------------------------------------------------------------------
 -- YOTB
@@ -79,10 +86,17 @@ AddPrefabPostInit('merm_lunar', GLOBAL._trackPigmen)
 AddPrefabPostInit('mermguard_lunar', GLOBAL._trackPigmen)
 
 --------------------------------------------------------------------------
+-- YOTCatcoon
+AddPrefabPostInit('kitcoon_desert', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_marsh', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_moon', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_forest', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_rocky', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_grass', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_deciduous', GLOBAL._trackKitcoons)
+AddPrefabPostInit('kitcoon_savanna', GLOBAL._trackKitcoons)
+
+--------------------------------------------------------------------------
 -- YOTS
 AddPrefabPostInit('worm', GLOBAL._trackWorms)
 AddPrefabPostInit('shadowthrall_mouth', GLOBAL._trackShadows)
-
---------------------------------------------------------------------------
---[[ Init HUD overlay ]]
---------------------------------------------------------------------------

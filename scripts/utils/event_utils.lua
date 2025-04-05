@@ -6,8 +6,7 @@ local ex_fns = require "prefabs/player_common_extensions"
 -- Replicates, activates and deactivates all functionalities that would normally be done once at game start,
 -- depending on wether the events are active or not, and then left alone throughout the gaming session.
 
--- The main mod logic is very simple, but here the bulk of the work is done.
--- It's a lot of crap, and there's still a lot to do. Light one up, and let's fucking go.
+-- The main mod logic is very simple, but here the bulk of the work is done. It's a lot of crap to maintain.
 
 --------------------------------------------------------------------------
 
@@ -25,12 +24,12 @@ local function createTracker(report)
         inst:ListenForEvent('onremove', _removeFn)
     end
 
-    local function _iterateFn(fn)
+    local function _iterateFn(fn, ...)
         local _iterlist = shallowcopy(_tracklist)
         for GUID, inst in pairs(_iterlist) do
             if inst then
                 if report then print('[Yearly Seasonal Events] callback on '..tostring(inst)) end 
-                fn(inst)
+                fn(inst, ...)
             else
                 if report then print('[Yearly Seasonal Events] not found '..GUID) end 
             end
@@ -41,6 +40,9 @@ local function createTracker(report)
 end
 
 
+-- eventually we have to shut down listeners without access to the private callbacks,
+-- these functions will help with that, but make sure the object isn't listening for
+-- the same event on multiple callbacks or they'll be gone too.
 local function killWatchers(inst, var)
     if not inst.worldstatewatching then return end
     inst.worldstatewatching[var] = nil
@@ -279,7 +281,7 @@ end
 --------------------------------------------------------------------------
 
 function _startHalloween()
-    -- livingtrees (common) (before because of listenforevent)
+    -- livingtrees (common) 
     _iterLivtrees(function(inst)
         inst.AnimState:Show("eye")
         if not inst._eyeflames then
@@ -287,6 +289,9 @@ function _startHalloween()
             inst:ListenForEvent("eyeflamesdirty", _livingtree_eye)
         end
     end) 
+
+    -- livingroots (common)
+    _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
 
     if TheWorld.ismastersim then
         -- player
@@ -315,14 +320,17 @@ function _startHalloween()
             if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root_hallowed_nights") end
         end) 
     end
-
-    -- livingroots (common)
-    _iterLivroots(function(inst) inst.AnimState:Show("eye") end) 
 end
 
 --------------------------------------------------------------------------
 
 function _stopHalloween()
+    -- livingtrees (common)
+    _iterLivtrees(function(inst) inst.AnimState:Hide("eye") end) 
+
+    -- livingroots (common)
+    _iterLivroots(function(inst) inst.AnimState:Hide("eye") end) 
+
     if TheWorld.ismastersim then
         -- player
         _iterPlayers(function(inst)
@@ -349,12 +357,6 @@ function _stopHalloween()
             if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root") end
         end) 
     end
-
-    -- livingtrees (common)
-    _iterLivtrees(function(inst) inst.AnimState:Hide("eye") end) 
-
-    -- livingroots (common)
-    _iterLivroots(function(inst) inst.AnimState:Hide("eye") end) 
 end
 
 --------------------------------------------------------------------------
@@ -419,6 +421,50 @@ end
 --------------------------------------------------------------------------
 
 function _startWintersFeast()
+    -- deer common_fn (common)
+    _iterDeer(function(inst)
+        inst.AnimState:OverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
+        inst.AnimState:OverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
+        inst.AnimState:OverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
+        inst.AnimState:OverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
+    end)
+
+    -- deerclops common_fn (common)
+    _iterDeerclops(function(inst)
+        if not inst.Light then
+            inst.entity:AddLight()
+            inst.Light:SetIntensity(.6)
+            inst.Light:SetRadius(8)
+            inst.Light:SetFalloff(3)
+            inst.Light:SetColour(1, 0, 0)
+        else
+            inst.Light:Enable(true)
+        end
+
+        inst.build = 'deerclops_yule'
+        inst.AnimState:SetBuild(inst.build)
+    end)
+
+    -- beager normalfn (common)
+    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_yule") end)
+
+    -- dragonfly (common)
+    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_yule_build") end)
+
+    -- moose (common)
+    _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_yule_build") end)
+
+    -- klaus (common)
+    _iterKlaus(function(inst)
+        inst.AnimState:OverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
+        inst.AnimState:OverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
+        inst.AnimState:OverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
+        inst.AnimState:OverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
+    end)
+
+    -- mossling (common)
+    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_yule_build") end)
+
     if TheWorld.ismastersim then
         -- player_common (server)
         _iterPlayers(function(inst)
@@ -468,55 +514,47 @@ function _startWintersFeast()
             inst.DoBellIdleSound = _deer_bellsound
         end)
     end
-
-    -- deer common_fn (common)
-    _iterDeer(function(inst)
-        inst.AnimState:OverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
-        inst.AnimState:OverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
-        inst.AnimState:OverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
-        inst.AnimState:OverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
-    end)
-
-    -- deerclops common_fn (common)
-    _iterDeerclops(function(inst)
-        if not inst.Light then
-            inst.entity:AddLight()
-            inst.Light:SetIntensity(.6)
-            inst.Light:SetRadius(8)
-            inst.Light:SetFalloff(3)
-            inst.Light:SetColour(1, 0, 0)
-        else
-            inst.Light:Enable(true)
-        end
-
-        inst.build = 'deerclops_yule'
-        inst.AnimState:SetBuild(inst.build)
-    end)
-
-    -- beager normalfn (common)
-    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_yule") end)
-
-    -- dragonfly (common)
-    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_yule_build") end)
-
-    -- moose (common)
-    _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_yule_build") end)
-
-    -- klaus (common)
-    _iterKlaus(function(inst)
-        inst.AnimState:OverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
-        inst.AnimState:OverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
-        inst.AnimState:OverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
-        inst.AnimState:OverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
-    end)
-
-    -- mossling (common)
-    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_yule_build") end)
 end
 
 --------------------------------------------------------------------------
 
 function _stopWintersFeast()
+    -- deerclops common_fn (common)
+    _iterDeerclops(function(inst)
+        inst.Light:Enable(false)
+
+        inst.build = 'deerclops_build'
+        inst.AnimState:SetBuild(inst.build)
+    end)
+
+    -- beager normalfn (server)
+    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_build") end)
+
+    -- dragonfly (common)
+    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_build") end)
+
+    -- moose (common)
+    _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_build") end)
+
+    -- klaus (common)
+    _iterKlaus(function(inst)
+        inst.AnimState:ClearOverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
+    end)
+
+    -- deer_common (common)
+    _iterDeer(function(inst)
+        inst.AnimState:ClearOverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
+        inst.AnimState:ClearOverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
+        inst.AnimState:ClearOverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
+        inst.AnimState:ClearOverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
+    end)
+
+    -- mossling (common)
+    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_build") end)
+
     if TheWorld.ismastersim then
         -- player_common (server)
         _iterPlayers(function(inst) inst:RemoveComponent("wintertreegiftable") end)
@@ -566,75 +604,137 @@ function _stopWintersFeast()
             inst.DoBellIdleSound = function() end
         end)
     end
-
-    -- deer_common (common)
-    _iterDeer(function(inst)
-        inst.AnimState:ClearOverrideSymbol("deer_hair", "deer_build", "deer_hair_winter")
-        inst.AnimState:ClearOverrideSymbol("swap_neck_collar", "deer_build", "swap_neck_collar_winter")
-        inst.AnimState:ClearOverrideSymbol("klaus_deer_chain", "deer_build", "klaus_deer_chain_winter")
-        inst.AnimState:ClearOverrideSymbol("deer_chest", "deer_build", "deer_chest_winter")
-    end)
-
-    -- deerclops common_fn (common)
-    _iterDeerclops(function(inst)
-        inst.Light:Enable(false)
-
-        inst.build = 'deerclops_build'
-        inst.AnimState:SetBuild(inst.build)
-    end)
-
-    -- beager normalfn (server)
-    _iterBearger(function(inst) inst.AnimState:SetBuild("bearger_build") end)
-
-    -- dragonfly (common)
-    _iterDragonfly(function(inst) inst.AnimState:SetBuild("dragonfly_build") end)
-
-    -- moose (common)
-    _iterMoose(function(inst) inst.AnimState:SetBuild("goosemoose_build") end)
-
-    -- klaus (common)
-    _iterKlaus(function(inst)
-        inst.AnimState:ClearOverrideSymbol("swap_chain", "klaus_build", "swap_chain_winter")
-        inst.AnimState:ClearOverrideSymbol("swap_chain_link", "klaus_build", "swap_chain_link_winter")
-        inst.AnimState:ClearOverrideSymbol("swap_chain_lock", "klaus_build", "swap_chain_lock_winter")
-        inst.AnimState:ClearOverrideSymbol("swap_klaus_antler", "klaus_build", "swap_klaus_antler_winter")
-    end)
-
-    -- mossling (common)
-    _iterMosslings(function(inst) inst.AnimState:SetBuild("mossling_build") end)
 end
 
 --------------------------------------------------------------------------
 --[[ Year of the Gobbler ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/perd (server) - component, replicate functions, vars and listeners
--- TODO: prefabs/berrybush (server) - add/kill , change callbacks... but maybe dont (trigger invalid??)
--- TODO: prefabs/perdshrine (server) - replicate functions, callback, watcher... but maybe dont (trigger invalid??)
 
 _trackPerds, _iterPerds = createTracker()
+_trackBushes, _iterBushes = createTracker()
+_trackPerdshrines, _iterPerdshrines = createTracker()
+
+--------------------------------------------------------------------------
+
+-- replicated from prefabs/perd
+local PERD_TAGS = { "perd" }
+local function _yotg_perd_onattacked(inst)
+    local tochain = {}
+    local x, y, z = inst.Transform:GetWorldPosition()
+    for i, v in ipairs(TheSim:FindEntities(x, y, z, 14, PERD_TAGS)) do
+        if v.seekshrine then
+            v.seekshrine = nil
+            killListeners(inst, "attacked") 
+            if v ~= inst then
+                table.insert(tochain, v)
+            end
+        end
+    end
+    for i, v in ipairs(tochain) do
+        _yotg_perd_onattacked(v)
+    end
+end
+
+local function _yotg_perd_oneat(inst, food)
+    --eat off the ground, not picked berries
+    if food.components.inventoryitem ~= nil and
+        not food.components.inventoryitem:IsHeld() and
+        not inst.components.timer:TimerExists("offeringcooldown") then
+        inst.sg.statemem.dropoffering = true
+        if not inst.seekshrine then
+            inst.seekshrine = true
+            inst:ListenForEvent("attacked", _yotg_perd_onattacked)
+        end
+    end
+end
+
+local function _yotg_perd_lootsetfn(lootdropper)
+    if not lootdropper.inst.components.timer:TimerExists("offeringcooldown") then
+        lootdropper:AddChanceLoot("redpouch", .1)
+    end
+end
+
+local function _yotg_perd_dropoffering(inst)
+    if not inst.components.timer:TimerExists("offeringcooldown") then
+        inst.components.timer:StartTimer("offeringcooldown", TUNING.TOTAL_DAY_TIME)
+        LaunchAt(SpawnPrefab("redpouch"), inst, inst:GetNearestPlayer(true) or inst:GetNearestPlayer(), .5, 1, .5)
+    end
+end
+
+-- replicated from prefabs/berrybush
+local function _yotg_bush_spawnperd(inst)
+    if inst:IsValid() then
+        local perd = SpawnPrefab("perd")
+        local x, y, z = inst.Transform:GetWorldPosition()
+        local angle = math.random() * PI2
+        perd.Transform:SetPosition(x + math.cos(angle), 0, z + math.sin(angle))
+        perd.sg:GoToState("appear")
+        perd.components.homeseeker:SetHome(inst)
+        inst:PushEvent("onwenthome") -- which itself calls shake()
+    end
+end
 
 --------------------------------------------------------------------------
 
 function _startYOTG()
-    if TheWorld.ismastersim then
-        -- Perds (server)
-        _iterPerds(function(inst) inst.seekshrine = true end)
-    end
-
     -- Perds (common)
     _iterPerds(function(inst) inst:AddTag("perd") end)
+
+    if TheWorld.ismastersim then
+        -- Perds (server)
+        _iterPerds(function(inst)
+            inst:AddComponent("timer")
+            inst.components.eater:SetOnEatFn(_yotg_perd_oneat)
+            inst.components.lootdropper:SetLootSetupFn(_yotg_perd_lootsetfn)
+            inst.DropOffering = _yotg_perd_dropoffering
+            inst.seekshrine = true
+            inst:ListenForEvent("attacked", _yotg_perd_onattacked)
+        end)
+
+        -- perdshrines (server)
+        _iterPerdshrines(function(inst) 
+            if not inst.burnt then
+                local bush = inst.bush
+                inst:OnLoad({bush='empty'}) 
+                inst:OnLoad({bush=bush}) 
+            end 
+        end)
+
+        -- berrybush (server)
+        _iterBushes(function(inst) inst:ListenForEvent("spawnperd", _yotg_bush_spawnperd) end)
+    end
 end
 
 --------------------------------------------------------------------------
 
 function _stopYOTG()
-    if TheWorld.ismastersim then
-        -- Perds (server)
-        _iterPerds(function(inst) inst.seekshrine = nil end)
-    end
-
     -- Perds (common)
     _iterPerds(function(inst) inst:RemoveTag("perd") end)
+
+    if TheWorld.ismastersim then
+        -- Perds (server)
+        _iterPerds(function(inst)
+            inst:RemoveComponent("timer")
+            inst.components.eater:SetOnEatFn(nil)
+            inst.components.lootdropper:SetLootSetupFn(nil)
+            inst.DropOffering = nil
+            inst.seekshrine = nil
+            -- inst:RemoveEventCallback("attacked", _yotg_perd_onattacked)
+            killListeners(inst, "attacked") -- the callback might be the (local) original or our replicated one
+        end)
+
+        -- perdshrines (server)
+        _iterPerdshrines(function(inst) 
+            if not inst.burnt then
+                local bush = inst.bush
+                inst:OnLoad({bush='empty'}) 
+                inst:OnLoad({bush=bush}) 
+            end 
+        end)
+
+        -- berrybush (server)
+        _iterBushes(function(inst) killListeners(inst, "spawnperd") end)
+    end
 end
 
 --------------------------------------------------------------------------
@@ -682,58 +782,366 @@ end
 --------------------------------------------------------------------------
 --[[ Year of the Carrat ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/carrat fn (common) - replicate get_dropaction_string
--- TODO: prefabs/carrat fn (server) - replicate train funcs, replicate callbacks, add/kill listeners
--- TODO: prefabs/beefaloherd fn - replicate carrat spawner and add/remove listen
--- TODO: prefabs/rat_gym (server) - add component, replicate callbacks
 
 _trackCarrats, _iterCarrats = createTracker()
 _trackGhostracer, _iterGhostracer = createTracker()
+_trackGyms, _iterGyms = createTracker()
+_trackHerds, _iterHerds = createTracker()
+
+--------------------------------------------------------------------------
+
+-- replicated from prefabs/carrat
+local YOTC_RACESTART_MUSTHAVETAGS = {"yotc_racestart"}
+local YOTC_RACESTART_CANTHAVETAGS = {"fire", "burnt", "INLIMBO", "race_on"}
+local function _yotc_drop_action_string(inst, drop_pst)
+    if drop_pst == nil then
+        return nil
+    end
+    local dx, dy, dz = drop_pst:Get()
+    local drop_platform = TheWorld.Map:GetPlatformAtPoint(dx, dy, dz)
+    local start_points = TheSim:FindEntities(dx, dy, dz, TUNING.YOTC_ADDTORACE_DIST, YOTC_RACESTART_MUSTHAVETAGS, YOTC_RACESTART_CANTHAVETAGS)
+    for _, v in ipairs(start_points) do
+		if not TheWorld.Map:IsOceanAtPoint(dx, dy, dz) and drop_platform == v:GetCurrentPlatform() then
+			return "YOTC_ENTERRACE"
+		end
+    end
+    return nil
+end
+
+local function _yotc_spread_stats(inst)
+    if inst.components.yotc_racestats then
+        local points = TUNING.RACE_STATS.BAD_STAT_SPREAD
+        if inst.beefalo_carrat then
+            points = TUNING.RACE_STATS.WILD_STAT_SPREAD
+        end
+        inst.components.yotc_racestats:AddRandomPointSpread(points)
+        inst.components.yotc_racestats:SaveCurrentStatsAsBaseline()
+    end
+end
+
+local POINTS_PER_TRAIN = 1
+local function _yotc_dospeedgym(inst)
+    inst.components.yotc_racestats:ModifySpeed(POINTS_PER_TRAIN)
+    inst._trained_today = true
+end
+
+local function _yotc_dodirectiongym(inst)
+    inst.components.yotc_racestats:ModifyDirection(POINTS_PER_TRAIN)
+    inst._trained_today = true
+end
+
+local function _yotc_doreactiongym(inst)
+    inst.components.yotc_racestats:ModifyReaction(POINTS_PER_TRAIN)
+    inst._trained_today = true
+end
+
+local function _yotc_dostaminagym(inst)
+    inst.components.yotc_racestats:ModifyStamina(POINTS_PER_TRAIN)
+    inst._trained_today = true
+end
+
+local function _yotc_drop_prize_on_death(inst, data)
+    if inst.components.yotc_racecompetitor ~= nil and inst:HasTag("has_prize") then
+        local prize = inst.components.yotc_racecompetitor:CollectPrize()
+        if prize ~= nil then
+            if inst.components.lootdropper ~= nil then
+                inst.components.lootdropper:FlingItem(prize, inst:GetPosition())
+            else
+                prize.Transform:SetPosition(inst.Transform:GetWorldPosition())
+            end
+        end
+    end
+end
+
+local function _yotc_nighttime_degrade_test(inst, isnight)
+    if isnight then
+        -- Racing and post-race are considered part of active racing (because you might get locked from feeding your rat in postrace)
+        local is_not_actively_racing = inst.components.yotc_racecompetitor == nil or inst.components.yotc_racecompetitor.racestate == "prerace"
+        if is_not_actively_racing and not inst._trained_today then
+            if inst.components.yotc_racestats ~= nil then
+                local degrade_amount = math.random(POINTS_PER_TRAIN * (TUNING.CARRAT_GYM.TRAINS_PER_DAY - 1))
+                inst.components.yotc_racestats:DegradePoints(degrade_amount)
+                if inst.gymscale then
+                    inst.gymscale.updateratstats(inst.gymscale)
+                end
+            end
+        else
+            inst._trained_today = false
+        end
+    end
+end
+
+local food_colors =
+{
+    watermelon_seeds = "blue",
+
+    onion_seeds = "brown",
+    potato_seeds = "brown",
+
+	asparagus_seeds = "green",
+    durian_seeds = "green",
+
+	dragonfruit_seeds = "pink",
+	pomegranate_seeds = "pink",
+	tomato_seeds = "pink",
+	pepper_seeds = "pink",
+
+    eggplant_seeds = "purple",
+
+	garlic_seeds = "white",
+
+	corn_seeds = "yellow",
+	pumpkin_seeds = "yellow",
+
+	carrot_seeds = "NEUTRAL",
+	seeds = "RANDOM",
+}
+
+local function GetColorFromFood(inst, data)
+	local food_prefab = data ~= nil and data.food ~= nil and data.food.prefab or nil
+	return food_prefab ~= nil and food_colors[food_prefab] or nil
+end
+
+local function _yotc_oneatfn(inst, data)
+	local color = GetColorFromFood(inst, data)
+	if color ~= nil then
+		inst._setcolorfn(inst, color)
+	end
+end
+
+local function _yotc_docarratfailtalk(inst, stat)
+    if inst.components.entitytracker:GetEntity("yotc_trainer") then
+        local player = inst.components.entitytracker:GetEntity("yotc_trainer")
+        if inst:GetDistanceSqToInst(player) < 20*20 then
+            if stat == "direction" then
+                inst:DoTaskInTime(2,function() player.components.talker:Say(GetString(player, "ANNOUNCE_CARRAT_ERROR_WRONG_WAY")) end)
+            elseif stat == "reaction" then
+                inst:DoTaskInTime(2,function() player.components.talker:Say(GetString(player, "ANNOUNCE_CARRAT_ERROR_STUNNED")) end)
+            elseif stat == "speed" then
+                inst:DoTaskInTime(4,function() player.components.talker:Say(GetString(player, "ANNOUNCE_CARRAT_ERROR_WALKING")) end)
+            elseif stat == "stamina" then
+                inst:DoTaskInTime(2,function() player.components.talker:Say(GetString(player, "ANNOUNCE_CARRAT_ERROR_FELL_ASLEEP")) end)
+            end
+        end
+    end
+end
+
+-- replicated from prefabs/beefaloherd
+local function _yotc_spawncarrat(inst, phase)
+    if phase == "night" then
+        local carrat = false
+        local beefalo = {}
+        for k, v in pairs(inst.components.herd.members) do
+            if k:HasTag("HasCarrat") then
+                carrat = true
+                break
+            end
+
+            -- Baby beefalo cannot have carrats spawn on them.
+            if not k:HasTag("baby") then
+                table.insert(beefalo,k)
+            end
+        end
+
+        if not carrat and #beefalo > 0 and math.random() < 0.33 then
+            beefalo[math.random(1,#beefalo)]:AddTag("HasCarrat")
+        end
+    end
+end
+
+-- replicated from prefabs/rat_gym
+local function _yotc_accept_fn(inst, item, giver)
+    if item.prefab == "carrat" and inst.components.inventory:NumItems() <= 0 then
+        if (not item.components.perishable or item.components.perishable:GetPercent() >(TUNING.CARRAT_GYM.TRAINING_TIME/TUNING.CARRAT.PERISH_TIME + 0.1) ) then
+            return true
+        else
+            giver.components.talker:Say(GetString(giver, "ANNOUNCE_WEAK_RAT"))
+        end
+    end
+end
+
+local function _yotc_getcarrat(inst, item, train)
+    inst:PushEvent("ratupdate")
+    if inst.components.trader ~= nil then
+        inst.components.trader:Disable()
+    end
+    inst.components.shelf:PutItemOnShelf(item)
+    inst.components.gym:SetTrainee(item)
+    if train then
+        inst.components.gym:StartTraining(inst)
+    end
+    if item._color ~= nil then
+        inst.AnimState:OverrideSymbol("carrat_tail", "yotc_carrat_colour_swaps", item._color.."_carrat_tail")
+        inst.AnimState:OverrideSymbol("carrat_ear", "yotc_carrat_colour_swaps", item._color.."_carrat_ear")
+        inst.AnimState:OverrideSymbol("carrot_parts", "yotc_carrat_colour_swaps", item._color.."_carrot_parts")
+    else
+        inst.AnimState:OverrideSymbol("carrat_tail", "carrat_build", "carrat_tail")
+        inst.AnimState:OverrideSymbol("carrat_ear", "carrat_build", "carrat_ear")
+        inst.AnimState:OverrideSymbol("carrot_parts", "carrat_build", "carrot_parts")
+    end
+    if TheWorld.state.isnight then
+        inst:PushEvent("rest")
+    end
+end
+
+local function _yotc_ejectitem(inst,item)
+    if item ~= nil then
+        if item ~= inst.components.shelf.itemonshelf then
+            inst.components.inventory:DropItem(item)
+        end
+        inst.components.shelf:TakeItem(nil) -- taker == nil means item isn't given to an inventory
+        if item.sg ~= nil then
+            item.sg:GoToState("idle")
+        end
+    end
+end
+
+local function _yotc_getitem_fn(inst, giver, item)
+    if giver:HasTag("player") then
+        inst.rat_trainer_id = giver.userid
+    end
+    if item then
+        if item.prefab == "carrat" and not inst.components.burnable:IsBurning() then
+            _yotc_getcarrat(inst, item, true)
+        else
+            _yotc_ejectitem(inst,item)
+        end
+    end
+end
+
+local function _yotc_on_inventory(inst, owner)
+    if owner.components.inventoryitem then
+        owner = owner.components.inventoryitem:GetGrandOwner()
+    end
+
+    if owner ~= nil and owner:HasTag("player") then
+        inst.components.entitytracker:TrackEntity("yotc_trainer", owner)
+    end
+
+    if inst.components.yotc_racecompetitor ~= nil then
+        if owner ~= nil and owner.components.inventory ~= nil then
+            local prize = inst.components.yotc_racecompetitor:CollectPrize()
+            if prize ~= nil then
+                if not owner.components.inventory:IsFull() then
+                    owner.components.inventory:GiveItem(prize, nil, inst:GetPosition())
+                elseif inst.components.lootdropper ~= nil then
+                    inst.components.lootdropper:FlingItem(prize, inst:GetPosition())
+                else
+                    prize.Transform:SetPosition(inst.Transform:GetWorldPosition())
+                end
+            end
+        end
+
+        inst:RemoveComponent("yotc_racecompetitor")
+    end
+
+    inst:RemoveTag("noauradamage")
+
+    inst.components.named:SetName(nil)
+    inst.beefalo_carrat = nil
+
+    inst.components.inventoryitem.canbepickedup = false
+end
 
 --------------------------------------------------------------------------
 
 function _startYOTC()
-    if TheWorld.ismastersim then
-        -- carrats (server)
-       _iterCarrats(function(inst)
-            inst:AddComponent("named")
-        end)
-    end
-
-    -- carrats (common)
+    -- carrat (common)
     _iterCarrats(function(inst)
         inst.AnimState:AddOverrideBuild("redpouch_yotc")
-        if not inst:HasTag("_named") then inst:AddTag("_named") end
+        inst.GetDropActionString = _yotc_drop_action_string
     end)
 
-    -- carrat ghostracer
+    -- carrat ghostracer (common)
     _iterGhostracer(function(inst) inst.AnimState:AddOverrideBuild("redpouch_yotc") end)
+
+    if TheWorld.ismastersim then
+        -- beefalo herds (server)
+        _iterHerds(function(inst) inst:ListenForEvent("phasechanged", function(src,phase) _yotc_spawncarrat(inst,phase) end, TheWorld) end)
+
+        -- rat gyms (server)
+        _iterGyms(function(inst)
+            inst:AddComponent("trader")
+            inst.components.trader:SetAcceptTest(_yotc_accept_fn)
+            inst.components.trader.onaccept = _yotc_getitem_fn
+            inst.components.trader.deleteitemonaccept = false
+        end)
+
+        -- carrats (server)
+        _iterCarrats(function(inst)
+            inst.dospeedgym = _yotc_dospeedgym
+            inst.dodirectiongym = _yotc_dodirectiongym
+            inst.doreactiongym = _yotc_doreactiongym
+            inst.dostaminagym = _yotc_dostaminagym
+
+            inst:AddComponent("named")
+            inst:AddComponent("entitytracker")
+            inst:AddComponent("yotc_racestats")
+            inst._spread_stats_task = inst:DoTaskInTime(0, _yotc_spread_stats)
+            inst._trained_today = false
+
+            inst:ListenForEvent("death", _yotc_drop_prize_on_death)
+            inst:ListenForEvent("oneat", _yotc_oneatfn)
+            inst:ListenForEvent("carrat_error_direction", function() _yotc_docarratfailtalk(inst,"direction") end)
+            inst:ListenForEvent("carrat_error_walking", function() _yotc_docarratfailtalk(inst,"speed") end)
+            inst:ListenForEvent("carrat_error_sleeping", function() _yotc_docarratfailtalk(inst,"stamina") end)
+            inst:WatchWorldState("isnight", _yotc_nighttime_degrade_test)
+
+            inst.components.inventoryitem:SetOnPutInInventoryFn(_yotc_on_inventory)
+        end)
+    end
 end
 
 --------------------------------------------------------------------------
 
 function _stopYOTC()
-    if TheWorld.ismastersim then
-        -- carrats (server)
-       _iterCarrats(function(inst)
-            inst:RemoveComponent("named")
-        end)
-    end
-
-    -- carrats (common)
+    -- carrat (common)
     _iterCarrats(function(inst)
         inst.AnimState:ClearOverrideBuild("redpouch_yotc")
-        if inst:HasTag("_named") then inst:RemoveTag("_named") end
+        inst.GetDropActionString = nil
     end)
 
     -- carrat ghostracer
     _iterGhostracer(function(inst) inst.AnimState:ClearOverrideBuild("redpouch_yotc") end)
+
+    if TheWorld.ismastersim then
+        -- beefalo herds (server)
+        _iterHerds(killListeners, "phasechanged")
+
+        -- rat gyms (server)
+        _iterGyms(function(inst)
+             inst.components.workable.onwork(inst)
+             inst:RemoveComponent("trader")
+        end)
+
+        -- carrats (server)
+        _iterCarrats(function(inst)
+            inst.dospeedgym = nil
+            inst.dodirectiongym = nil
+            inst.doreactiongym = nil
+            inst.dostaminagym = nil
+
+            inst:RemoveComponent("named")
+            inst:RemoveComponent("entitytracker")
+            inst:RemoveComponent("yotc_racestats")
+            inst._spread_stats_task = nil
+            inst._trained_today = nil
+
+            killListeners(inst, "death")
+            killListeners(inst, "oneat")
+            killListeners(inst, "carrat_error_direction")
+            killListeners(inst, "carrat_error_walking")
+            killListeners(inst, "carrat_error_sleeping")
+            killWatchers(inst, "isnight")
+
+            inst.components.inventoryitem:SetOnPutInInventoryFn(function() end)
+        end)
+    end
 end
 
 --------------------------------------------------------------------------
 --[[ Year of the Beefalo ]]
 --------------------------------------------------------------------------
--- TODO: playercommon fn (common) - add/remove netint, replicate and do task... or not (skins?)
 
 _trackPigmen, _iterPigmen = createTracker()
 
@@ -742,6 +1150,20 @@ _trackPigmen, _iterPigmen = createTracker()
 function _startYOTB()
     -- pigmen
     _iterPigmen(function(inst) inst.AnimState:AddOverrideBuild("pigman_yotb") end)
+
+    -- playercommon fn (common)
+    _iterPlayers(function(inst) 
+        if inst.yotb_skins_sets == nil then
+            inst.yotb_skins_sets = net_shortint(inst.GUID, "player.yotb_skins_sets")
+        end
+
+        -- replicated from prefabs/player_common
+        local sets = {}
+        for i,bit in pairs(YOTB_COSTUMES)do
+            table.insert(sets,bit)
+        end
+        inst.yotb_skins_sets:set( sets[math.random(1,#sets)] )
+    end)
 end
 
 --------------------------------------------------------------------------
@@ -749,12 +1171,48 @@ end
 function _stopYOTB()
     -- pigmen
     _iterPigmen(function(inst) inst.AnimState:ClearOverrideBuild("pigman_yotb") end)
+
+    -- playercommon fn (common)
+    _iterPlayers(function(inst) 
+        inst.yotb_skins_sets:set(0)
+    end)
 end
 
 --------------------------------------------------------------------------
 --[[ Year of the Catcoon ]]
 --------------------------------------------------------------------------
--- TODO: prefabs/kitcoon - replicate and add/remove callback
+
+_trackKitcoons, _iterKitcoons = createTracker()
+
+--------------------------------------------------------------------------
+
+-- wrapping because of inst
+local function _yotcatcoon_activate_kitcoon(inst)
+    -- replicated from prefabs/kitcoon
+    local on_collect_allkitcoons = function(world, data)
+        if data ~= nil and data.kitcoons ~= nil then
+            table.insert(data.kitcoons, inst)
+        end
+    end
+
+    inst:ListenForEvent("ms_collectallkitcoons", on_collect_allkitcoons, TheWorld)
+end
+
+--------------------------------------------------------------------------
+
+function _startYOTCatcoon()
+    if TheWorld.ismastersim then
+        -- prefabs/kitcoon (server)
+        _iterKitcoons(_yotcatcoon_activate_kitcoon)
+    end
+end
+
+function _stopYOTCatcoon()
+    if TheWorld.ismastersim then
+        -- prefabs/kitcoon (server)
+        _iterKitcoons(killListeners, "ms_collectallkitcoons", TheWorld)
+    end
+end
 
 --------------------------------------------------------------------------
 --[[ Year of the Bunnyman ]]
