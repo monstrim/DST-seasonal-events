@@ -6,8 +6,7 @@ local ex_fns = require "prefabs/player_common_extensions"
 -- Replicates, activates and deactivates all functionalities that would normally be done once at game start,
 -- depending on wether the events are active or not, and then left alone throughout the gaming session.
 
--- The main mod logic is very simple, but here the bulk of the work is done.
--- It's a lot of crap, and there's still a lot to do. Light one up, and let's fucking go.
+-- The main mod logic is very simple, but here the bulk of the work is done. It's a lot of crap to maintain.
 
 --------------------------------------------------------------------------
 
@@ -41,6 +40,9 @@ local function createTracker(report)
 end
 
 
+-- eventually we have to shut down listeners without access to the private callbacks,
+-- these functions will help with that, but make sure the object isn't listening for
+-- the same event on multiple callbacks or they'll be gone too.
 local function killWatchers(inst, var)
     if not inst.worldstatewatching then return end
     inst.worldstatewatching[var] = nil
@@ -622,8 +624,7 @@ local function _yotg_perd_onattacked(inst)
     for i, v in ipairs(TheSim:FindEntities(x, y, z, 14, PERD_TAGS)) do
         if v.seekshrine then
             v.seekshrine = nil
-            -- inst:RemoveEventCallback("attacked", OnAttacked)
-            killListeners(inst, "attacked") -- the callback might be the (local) original or our replicated one
+            killListeners(inst, "attacked") 
             if v ~= inst then
                 table.insert(tochain, v)
             end
@@ -1073,7 +1074,6 @@ function _startYOTC()
             inst.doreactiongym = _yotc_doreactiongym
             inst.dostaminagym = _yotc_dostaminagym
 
-            --Remove these tags so that they can be added properly when replicating components below
             inst:AddComponent("named")
             inst:AddComponent("entitytracker")
             inst:AddComponent("yotc_racestats")
@@ -1106,7 +1106,7 @@ function _stopYOTC()
 
     if TheWorld.ismastersim then
         -- beefalo herds (server)
-        _iterHerds(function(inst) killListeners(inst, "phasechanged") end)
+        _iterHerds(killListeners, "phasechanged")
 
         -- rat gyms (server)
         _iterGyms(function(inst)
@@ -1121,7 +1121,6 @@ function _stopYOTC()
             inst.doreactiongym = nil
             inst.dostaminagym = nil
 
-            --Remove these tags so that they can be added properly when replicating components below
             inst:RemoveComponent("named")
             inst:RemoveComponent("entitytracker")
             inst:RemoveComponent("yotc_racestats")
@@ -1185,6 +1184,8 @@ end
 
 _trackKitcoons, _iterKitcoons = createTracker()
 
+--------------------------------------------------------------------------
+
 -- wrapping because of inst
 local function _yotcatcoon_activate_kitcoon(inst)
     -- replicated from prefabs/kitcoon
@@ -1209,7 +1210,7 @@ end
 function _stopYOTCatcoon()
     if TheWorld.ismastersim then
         -- prefabs/kitcoon (server)
-        _iterKitcoons(function(inst) killListeners(inst,"ms_collectallkitcoons", TheWorld) end)
+        _iterKitcoons(killListeners, "ms_collectallkitcoons", TheWorld)
     end
 end
 
