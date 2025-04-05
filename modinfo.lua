@@ -2,19 +2,18 @@
 
 name = "Yearly Seasonal Events"
 description = [[
-Version 1.3.2
+Version 1.3.3
 
 󰀧 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 
 󰀭 There's always one Year Of event active, which cycles on the second new moon after beginning of winter.
 
 ----------------------------------------
-
-󰀏 Nearly all existing features implemented!! This is nearly the final update for a while (or at least until new Year Of events are launched). Go gingerbread pig hunting and receive Winter's feast gifts! Get spooked on Halloween, and play Carnival games on summer!
+󰀏 The final update for a while. All existing Special Event features implemented!! 󰀚 Go gingerbread pig hunting, set a table and give and receive Winter's feast gifts! Get spooked on Halloween, and play Carnival games on summer! Carrat racing, kitcoon collecting, and more! 󰀖
 ]]
 
 author = "Monstah"
-version = "1.3.2"
+version = "1.3.3"
 
 
 api_version = 10
