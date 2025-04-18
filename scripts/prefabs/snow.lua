@@ -77,7 +77,7 @@ local function fn()
     end
 
     local effect = inst.entity:AddVFXEffect()
-    effect:InitEmitters(1)
+    effect:InitEmitters(2)
 
     -----------------------------------------------------
 
