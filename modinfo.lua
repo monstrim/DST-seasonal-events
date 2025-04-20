@@ -13,7 +13,7 @@ Version 1.3.3
 ]]
 
 author = "Monstah"
-version = "1.3.3"
+version = "1.3.4"
 
 
 api_version = 10
