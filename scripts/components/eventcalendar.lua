@@ -177,23 +177,23 @@ end
 --[[ Initialization ]]
 --------------------------------------------------------------------------
 
-if TheWorld.ismastershard then 
-    -- Initialize events and seasons
-    _yearOfInit()
-    _seasonInit()
-    _checkSeasonalEvents()
-    current_new_moon = 2 --will zero on next winter
+function self:Init(_shard)
+    -- set shard (this needs a :Init because the shard is initialized after us, and calls this)
+    shard = _shard
 
-    inst:WatchWorldState("springlength", function(inst) _seasonInit() end)
-    inst:WatchWorldState("summerlength", function(inst) _seasonInit() end)
-    inst:WatchWorldState("autumnlength", function(inst) _seasonInit() end)
-    inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
-
-    inst:DoTaskInTime(0, function()
-        -- set shard (needs dotaskintime because its initialized after this component)
-        shard = TheWorld.shard.components.shard_calendar
-
+    if TheWorld.ismastershard then 
+        -- Initialize events and seasons
+        _yearOfInit()
+        _seasonInit()
+        _checkSeasonalEvents()
+        current_new_moon = 2 --will zero on next winter
+        
         -- Listen for events
+        inst:WatchWorldState("springlength", function(inst) _seasonInit() end)
+        inst:WatchWorldState("summerlength", function(inst) _seasonInit() end)
+        inst:WatchWorldState("autumnlength", function(inst) _seasonInit() end)
+        inst:WatchWorldState("winterlength", function(inst) _seasonInit() end)
+
         inst:WatchWorldState("cycles", OnCyclesChange)
         inst:WatchWorldState("season", OnSeasonChange)
         inst:WatchWorldState('moonphase', OnMoonChange)
@@ -201,11 +201,11 @@ if TheWorld.ismastershard then
         -- Finally, sync
         self:Sync()
         replica:WorldEventsInit()
-    end)
-else
-    -- Secondary shards just listen to the shard calendar for updates
-    inst:ListenForEvent("eventcalendar_sync", OnShardSync)
-    inst:DoTaskInTime(1, function() replica:WorldEventsInit() end)
+    else
+        -- Secondary shards just listen to the shard calendar for updates
+        inst:ListenForEvent("eventcalendar_sync", OnShardSync)
+        inst:DoTaskInTime(1, function() replica:WorldEventsInit() end)
+    end
 end
 
 

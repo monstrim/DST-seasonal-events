@@ -43,6 +43,8 @@ end
 --[[ Initialization ]]
 --------------------------------------------------------------------------
 
+TheWorld.net.components.eventcalendar:Init(self)
+
 -- Listen for events
 inst:ListenForEvent('calendardirty', OnCalendarDirty)
 
