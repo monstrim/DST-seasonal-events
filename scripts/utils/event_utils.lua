@@ -309,6 +309,7 @@ function _startHalloween()
 
         -- livingtrees (server)
         _iterLivtrees(function(inst)
+            if inst:HasTag("burnt") or inst:HasTag("stump") then return end
             if not inst.components.sanityaura then inst:AddComponent("sanityaura") end
             inst._eyeflames:set(true)
             inst.components.sanityaura.aura = -TUNING.SANITYAURA_MED
@@ -347,6 +348,7 @@ function _stopHalloween()
 
         -- livingroots (server)
         _iterLivtrees(function(inst)
+            if inst:HasTag("burnt") or inst:HasTag("stump") then return end
             inst._eyeflames:set(false)
             inst.components.sanityaura.aura = 0
             inst.components.container.canbeopened = false

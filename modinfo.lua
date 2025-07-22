@@ -2,7 +2,7 @@
 
 name = "Yearly Seasonal Events"
 description = [[
-Version 1.3.5
+Version 1.3.6
 
 󰀧 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 
@@ -13,7 +13,7 @@ Version 1.3.5
 ]]
 
 author = "Monstah"
-version = "1.3.5"
+version = "1.3.6"
 
 
 api_version = 10
