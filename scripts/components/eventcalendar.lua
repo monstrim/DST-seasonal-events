@@ -22,6 +22,7 @@ local year_of_list = {
     SPECIAL_EVENTS.YOTR, -- bunnyman
     SPECIAL_EVENTS.YOTD, -- dragonfly
     SPECIAL_EVENTS.YOTS, -- snake
+    SPECIAL_EVENTS.YOTH, -- knight
 }
 local year_of_set = {}
 for i,v in ipairs(year_of_list) do year_of_set[v] = true end
