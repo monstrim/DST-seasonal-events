@@ -2,18 +2,18 @@
 
 name = "Yearly Seasonal Events"
 description = [[
-Version 1.3.6
+Version 1.3.7
 
 󰀧 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 
 󰀭 There's always one Year Of event active, which cycles on the second new moon after beginning of winter.
 
 ----------------------------------------
-󰀏 The final update for a while. All existing Special Event features implemented!! 󰀚 Go gingerbread pig hunting, set a table and give and receive Winter's feast gifts! Get spooked on Halloween, and play Carnival games on summer! Carrat racing, kitcoon collecting, and more! 󰀖
+󰀰 Added Year of the Knight to the list. No switching code added yet, only prefabs spawned during year should be affected at this time.
 ]]
 
 author = "Monstah"
-version = "1.3.6"
+version = "1.3.7"
 
 
 api_version = 10
