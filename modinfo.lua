@@ -2,18 +2,18 @@
 
 name = "Yearly Seasonal Events"
 description = [[
-Version 1.3.7
+Version 1.3.8
 
 󰀧 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 
 󰀭 There's always one Year Of event active, which cycles on the second new moon after beginning of winter.
 
 ----------------------------------------
-󰀰 Added Year of the Knight to the list. No switching code added yet, only prefabs spawned during year should be affected at this time.
+󰀰 Added Year of the Knight.
 ]]
 
 author = "Monstah"
-version = "1.3.7"
+version = "1.3.8"
 
 
 api_version = 10
