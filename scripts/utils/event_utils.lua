@@ -1283,3 +1283,52 @@ function _stopYOTS()
         _iterShadows(function(inst) inst.components.lootdropper:SetLootSetupFn() end)
     end
 end
+
+
+--------------------------------------------------------------------------
+--[[ Year of the Knight ]]
+--------------------------------------------------------------------------
+
+_trackHecklers, _iterHecklers = createTracker()
+_trackLecturns, _iterLecturns = createTracker()
+_trackStages, _iterStages = createTracker()
+_trackStageposts, _iterStageposts = createTracker()
+_trackUshers, _iterUshers = createTracker()
+
+--------------------------------------------------------------------------
+
+function _startYOTH()
+    -- Mockingbird
+    _iterHecklers(function(inst) inst.AnimState:SetBuild("yoth_charlie_heckler2_build") end)
+    
+    -- Playbill
+    _iterLecturns(function(inst) inst.AnimState:SetBuild("charlie_lectern_yoth_build") end)
+    
+    -- Stagepost
+    _iterStageposts(function(inst) inst.AnimState:SetBuild("charlie_curtains_yoth") end)
+    
+    -- Stage
+    _iterStages(function(inst) inst.AnimState:SetBuild("charlie_stage_yoth") end)
+    
+    -- Stagehand
+    _iterUshers(function(inst) inst.AnimState:SetBuild("stagehand_yoth_princess") end)
+end
+
+--------------------------------------------------------------------------
+
+function _stopYOTH()
+    -- Mockingbird
+    _iterHecklers(function(inst) inst.AnimState:SetBuild("charlie_heckler2") end)
+
+    -- Playbill
+    _iterLecturns(function(inst) inst.AnimState:SetBuild("charlie_lectern") end)
+
+    -- Stagepost
+    _iterStageposts(function(inst) inst.AnimState:SetBuild("charlie_curtains") end)
+
+    -- Stage
+    _iterStages(function(inst) inst.AnimState:SetBuild("charlie_stage") end)
+
+    -- Stagehand
+    _iterUshers(function(inst) inst.AnimState:SetBuild("stagehand_sts") end)
+end

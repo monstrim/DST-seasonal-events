@@ -74,6 +74,8 @@ local function StartEvent(event)
         _startYOTD()
     elseif event == SPECIAL_EVENTS.YOTS then
         _startYOTS()
+    elseif event == SPECIAL_EVENTS.YOTH then
+        _startYOTH()
     end
 
     -- fanfarres and announcements
@@ -134,6 +136,8 @@ local function StopEvent(event)
         _stopYOTD()
     elseif event == SPECIAL_EVENTS.YOTS then
         _stopYOTS()
+    elseif event == SPECIAL_EVENTS.YOTH then
+        _stopYOTH()
     end
     
     if TheWorld.components.specialeventsetup then

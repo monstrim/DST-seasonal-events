@@ -100,3 +100,11 @@ AddPrefabPostInit('kitcoon_savanna', GLOBAL._trackKitcoons)
 -- YOTS
 AddPrefabPostInit('worm', GLOBAL._trackWorms)
 AddPrefabPostInit('shadowthrall_mouth', GLOBAL._trackShadows)
+
+--------------------------------------------------------------------------
+-- YOTH
+AddPrefabPostInit('charlie_heckler', GLOBAL._trackHecklers)
+AddPrefabPostInit('charlie_lecturn', GLOBAL._trackLecturns)
+AddPrefabPostInit('charlie_stage_post', GLOBAL._trackStageposts)
+AddPrefabPostInit('charlie_stage', GLOBAL._trackStages)
+AddPrefabPostInit('stageusher', GLOBAL._trackUshers)
