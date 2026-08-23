@@ -43,10 +43,12 @@ end
 --[[ Initialization ]]
 --------------------------------------------------------------------------
 
-TheWorld.net.components.eventcalendar:Init(self)
+if TheWorld.net.components.eventcalendar then
+    TheWorld.net.components.eventcalendar:Init(self)
 
--- Listen for events
-inst:ListenForEvent('calendardirty', OnCalendarDirty)
+    -- Listen for events
+    inst:ListenForEvent('calendardirty', OnCalendarDirty)
+end
 
 --------------------------------------------------------------------------
 --[[ END ]]
