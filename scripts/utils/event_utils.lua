@@ -1160,11 +1160,13 @@ function _startYOTB()
         end
 
         -- replicated from prefabs/player_common
-        local sets = {}
-        for i,bit in pairs(YOTB_COSTUMES)do
-            table.insert(sets,bit)
+        if not inst.yotb_skins_sets:value() or inst.yotb_skins_sets:value() == 0 then
+            local sets = {}
+            for i,bit in pairs(YOTB_COSTUMES)do
+                table.insert(sets,bit)
+            end
+            inst.yotb_skins_sets:set( sets[math.random(1,#sets)] )
         end
-        inst.yotb_skins_sets:set( sets[math.random(1,#sets)] )
     end)
 end
 
