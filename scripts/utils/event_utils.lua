@@ -100,7 +100,7 @@ _trackPlazas, _iterPlazas = createTracker()
 
 --------------------------------------------------------------------------
 
--- replicated from prefabs/carnival_plaza
+-- replicated from prefabs/carnival_plaza/OnActivate
 local function _plaza_onactivate(inst, doer)
 	if inst._choppeddown then
 		return false
@@ -117,6 +117,7 @@ local function _plaza_onactivate(inst, doer)
     return false, "NOCARNIVAL"
 end
 
+-- replicated from prefabs/carnival_plaza/onremove
 local function _plaza_onremove(inst)
     if TheWorld.components.carnivalevent then
         TheWorld.components.carnivalevent:UnregisterPlaza(inst)
@@ -185,6 +186,9 @@ end
 function _stopCarnival()
     if TheWorld.ismastersim then
         -- carnival host (server)
+        if not carnival_host then
+            carnival_host = c_find("carnival_host")
+        end
         if carnival_host then
             carnival_host.sg:GoToState("flyaway")
             carnival_host:DoTaskInTime(3, carnival_host.Remove)
@@ -216,7 +220,7 @@ _trackLivroots, _iterLivroots = createTracker()
 
 --------------------------------------------------------------------------
 
--- replicated from prefabs/livingtree_halloween
+-- replicated from prefabs/livingtree_halloween/OnEyeFlamesDirty
 local function _livingtree_eye(inst)
     if TheWorld.ismastersim then
         if not inst._eyeflames:value() then
@@ -263,7 +267,7 @@ end
 
 function _setupLivtrees(inst)
     local task = inst:DoTaskInTime(0, function() 
-        -- replicated from prefabs/livingtree
+        -- replicated from prefabs/livingtree/OnHalloweenSetup
         if not inst:HasTag("burnt") and not inst:HasTag("stump") then
             local x, y, z = inst.Transform:GetWorldPosition()
             inst:Remove()
@@ -382,7 +386,7 @@ _trackMosslings, _iterMosslings = createTracker()
 
 --------------------------------------------------------------------------
 
--- replicated from prefabs/deerclops
+-- replicated from prefabs/deerclops/YuleOnNewState
 local function _deerclops_onyule(inst, data)
     if not (inst.sg:HasStateTag("sleeping") or inst.sg:HasStateTag("waking")) then
         inst.Light:SetIntensity(.6)
@@ -392,11 +396,12 @@ local function _deerclops_onyule(inst, data)
     end
 end
 
--- replicated from prefabs/deer
+-- replicated from prefabs/deer/DoBellIdleSound
 local function _deer_idlesound(inst, volume)
     inst.SoundEmitter:PlaySound("dontstarve/creatures/together/deer/bell_idle", nil, volume)
 end
 
+-- replicated from prefabs/deer/DoBellSound
 local function _deer_bellsound(inst, volume)
     inst.SoundEmitter:PlaySound("dontstarve/creatures/together/deer/bell", nil, volume)
 end
@@ -618,7 +623,7 @@ _trackPerdshrines, _iterPerdshrines = createTracker()
 
 --------------------------------------------------------------------------
 
--- replicated from prefabs/perd
+-- replicated from prefabs/perd/OnAttacked
 local PERD_TAGS = { "perd" }
 local function _yotg_perd_onattacked(inst)
     local tochain = {}
@@ -637,6 +642,7 @@ local function _yotg_perd_onattacked(inst)
     end
 end
 
+-- replicated from prefabs/perd/OnEat
 local function _yotg_perd_oneat(inst, food)
     --eat off the ground, not picked berries
     if food.components.inventoryitem ~= nil and
@@ -650,12 +656,14 @@ local function _yotg_perd_oneat(inst, food)
     end
 end
 
+-- replicated from prefabs/perd/lootsetfn
 local function _yotg_perd_lootsetfn(lootdropper)
     if not lootdropper.inst.components.timer:TimerExists("offeringcooldown") then
         lootdropper:AddChanceLoot("redpouch", .1)
     end
 end
 
+-- replicated from prefabs/perd/DropOffering
 local function _yotg_perd_dropoffering(inst)
     if not inst.components.timer:TimerExists("offeringcooldown") then
         inst.components.timer:StartTimer("offeringcooldown", TUNING.TOTAL_DAY_TIME)
@@ -663,7 +671,7 @@ local function _yotg_perd_dropoffering(inst)
     end
 end
 
--- replicated from prefabs/berrybush
+-- replicated from prefabs/berrybush/spawnperd
 local function _yotg_bush_spawnperd(inst)
     if inst:IsValid() then
         local perd = SpawnPrefab("perd")
@@ -792,9 +800,10 @@ _trackHerds, _iterHerds = createTracker()
 
 --------------------------------------------------------------------------
 
--- replicated from prefabs/carrat
 local YOTC_RACESTART_MUSTHAVETAGS = {"yotc_racestart"}
 local YOTC_RACESTART_CANTHAVETAGS = {"fire", "burnt", "INLIMBO", "race_on"}
+
+-- replicated from prefabs/carrat/client_get_drop_action_string
 local function _yotc_drop_action_string(inst, drop_pst)
     if drop_pst == nil then
         return nil
@@ -810,6 +819,7 @@ local function _yotc_drop_action_string(inst, drop_pst)
     return nil
 end
 
+-- replicated from prefabs/carrat/spread_stats
 local function _yotc_spread_stats(inst)
     if inst.components.yotc_racestats then
         local points = TUNING.RACE_STATS.BAD_STAT_SPREAD
@@ -822,26 +832,31 @@ local function _yotc_spread_stats(inst)
 end
 
 local POINTS_PER_TRAIN = 1
+-- replicated from prefabs/carrat/spread_stats/_dospeedgym
 local function _yotc_dospeedgym(inst)
     inst.components.yotc_racestats:ModifySpeed(POINTS_PER_TRAIN)
     inst._trained_today = true
 end
 
+-- replicated from prefabs/carrat/spread_stats/_dodirectiongym
 local function _yotc_dodirectiongym(inst)
     inst.components.yotc_racestats:ModifyDirection(POINTS_PER_TRAIN)
     inst._trained_today = true
 end
 
+-- replicated from prefabs/carrat/spread_stats/_doreactiongym
 local function _yotc_doreactiongym(inst)
     inst.components.yotc_racestats:ModifyReaction(POINTS_PER_TRAIN)
     inst._trained_today = true
 end
 
+-- replicated from prefabs/carrat/spread_stats/_dostaminagym
 local function _yotc_dostaminagym(inst)
     inst.components.yotc_racestats:ModifyStamina(POINTS_PER_TRAIN)
     inst._trained_today = true
 end
 
+-- replicated from prefabs/carrat/spread_stats/yotc_drop_prize_on_death
 local function _yotc_drop_prize_on_death(inst, data)
     if inst.components.yotc_racecompetitor ~= nil and inst:HasTag("has_prize") then
         local prize = inst.components.yotc_racecompetitor:CollectPrize()
@@ -855,6 +870,7 @@ local function _yotc_drop_prize_on_death(inst, data)
     end
 end
 
+-- replicated from prefabs/carrat/spread_stats/yotc_nighttime_degrade_test
 local function _yotc_nighttime_degrade_test(inst, isnight)
     if isnight then
         -- Racing and post-race are considered part of active racing (because you might get locked from feeding your rat in postrace)
@@ -873,6 +889,7 @@ local function _yotc_nighttime_degrade_test(inst, isnight)
     end
 end
 
+-- replicated from prefabs/carrat/spread_stats/
 local food_colors =
 {
     watermelon_seeds = "blue",
@@ -899,11 +916,13 @@ local food_colors =
 	seeds = "RANDOM",
 }
 
+-- replicated from prefabs/carrat/spread_stats/GetColorFromFood
 local function GetColorFromFood(inst, data)
 	local food_prefab = data ~= nil and data.food ~= nil and data.food.prefab or nil
 	return food_prefab ~= nil and food_colors[food_prefab] or nil
 end
 
+-- replicated from prefabs/carrat/spread_stats/yotc_oneatfn
 local function _yotc_oneatfn(inst, data)
 	local color = GetColorFromFood(inst, data)
 	if color ~= nil then
@@ -911,6 +930,7 @@ local function _yotc_oneatfn(inst, data)
 	end
 end
 
+-- replicated from prefabs/carrat/spread_stats/docarratfailtalk
 local function _yotc_docarratfailtalk(inst, stat)
     if inst.components.entitytracker:GetEntity("yotc_trainer") then
         local player = inst.components.entitytracker:GetEntity("yotc_trainer")
@@ -928,7 +948,7 @@ local function _yotc_docarratfailtalk(inst, stat)
     end
 end
 
--- replicated from prefabs/beefaloherd
+-- replicated from prefabs/beefaloherd/spawncarrat
 local function _yotc_spawncarrat(inst, phase)
     if phase == "night" then
         local carrat = false
@@ -951,7 +971,7 @@ local function _yotc_spawncarrat(inst, phase)
     end
 end
 
--- replicated from prefabs/rat_gym
+-- replicated from prefabs/rat_gym/ShouldAcceptItem
 local function _yotc_accept_fn(inst, item, giver)
     if item.prefab == "carrat" and inst.components.inventory:NumItems() <= 0 then
         if (not item.components.perishable or item.components.perishable:GetPercent() >(TUNING.CARRAT_GYM.TRAINING_TIME/TUNING.CARRAT.PERISH_TIME + 0.1) ) then
@@ -962,6 +982,7 @@ local function _yotc_accept_fn(inst, item, giver)
     end
 end
 
+-- replicated from prefabs/rat_gym/ShouldAcceptItem/getcarrat
 local function _yotc_getcarrat(inst, item, train)
     inst:PushEvent("ratupdate")
     if inst.components.trader ~= nil then
@@ -986,6 +1007,7 @@ local function _yotc_getcarrat(inst, item, train)
     end
 end
 
+-- replicated from prefabs/rat_gym/ShouldAcceptItem/ejectitem
 local function _yotc_ejectitem(inst,item)
     if item ~= nil then
         if item ~= inst.components.shelf.itemonshelf then
@@ -998,6 +1020,7 @@ local function _yotc_ejectitem(inst,item)
     end
 end
 
+-- replicated from prefabs/rat_gym/ShouldAcceptItem/OnGetItemFromPlayer
 local function _yotc_getitem_fn(inst, giver, item)
     if giver:HasTag("player") then
         inst.rat_trainer_id = giver.userid
@@ -1011,6 +1034,7 @@ local function _yotc_getitem_fn(inst, giver, item)
     end
 end
 
+-- replicated from prefabs/carrat/yotc_on_inventory
 local function _yotc_on_inventory(inst, owner)
     if owner.components.inventoryitem then
         owner = owner.components.inventoryitem:GetGrandOwner()
@@ -1159,12 +1183,14 @@ function _startYOTB()
             inst.yotb_skins_sets = net_shortint(inst.GUID, "player.yotb_skins_sets")
         end
 
-        -- replicated from prefabs/player_common
-        local sets = {}
-        for i,bit in pairs(YOTB_COSTUMES)do
-            table.insert(sets,bit)
+        -- replicated from prefabs/player_common/fns.YOTB_getrandomset
+        if not inst.yotb_skins_sets:value() or inst.yotb_skins_sets:value() == 0 then
+            local sets = {}
+            for i,bit in pairs(YOTB_COSTUMES)do
+                table.insert(sets,bit)
+            end
+            inst.yotb_skins_sets:set( sets[math.random(1,#sets)] )
         end
-        inst.yotb_skins_sets:set( sets[math.random(1,#sets)] )
     end)
 end
 
@@ -1190,7 +1216,7 @@ _trackKitcoons, _iterKitcoons = createTracker()
 
 -- wrapping because of inst
 local function _yotcatcoon_activate_kitcoon(inst)
-    -- replicated from prefabs/kitcoon
+    -- replicated from prefabs/kitcoon/fn
     local on_collect_allkitcoons = function(world, data)
         if data ~= nil and data.kitcoons ~= nil then
             table.insert(data.kitcoons, inst)
@@ -1244,14 +1270,14 @@ end
 _trackWorms, _iterWorms = createTracker()
 _trackShadows, _iterShadows = createTracker()
 
--- replicated from prefabs/worm
+-- replicated from prefabs/worm/lootsetfn
 local function _worm_lootsetfn(lootdropper)
     lootdropper:AddChanceLoot("lucky_goldnugget", 1)
     lootdropper:AddChanceLoot("lucky_goldnugget", 1)
     lootdropper:AddChanceLoot("lucky_goldnugget", 1)
 end
 
--- replicated from prefabs/shadowthrall_mouth
+-- replicated from prefabs/shadowthrall_mouth/lootsetfn
 local function _shadowthrall_lootsetfn(lootdropper)
     lootdropper:AddChanceLoot("lucky_goldnugget", 1)
     lootdropper:AddChanceLoot("lucky_goldnugget", 1)
