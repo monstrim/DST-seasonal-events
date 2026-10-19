@@ -185,6 +185,9 @@ end
 function _stopCarnival()
     if TheWorld.ismastersim then
         -- carnival host (server)
+        if not carnival_host then
+            carnival_host = c_find("carnival_host")
+        end
         if carnival_host then
             carnival_host.sg:GoToState("flyaway")
             carnival_host:DoTaskInTime(3, carnival_host.Remove)
