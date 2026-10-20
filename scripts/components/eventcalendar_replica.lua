@@ -77,6 +77,14 @@ local function StartEvent(event)
     elseif event == SPECIAL_EVENTS.YOTH then
         _startYOTH()
     end
+    
+    -- pre-existing game code for startup event mid-game
+    -- (only halloween and YOTCatcoon, AFAIK)
+    if TheWorld.components.specialeventsetup then
+        TheWorld.components.specialeventsetup:SetupNewSpecialEvent(event)
+    end
+    -- I wouldn't need to maintain most of this mod's code if
+    -- they had implemented more stuff there x.x
 
     -- fanfarres and announcements
     if _initialized then
@@ -91,10 +99,6 @@ local function StartEvent(event)
         end
 
         _announce(event)
-    end
-    
-    if TheWorld.components.specialeventsetup then
-        TheWorld.components.specialeventsetup:SetupNewSpecialEvent(event)
     end
 end
 

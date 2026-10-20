@@ -284,6 +284,12 @@ end
 
 --------------------------------------------------------------------------
 
+function _setupTrinkets(inst)
+    inst:ListenForEvent('onpickup', function(inst) inst.isnew_halloween = false end)
+end
+
+--------------------------------------------------------------------------
+
 function _startHalloween()
     -- livingtrees (common) 
     _iterLivtrees(function(inst)
@@ -304,8 +310,14 @@ function _startHalloween()
             inst:ListenForEvent("spooked", ex_fns.OnSpooked)
         end)
 
-        -- candy for trinkets (server)
-        _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = 5 end)
+        -- trinkets (server)
+        _iterTrinkets(function(inst)
+            inst.components.tradable.halloweencandyvalue = 5
+
+            -- this function runs before base game halloween setup, which actually spawns the trinkets
+            -- every trinket that exists at this point wasn't spawned by hallow's eve
+            inst.isnew_halloween = false
+        end)
 
         -- pumpkin perish time (server)
         VEGGIES.pumpkin.perishtime = TUNING.PERISH_PRESERVED
@@ -343,8 +355,17 @@ function _stopHalloween()
             inst:RemoveEventCallback("spooked", ex_fns.OnSpooked)
         end)
 
-        -- candy for trinkets (server)
-        _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = nil end)
+        -- trinkets (server)
+        _iterTrinkets(function(inst)
+            inst.components.tradable.halloweencandyvalue = nil
+
+            if inst.isnew_halloween == nil then
+                inst.isnew_halloween = inst.components.inventoryitem.isnew
+            end
+            if inst.isnew_halloween then
+                inst:Remove()
+            end
+        end)
 
         -- pumpkin perish time (server)
         VEGGIES.pumpkin.perishtime = TUNING.PERISH_MED
