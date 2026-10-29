@@ -35,6 +35,11 @@ AddPrefabPostInit('livingtree_root', GLOBAL._trackLivroots)
 for i = GLOBAL.HALLOWEDNIGHTS_TINKET_START, GLOBAL.HALLOWEDNIGHTS_TINKET_END do
     AddPrefabPostInit('trinket_'..tostring(i), GLOBAL._trackTrinkets)
 end
+for i = 1, GLOBAL.NUM_HALLOWEEN_ORNAMENTS do
+    AddPrefabPostInit('halloween_ornament_'..tostring(i), GLOBAL._trackTrinkets)
+end
+
+AddPrefabPostInit('reskin_tool', GLOBAL._setupSweeper)
 
 --------------------------------------------------------------------------
 -- Winter's Feast

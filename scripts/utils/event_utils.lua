@@ -220,6 +220,10 @@ _trackLivroots, _iterLivroots = createTracker()
 
 --------------------------------------------------------------------------
 
+function _setupSweeper(inst)
+    inst:AddComponent("sweeper")
+end
+
 -- replicated from prefabs/livingtree_halloween/OnEyeFlamesDirty
 local function _livingtree_eye(inst)
     if TheWorld.ismastersim then
@@ -305,7 +309,11 @@ function _startHalloween()
         end)
 
         -- candy for trinkets (server)
-        _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = 5 end)
+        _iterTrinkets(function(inst)
+            if inst.components.tradable then
+                inst.components.tradable.halloweencandyvalue = 5
+            end
+        end)
 
         -- pumpkin perish time (server)
         VEGGIES.pumpkin.perishtime = TUNING.PERISH_PRESERVED
@@ -324,12 +332,17 @@ function _startHalloween()
         _iterLivroots(function(inst) 
             if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root_hallowed_nights") end
         end) 
+
+        -- leaf pile manager (server)
+        if TheWorld.components.leafpilemanager then
+            TheWorld.components.leafpilemanager:TryToEnable()
+        end
     end
 end
 
 --------------------------------------------------------------------------
 
-function _stopHalloween()
+function _stopHalloween(initialized)
     -- livingtrees (common)
     _iterLivtrees(function(inst) inst.AnimState:Hide("eye") end) 
 
@@ -344,7 +357,15 @@ function _stopHalloween()
         end)
 
         -- candy for trinkets (server)
-        _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = nil end)
+        _iterTrinkets(function(inst)
+            if inst.components.tradable then
+                inst.components.tradable.halloweencandyvalue = nil
+            end
+
+            if initialized and inst.components.inventoryitem.owner == nil and inst.components.inventoryitem.isnew then
+                inst:Remove()
+            end
+        end)
 
         -- pumpkin perish time (server)
         VEGGIES.pumpkin.perishtime = TUNING.PERISH_MED
@@ -362,6 +383,11 @@ function _stopHalloween()
         _iterLivroots(function(inst)
             if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root") end
         end) 
+
+        -- leaf pile manager (server)
+        if TheWorld.components.leafpilemanager then
+            TheWorld.components.leafpilemanager:TryToEnable()
+        end
     end
 end
 
