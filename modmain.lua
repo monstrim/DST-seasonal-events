@@ -36,6 +36,8 @@ for i = GLOBAL.HALLOWEDNIGHTS_TINKET_START, GLOBAL.HALLOWEDNIGHTS_TINKET_END do
     AddPrefabPostInit('trinket_'..tostring(i), GLOBAL._trackTrinkets)
 end
 
+AddPrefabPostInit('reskin_tool', GLOBAL._setupSweeper)
+
 --------------------------------------------------------------------------
 -- Winter's Feast
 AddPrefabPostInit('deerclops', GLOBAL._trackDeerclops)

@@ -220,6 +220,10 @@ _trackLivroots, _iterLivroots = createTracker()
 
 --------------------------------------------------------------------------
 
+function _setupSweeper(inst)
+    inst:AddComponent("sweeper")
+end
+
 -- replicated from prefabs/livingtree_halloween/OnEyeFlamesDirty
 local function _livingtree_eye(inst)
     if TheWorld.ismastersim then
@@ -324,6 +328,11 @@ function _startHalloween()
         _iterLivroots(function(inst) 
             if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root_hallowed_nights") end
         end) 
+
+        -- leaf pile manager (server)
+        if TheWorld.components.leafpilemanager then
+            TheWorld.components.leafpilemanager:TryToEnable()
+        end
     end
 end
 
@@ -362,6 +371,11 @@ function _stopHalloween()
         _iterLivroots(function(inst)
             if inst.prefab == "livingtree_root" then inst.components.inventoryitem:ChangeImageName("livingtree_root") end
         end) 
+
+        -- leaf pile manager (server)
+        if TheWorld.components.leafpilemanager then
+            TheWorld.components.leafpilemanager:TryToEnable()
+        end
     end
 end
 
