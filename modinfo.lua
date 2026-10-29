@@ -2,18 +2,18 @@
 
 name = "Yearly Seasonal Events"
 description = [[
-Version 1.3.9
+Version 1.3.10
 
 󰀧 Special Events (Hallowed Eve, Summer Cawnival and Winter's Feast) happen every in-game year.
 
 󰀭 There's always one Year Of event active, which cycles on the second new moon after beginning of winter.
 
 ----------------------------------------
-󰀝 Compatible with mod Island Adventures.
+󰀝 Updated for Hallow's Eve 2026.
 ]]
 
 author = "Monstah"
-version = "1.3.9"
+version = "1.3.10"
 
 
 api_version = 10
