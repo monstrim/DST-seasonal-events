@@ -78,8 +78,12 @@ local function StartEvent(event)
         _startYOTH()
     end
 
-    -- fanfarres and announcements
     if _initialized then
+        if TheWorld.components.specialeventsetup then
+            TheWorld.components.specialeventsetup:SetupNewSpecialEvent(event)
+        end
+
+        -- fanfarres and announcements
         if event == SPECIAL_EVENTS.CARNIVAL then
             _carnivalconfetti()
         elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
@@ -91,10 +95,6 @@ local function StartEvent(event)
         end
 
         _announce(event)
-    end
-    
-    if TheWorld.components.specialeventsetup then
-        TheWorld.components.specialeventsetup:SetupNewSpecialEvent(event)
     end
 end
 
@@ -140,7 +140,7 @@ local function StopEvent(event)
         _stopYOTH()
     end
     
-    if TheWorld.components.specialeventsetup then
+    if _initialized and TheWorld.components.specialeventsetup then
         TheWorld.components.specialeventsetup:ShutdownPrevSpecialEvent(event)
     end
 end    
