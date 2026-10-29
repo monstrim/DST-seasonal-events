@@ -338,7 +338,7 @@ end
 
 --------------------------------------------------------------------------
 
-function _stopHalloween()
+function _stopHalloween(initialized)
     -- livingtrees (common)
     _iterLivtrees(function(inst) inst.AnimState:Hide("eye") end) 
 
@@ -356,7 +356,7 @@ function _stopHalloween()
         _iterTrinkets(function(inst)
             inst.components.tradable.halloweencandyvalue = nil
 
-            if inst.components.inventoryitem.owner == nil and inst.components.inventoryitem.isnew then
+            if initialized and inst.components.inventoryitem.owner == nil and inst.components.inventoryitem.isnew then
                 inst:Remove()
             end
         end)

@@ -119,7 +119,7 @@ local function StopEvent(event)
     if event == SPECIAL_EVENTS.CARNIVAL then
         _stopCarnival()
     elseif event == SPECIAL_EVENTS.HALLOWED_NIGHTS then
-        _stopHalloween()
+        _stopHalloween(_initialized)
     elseif event == SPECIAL_EVENTS.WINTERS_FEAST then
         _stopWintersFeast()
     elseif event == SPECIAL_EVENTS.YOTG then
