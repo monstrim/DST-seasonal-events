@@ -309,7 +309,11 @@ function _startHalloween()
         end)
 
         -- candy for trinkets (server)
-        _iterTrinkets(function(inst) inst.components.tradable.halloweencandyvalue = 5 end)
+        _iterTrinkets(function(inst)
+            if inst.components.tradable then
+                inst.components.tradable.halloweencandyvalue = 5
+            end
+        end)
 
         -- pumpkin perish time (server)
         VEGGIES.pumpkin.perishtime = TUNING.PERISH_PRESERVED
@@ -354,7 +358,9 @@ function _stopHalloween(initialized)
 
         -- candy for trinkets (server)
         _iterTrinkets(function(inst)
-            inst.components.tradable.halloweencandyvalue = nil
+            if inst.components.tradable then
+                inst.components.tradable.halloweencandyvalue = nil
+            end
 
             if initialized and inst.components.inventoryitem.owner == nil and inst.components.inventoryitem.isnew then
                 inst:Remove()
